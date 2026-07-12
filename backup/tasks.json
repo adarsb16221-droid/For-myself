@@ -1,0 +1,116 @@
+[
+  {
+    "id": "1783705527410",
+    "text": "ACM Minimum Chapter problem , get the annual report ready",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": false,
+    "completed": false,
+    "createdAt": "2026-07-10T17:45:27.410Z",
+    "completedAt": null,
+    "history": []
+  },
+  {
+    "id": "1783513074132",
+    "text": "Integrate the Payment Gateway on DevAgile With Razorpay",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": false,
+    "completed": false,
+    "createdAt": "2026-07-08T12:17:54.132Z",
+    "completedAt": null,
+    "history": []
+  },
+  {
+    "id": "1783251741719",
+    "text": "migrate the data to tvgf website",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": false,
+    "completed": false,
+    "createdAt": "2026-07-05T11:42:21.719Z",
+    "completedAt": null,
+    "history": []
+  },
+  {
+    "id": "1783225410763",
+    "text": "Get DevAgile Registered",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": false,
+    "completed": false,
+    "createdAt": "2026-07-05T04:23:30.764Z",
+    "completedAt": null,
+    "history": []
+  },
+  {
+    "id": "1783135255469",
+    "text": "Duolingo",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": true,
+    "completed": false,
+    "createdAt": "2026-07-04T03:20:55.469Z",
+    "completedAt": null,
+    "history": [
+      "2026-07-05T16:43:29.572Z",
+      "2026-07-08T12:17:16.964Z"
+    ]
+  },
+  {
+    "id": "1783135249560",
+    "text": "LeetCode 1 question",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": true,
+    "completed": false,
+    "createdAt": "2026-07-04T03:20:49.560Z",
+    "completedAt": null,
+    "history": [
+      "2026-07-05T12:59:20.204Z",
+      "2026-07-08T12:17:17.622Z"
+    ]
+  },
+  {
+    "id": "1782738633216",
+    "text": "Shoulder Exercise",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": true,
+    "completed": false,
+    "createdAt": "2026-06-29T13:10:33.216Z",
+    "completedAt": null,
+    "history": [
+      "2026-07-05T12:59:23.338Z",
+      "2026-07-10T17:45:02.632Z"
+    ]
+  },
+  {
+    "id": "1782738627128",
+    "text": "work on European Pay",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": true,
+    "completed": true,
+    "createdAt": "2026-06-29T13:10:27.128Z",
+    "completedAt": "2026-07-11T17:25:07.218Z",
+    "history": [
+      "2026-07-05T12:59:27.578Z",
+      "2026-07-10T17:45:04.389Z",
+      "2026-07-11T17:25:07.218Z"
+    ]
+  },
+  {
+    "id": "1782738618857",
+    "text": "Work on DevAgile",
+    "category": "General",
+    "priority": "medium",
+    "isRegular": true,
+    "completed": false,
+    "createdAt": "2026-06-29T13:10:18.857Z",
+    "completedAt": null,
+    "history": [
+      "2026-07-10T17:45:05.201Z"
+    ]
+  }
+]

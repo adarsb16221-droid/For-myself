@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit - Task Dashboard</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-logo">
+                <i class="ph-fill ph-planet"></i>
+                <span>Orbit</span>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-target="view-dashboard">
+                    <i class="ph ph-squares-four"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-target="view-journal">
+                    <i class="ph ph-book-open"></i>
+                    <span>Journal / Plan</span>
+                </button>
+                <button class="nav-btn" data-target="view-gate">
+                    <i class="ph ph-link"></i>
+                    <span>Quick Links</span>
+                </button>
+                <button class="nav-btn" data-target="view-schedule">
+                    <i class="ph ph-calendar"></i>
+                    <span>Schedule</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            
+            <!-- 1. Dashboard View -->
+            <div id="view-dashboard" class="page-view active">
+                <div class="dashboard-container">
+                    
+                    <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Good <span id="greetingTime">Morning</span>, User</h1>
+                <p id="currentDate">Monday, October 12</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="ph ph-check-circle"></i>
+                    <span id="completedTodayCount">0</span> Completed Today
+                </div>
+                <button id="themeToggle" class="icon-btn" aria-label="Toggle Theme">
+                    <i class="ph ph-sun"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <!-- Left Column: Tasks -->
+            <section class="task-section">
+                
+                <div class="input-glass-panel">
+                    <form id="taskForm" class="task-form">
+                        <div class="input-group">
+                            <i class="ph ph-plus"></i>
+                            <input type="text" id="taskInput" placeholder="What needs to be done?" required autocomplete="off">
+                        </div>
+                        <div class="task-actions">
+                            <label class="custom-checkbox" title="Daily Regular Task">
+                                <input type="checkbox" id="taskRegular">
+                                <span class="checkbox-box"><i class="ph ph-arrows-clockwise"></i></span>
+                            </label>
+                            <select id="taskCategory" class="custom-select">
+                                <option value="General">General</option>
+                                <option value="Work">Work</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Health">Health</option>
+                            </select>
+                            <select id="taskPriority" class="custom-select">
+                                <option value="low">Low Priority</option>
+                                <option value="medium" selected>Medium Priority</option>
+                                <option value="high">High Priority</option>
+                            </select>
+                            <button type="submit" class="btn-primary">Add Task</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Task Filters & Global Actions -->
+                <div class="task-global-header glass-panel" style="margin-bottom: 2rem; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-radius: 20px;">
+                    <h2 style="font-family: var(--font-heading); font-size: 1.2rem;">All Tasks</h2>
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="active">Active</button>
+                        <button class="filter-btn" data-filter="completed">Completed</button>
+                    </div>
+                </div>
+
+                <!-- Daily Tasks -->
+                <div class="task-list-container glass-panel" style="margin-bottom: 2rem;">
+                    <div class="list-header">
+                        <h2>Daily Habits</h2>
+                        <i class="ph ph-arrows-clockwise" style="color: var(--primary); font-size: 1.5rem;"></i>
+                    </div>
+                    
+                    <div class="task-list" id="dailyTaskList">
+                        <!-- Daily Tasks inject here -->
+                        <div class="empty-state">
+                            <i class="ph ph-list-dashes"></i>
+                            <p>No daily tasks yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- One-off Tasks -->
+                <div class="task-list-container glass-panel">
+                    <div class="list-header">
+                        <h2>One-Time Tasks</h2>
+                        <i class="ph ph-calendar-blank" style="color: var(--primary); font-size: 1.5rem;"></i>
+                    </div>
+                    
+                    <div class="task-list" id="oneOffTaskList">
+                        <!-- Tasks inject here -->
+                        <div class="empty-state">
+                            <i class="ph ph-list-dashes"></i>
+                            <p>No tasks yet. Add one above to get started!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Productivity -->
+            <aside class="productivity-section">
+                
+                <!-- Pomodoro Timer -->
+                <div class="pomodoro-panel glass-panel">
+                    <h2>Focus Timer</h2>
+                    <div class="timer-display">
+                        <svg class="progress-ring" width="160" height="160">
+                            <circle class="progress-ring__circle" stroke-width="6" fill="transparent" r="74" cx="80" cy="80"/>
+                        </svg>
+                        <span id="timerDisplay">25:00</span>
+                    </div>
+                    <div class="timer-controls">
+                        <button id="startTimerBtn" class="btn-icon primary"><i class="ph-fill ph-play"></i></button>
+                        <button id="resetTimerBtn" class="btn-icon secondary"><i class="ph ph-arrow-counter-clockwise"></i></button>
+                    </div>
+                    <div class="timer-modes">
+                        <button class="mode-btn active" data-time="25">Pomodoro</button>
+                        <button class="mode-btn" data-time="5">Short Break</button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-panel glass-panel">
+                    <h2>Productivity</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="ph ph-target"></i>
+                            <div class="stat-info">
+                                <h3>Active</h3>
+                                <p id="activeTaskCount">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="ph ph-fire"></i>
+                            <div class="stat-info">
+                                <h3>Total Done</h3>
+                                <p id="totalCompletedCount">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Calendar -->
+                <div class="activity-panel glass-panel">
+                    <h2>Activity & Streaks</h2>
+                    <div class="streak-stats">
+                        <div class="streak-item">
+                            <div class="streak-value" id="currentStreak">0 <i class="ph-fill ph-fire" style="color: var(--warning); font-size: 1.2rem;"></i></div>
+                            <div class="streak-label">Current Streak</div>
+                        </div>
+                        <div class="streak-item">
+                            <div class="streak-value" id="maxStreak">0 <i class="ph-fill ph-trophy" style="color: var(--warning); font-size: 1.2rem;"></i></div>
+                            <div class="streak-label">Max Streak</div>
+                        </div>
+                    </div>
+                    <div class="activity-container">
+                        <div class="activity-grid" id="activityGrid">
+                            <!-- Graph injected here -->
+                        </div>
+                        <div class="activity-legend">
+                            <span>Less</span>
+                            <div class="legend-scale">
+                                <div class="day-square" data-level="0"></div>
+                                <div class="day-square" data-level="1"></div>
+                                <div class="day-square" data-level="2"></div>
+                                <div class="day-square" data-level="3"></div>
+                                <div class="day-square" data-level="4"></div>
+                            </div>
+                            <span>More</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+                </main>
+            </div>
+        </div>
+
+        <!-- 2. Journal View -->
+        <div id="view-journal" class="page-view">
+            <div class="view-header">
+                <div class="header-content">
+                    <h1>Daily <span style="background: linear-gradient(135deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Journal & Plan</span></h1>
+                    <p>Write your thoughts, plans, and retrieve past entries</p>
+                </div>
+            </div>
+            <div class="journal-container glass-panel">
+                <div class="calendar-sidebar">
+                    <h3 style="margin-bottom:1rem; font-family:var(--font-heading);">Select Date</h3>
+                    <input type="date" id="journalDate" class="custom-date-picker">
+                </div>
+                <div class="journal-editor">
+                    <div class="editor-header">
+                        <h3 id="journalCurrentDateDisplay" style="font-family:var(--font-heading);">Today</h3>
+                        <span id="journalStatus" class="status-indicator"></span>
+                    </div>
+                    <textarea id="journalTextarea" placeholder="Write your daily plan or thoughts here..."></textarea>
+                    <div class="editor-actions">
+                        <button id="saveJournalBtn" class="btn-primary">Save Journal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Quick Links View -->
+        <div id="view-gate" class="page-view">
+            <div class="view-header">
+                <div class="header-content">
+                    <h1>Quick <span style="background: linear-gradient(135deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Links</span></h1>
+                    <p>Manage your important links and use the focus timer</p>
+                </div>
+            </div>
+            <div class="gate-container glass-panel" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <div class="quick-links-panel" style="flex: 1; min-width: 300px;">
+                    <h2 style="font-family:var(--font-heading); margin-bottom:1rem;">Your Links</h2>
+                    <form id="quickLinkForm" class="task-form" style="margin-bottom: 1.5rem;">
+                        <div class="input-group" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 0.5rem 1rem;">
+                            <i class="ph ph-text-t"></i>
+                            <input type="text" id="linkNameInput" placeholder="Link Name" required>
+                        </div>
+                        <div class="input-group" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 0.5rem 1rem; margin-top: 0.5rem;">
+                            <i class="ph ph-link"></i>
+                            <input type="url" id="linkUrlInput" placeholder="https://..." required>
+                        </div>
+                        <button type="submit" class="btn-primary" style="margin-top: 1rem; width: 100%;">Add Link</button>
+                    </form>
+                    <div id="quickLinksContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <!-- Links will be injected here -->
+                    </div>
+                </div>
+                
+                <div class="gate-timer-panel pomodoro-panel" style="flex: 1; min-width: 300px;">
+                    <h2>Gate Focus Timer</h2>
+                    <div class="timer-display" style="width:240px; height:240px;">
+                        <svg class="progress-ring" width="240" height="240">
+                            <circle class="gate-progress-ring__circle progress-ring__circle" stroke-width="8" fill="transparent" r="112" cx="120" cy="120"/>
+                        </svg>
+                        <span id="gateTimerDisplay" style="font-size:3.5rem;">03:00:00</span>
+                    </div>
+                    <div class="timer-controls">
+                        <button id="startGateTimerBtn" class="btn-icon primary" style="width:60px; height:60px; font-size:2rem;"><i class="ph-fill ph-play"></i></button>
+                        <button id="resetGateTimerBtn" class="btn-icon secondary" style="width:60px; height:60px; font-size:2rem;"><i class="ph ph-arrow-counter-clockwise"></i></button>
+                    </div>
+                    <div class="timer-modes" style="margin-top:1rem;">
+                        <button class="gate-mode-btn" data-time="120">2 Hours</button>
+                        <button class="gate-mode-btn active" data-time="180">3 Hours</button>
+                        <button class="gate-mode-btn" data-time="360">6 Hours</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Schedule View -->
+        <div id="view-schedule" class="page-view">
+            <div class="view-header">
+                <div class="header-content">
+                    <h1>Daily <span style="background: linear-gradient(135deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Schedule</span></h1>
+                    <p>Plan your day with custom time blocks</p>
+                </div>
+            </div>
+            
+            <div class="schedule-layout" style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                
+                <!-- Schedule Form Panel -->
+                <div class="schedule-form-panel glass-panel" style="flex: 1; min-width: 300px; position: sticky; top: 2rem;">
+                    <h2 style="font-family:var(--font-heading); margin-bottom: 1.5rem;">Add Activity</h2>
+                    <form id="scheduleForm" class="task-form">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="input-group" style="flex: 1; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 0.5rem 1rem;">
+                                <input type="time" id="scheduleStart" required style="width: 100%;">
+                            </div>
+                            <div style="display:flex; align-items:center; color: var(--text-muted);">to</div>
+                            <div class="input-group" style="flex: 1; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 0.5rem 1rem;">
+                                <input type="time" id="scheduleEnd" required style="width: 100%;">
+                            </div>
+                        </div>
+                        
+                        <div class="input-group" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 0.5rem 1rem; margin-bottom: 1rem;">
+                            <i class="ph ph-text-t"></i>
+                            <input type="text" id="scheduleActivity" placeholder="Activity Name" required>
+                        </div>
+                        
+                        <div class="input-group" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 0.5rem 1rem; margin-bottom: 1.5rem;">
+                            <i class="ph ph-tag"></i>
+                            <select id="scheduleCategory" class="custom-select" style="flex: 1; background: transparent; border: none;">
+                                <option value="General">General</option>
+                                <option value="Work">Work</option>
+                                <option value="Study">Study</option>
+                                <option value="Break">Break</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%;">Add to Schedule</button>
+                    </form>
+                </div>
+
+                <!-- Schedule Timeline Panel -->
+                <div class="schedule-timeline-panel glass-panel" style="flex: 2; min-width: 300px; max-height: calc(100vh - 12rem); overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-family:var(--font-heading);">Today's Plan</h2>
+                        <button id="clearScheduleBtn" class="btn-icon secondary" style="width: 40px; height: 40px; font-size: 1.2rem;" title="Clear Schedule">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="scheduleTimeline" class="timeline-container">
+                        <!-- Timeline items injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div> <!-- End of main-content -->
+    </div> <!-- End of app-layout -->
+
+    <script src="script.js"></script>
+</body>
+</html>
