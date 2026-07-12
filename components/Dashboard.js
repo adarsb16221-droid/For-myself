@@ -179,7 +179,7 @@ export default function Dashboard({ tasks, setTasks, fetchTasks, theme, toggleTh
             </form>
           </div>
 
-          <div className="task-global-header glass-panel" style={{marginBottom: '2rem', padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '20px'}}>
+          <div className="task-global-header glass-panel">
             <h2 style={{fontFamily: 'var(--font-heading)', fontSize: '1.2rem'}}>All Tasks</h2>
             <div className="filters">
               <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All</button>
@@ -188,7 +188,7 @@ export default function Dashboard({ tasks, setTasks, fetchTasks, theme, toggleTh
             </div>
           </div>
 
-          <div className="task-list-container glass-panel" style={{marginBottom: '2rem'}}>
+          <div className="task-list-container glass-panel">
             <div className="list-header">
               <h2>Daily Habits</h2>
               <i className="ph ph-arrows-clockwise" style={{color: 'var(--primary)', fontSize: '1.5rem'}}></i>

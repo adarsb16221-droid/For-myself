@@ -61,6 +61,7 @@ export default function Journal() {
             <span className={`status-indicator ${status ? 'show' : ''}`}>{status}</span>
           </div>
           <textarea 
+            id="journalTextarea"
             value={content} 
             onChange={e => { setContent(e.target.value); setStatus('Unsaved changes...'); }} 
             placeholder="Write your daily plan or thoughts here..."

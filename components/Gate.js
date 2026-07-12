@@ -35,15 +35,15 @@ export default function Gate() {
           <p>Manage your important links</p>
         </div>
       </div>
-      <div className="gate-container glass-panel" style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-        <div className="quick-links-panel" style={{ flex: 1, minWidth: '300px' }}>
+      <div className="gate-container glass-panel">
+        <div className="quick-links-panel">
           <h2 style={{ fontFamily: 'var(--font-heading)', marginBottom: '1rem' }}>Your Links</h2>
           <form onSubmit={addLink} className="task-form" style={{ marginBottom: '1.5rem' }}>
-            <div className="input-group" style={{ background: 'var(--input-bg)', border: '1px solid var(--panel-border)', borderRadius: '12px', padding: '0.5rem 1rem' }}>
+            <div className="input-group">
               <i className="ph ph-text-t"></i>
               <input type="text" value={linkName} onChange={e => setLinkName(e.target.value)} placeholder="Link Name" required />
             </div>
-            <div className="input-group" style={{ background: 'var(--input-bg)', border: '1px solid var(--panel-border)', borderRadius: '12px', padding: '0.5rem 1rem', marginTop: '0.5rem' }}>
+            <div className="input-group" style={{ marginTop: '0.5rem' }}>
               <i className="ph ph-link"></i>
               <input type="url" value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://..." required />
             </div>
