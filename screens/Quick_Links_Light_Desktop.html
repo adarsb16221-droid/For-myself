@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quick Links - Orbit Suite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#bac5f0",
+                        "surface-container": "#e6eeff",
+                        "error": "#ba1a1a",
+                        "on-surface": "#0d1c2e",
+                        "on-tertiary-container": "#fefcff",
+                        "surface-bright": "#f8f9ff",
+                        "primary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#17228f",
+                        "tertiary-fixed": "#dbe1ff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#494bd6",
+                        "surface": "#f8f9ff",
+                        "secondary": "#4953bc",
+                        "secondary-fixed-dim": "#bdc2ff",
+                        "surface-variant": "#d5e3fc",
+                        "on-secondary-fixed": "#000767",
+                        "primary-container": "#6063ee",
+                        "tertiary-container": "#68739a",
+                        "inverse-primary": "#c0c1ff",
+                        "on-primary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#8792fe",
+                        "surface-dim": "#ccdbf3",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#0d1a3c",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "inverse-surface": "#233144",
+                        "on-primary-fixed": "#07006c",
+                        "outline": "#767586",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c7c4d7",
+                        "secondary-fixed": "#e0e0ff",
+                        "on-secondary-fixed-variant": "#2f3aa3",
+                        "tertiary": "#505b80",
+                        "on-surface-variant": "#464554",
+                        "on-tertiary-fixed-variant": "#3a456a",
+                        "on-background": "#0d1c2e",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "primary": "#4648d4",
+                        "surface-container-highest": "#d5e3fc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "panel-padding": "24px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "margin-desktop": "40px",
+                        "unit": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.04);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: border-color 0.2s ease;
+        }
+        .glass-input:focus {
+            border-color: rgba(0, 0, 0, 0.3);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md relative overflow-hidden">
+<!-- Ambient Background Decoration -->
+<div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-surface-container rounded-full blur-[100px] opacity-60"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-surface-container-high rounded-full blur-[120px] opacity-50"></div>
+</div>
+<!-- TopAppBar -->
+<header class="w-full h-16 border-b border-white/50 bg-white/40 backdrop-blur-[20px] shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-center px-gutter w-full sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Orbit</h1>
+</div>
+<div class="flex-1 max-w-xl mx-8 relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60">search</span>
+<input class="w-full glass-input rounded-full py-2 pl-10 pr-4 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary/50" placeholder="Search resources..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/50 transition-colors text-on-surface-variant hover:text-primary active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-white/50 transition-colors text-on-surface-variant hover:text-primary active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">apps</span>
+</button>
+<img alt="John Doe" class="w-8 h-8 rounded-full border border-white/50 object-cover" data-alt="A small, circular avatar portrait of a professional individual, softly lit against a minimalist light background, suitable for a clean, modern dashboard interface in a luminous light mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_DEakn9lN-p24kT5Nqc5fG5jgH9SGZkkIH5ykGeAyK36_Vuhvb21Hg3hSsmyKYWxU20mhKfjfUvqY6n7kyi5_KeLlQQp3WOvzCnSFQdD0l4G2Dq0SHftcga1cjZG89aQnRo9eNtMONPrHovCE63KzmvvKutdgJi_Tuw6ivrdwGJQLFrnwVCXWSVah5sI6UzLSCG5djuLRNdjJuw4GYnNLfHRGynxltFb8TGTSyXdvcwKsLVz0w6FBsuAbnGdVNdacUARGviIEs58"/>
+</div>
+</header>
+<div class="flex flex-1 w-full max-w-container-max mx-auto relative z-10">
+<!-- SideNavBar -->
+<nav class="hidden lg:flex flex-col h-full sticky top-0 h-screen w-64 border-r border-white/50 bg-white/40 backdrop-blur-[40px] shadow-[0px_10px_40px_rgba(0,0,0,0.04)] py-6 z-30">
+<div class="px-6 mb-8 flex items-center gap-3">
+<img alt="User Profile" class="w-10 h-10 rounded-lg shadow-sm" data-alt="A tiny, stylized company logo icon featuring geometric shapes, rendered in a crisp, luminous light mode style, conveying a professional enterprise aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKgeKJaSiuiW5y_Ya-ntcf1yZ6ImclzoW0AMzBM7WYH3VCRiACYsbYfMtOCGTE1dtdJ-twJyP9xSGXkvNkbYwAIog_g56b_FCkiPqt9_pAMUVVbxifMg2cAz53jva9nubSPejo8xIskf0pHGLBPEdA7G0bECB3kFqXWSqa0qMN1Jk2wgK8q6GZTLLLtjuEbrI4-qQMOrvB0S71RAlIxXgmAmf7r0owYFallVS_toIROVaaraxIUauXWtLNaYgY0EHcl2SLhzodOR8"/>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-primary">Orbit Suite</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Enterprise Edition</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary text-white rounded-lg py-2.5 font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform duration-200">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    New Project
+                </button>
+</div>
+<ul class="flex flex-col flex-1 gap-1 px-2 font-body-md text-body-md">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant rounded-lg hover:bg-white/20 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-weight="fill">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant rounded-lg hover:bg-white/20 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-weight="fill">monitoring</span>
+                        Analytics
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-l-4 border-primary bg-primary/5 rounded-r-lg hover:bg-white/20 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-weight="fill">folder_open</span>
+                        Projects
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant rounded-lg hover:bg-white/20 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-weight="fill">group</span>
+                        Team
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant rounded-lg hover:bg-white/20 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-weight="fill">settings</span>
+                        Settings
+                    </a>
+</li>
+</ul>
+<div class="mt-auto px-2 pb-4 pt-6 border-t border-white/20">
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant rounded-lg hover:bg-white/20 hover:text-primary transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span>
+                            Help
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant rounded-lg hover:bg-white/20 hover:text-primary transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                            Sign Out
+                        </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-gutter lg:p-margin-desktop overflow-y-auto">
+<!-- Page Header -->
+<div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-xl text-headline-xl text-on-surface mb-2">Resource Links</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage and access your project's critical documentation and external tools.</p>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+<!-- Quick Links Cards (Takes up 2 columns on XL) -->
+<div class="xl:col-span-2 space-y-6">
+<!-- Pinned Resources Glass Panel -->
+<section class="glass-panel rounded-xl p-panel-padding">
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-white/30">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">push_pin</span>
+                                Pinned Resources
+                            </h3>
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="group relative bg-white/50 backdrop-blur-md rounded-lg p-4 border border-white/60 hover:bg-white/80 transition-all cursor-pointer shadow-sm hover:shadow-md">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-md bg-blue-100/50 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined">description</span>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Active</span>
+</div>
+<h4 class="font-headline-sm text-lg font-semibold text-on-surface mb-1">API Documentation V2</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">Complete reference for the core REST API endpoints and authentication methods.</p>
+<div class="flex items-center text-xs text-on-surface-variant/70 gap-3">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">link</span> docs.orbit.io</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative bg-white/50 backdrop-blur-md rounded-lg p-4 border border-white/60 hover:bg-white/80 transition-all cursor-pointer shadow-sm hover:shadow-md">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-md bg-purple-100/50 flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined">design_services</span>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Design</span>
+</div>
+<h4 class="font-headline-sm text-lg font-semibold text-on-surface mb-1">Brand Assets</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">Logos, color palettes, and typography guidelines for internal and external use.</p>
+<div class="flex items-center text-xs text-on-surface-variant/70 gap-3">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">folder</span> Shared Drive</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Links Table/List Panel -->
+<section class="glass-panel rounded-xl p-panel-padding">
+<div class="flex items-center justify-between mb-4 pb-4 border-b border-white/30">
+<h3 class="font-headline-md text-headline-md text-on-surface">Recent Links</h3>
+<button class="text-primary text-sm font-semibold hover:underline">View All</button>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Link Row -->
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-white/40 transition-colors group border border-transparent hover:border-white/50">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">bug_report</span>
+</div>
+<div>
+<div class="font-semibold text-on-surface text-sm">Issue Tracker Dashboard</div>
+<div class="text-xs text-on-surface-variant">jira.orbit.com/board</div>
+</div>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-md hover:bg-white/60 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+<button class="p-1.5 rounded-md hover:bg-white/60 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[18px]">open_in_new</span></button>
+</div>
+</div>
+<!-- Link Row -->
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-white/40 transition-colors group border border-transparent hover:border-white/50">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">video_camera_front</span>
+</div>
+<div>
+<div class="font-semibold text-on-surface text-sm">Weekly Sync Meeting Room</div>
+<div class="text-xs text-on-surface-variant">meet.google.com/abc-xyz</div>
+</div>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-md hover:bg-white/60 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+<button class="p-1.5 rounded-md hover:bg-white/60 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[18px]">open_in_new</span></button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Add Resource Form Sidebar -->
+<div class="xl:col-span-1">
+<section class="glass-panel rounded-xl p-panel-padding h-full flex flex-col">
+<div class="mb-6 pb-4 border-b border-white/30">
+<h3 class="font-headline-md text-headline-md text-on-surface">Add New Link</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Store a new resource for quick access.</p>
+</div>
+<form class="flex flex-col gap-5 flex-1">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5 ml-1">TITLE</label>
+<input class="w-full glass-input rounded-lg py-2.5 px-4 font-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary/50" placeholder="e.g. Q3 Marketing Plan" type="text"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5 ml-1">URL</label>
+<input class="w-full glass-input rounded-lg py-2.5 px-4 font-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary/50" placeholder="https://" type="url"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5 ml-1">CATEGORY</label>
+<div class="relative">
+<select class="w-full glass-input rounded-lg py-2.5 pl-4 pr-10 font-body-sm text-on-surface appearance-none focus:ring-1 focus:ring-primary/50">
+<option>Documentation</option>
+<option>Design</option>
+<option>Tools</option>
+<option>Meetings</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1.5 ml-1">DESCRIPTION (OPTIONAL)</label>
+<textarea class="w-full glass-input rounded-lg py-2.5 px-4 font-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary/50 resize-none" rows="3"></textarea>
+</div>
+<div class="mt-auto pt-6 flex gap-3">
+<button class="flex-1 bg-white/40 hover:bg-white/60 text-on-surface font-label-md text-label-md py-2.5 rounded-lg border border-white/50 transition-colors" type="button">Cancel</button>
+<button class="flex-1 bg-primary hover:bg-primary/90 text-white font-label-md text-label-md py-2.5 rounded-lg shadow-sm transition-colors active:scale-[0.98]" type="submit">Save Link</button>
+</div>
+</form>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

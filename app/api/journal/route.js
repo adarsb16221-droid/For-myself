@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Journal from '@/models/Journal';
+import { getSession } from '@/lib/auth';
 
 export async function GET(req) {
   try {
     await connectToDatabase();
-    
-    // Convert array of entries to an object keyed by date string to match old behavior
-    const entries = await Journal.find({});
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const entries = await Journal.find({ userId: session.userId });
     const journalData = {};
     entries.forEach(entry => {
         journalData[entry.date] = entry.content;
@@ -23,19 +25,20 @@ export async function POST(req) {
   try {
     const data = await req.json(); // data is an object like { "YYYY-MM-DD": "content" }
     await connectToDatabase();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
-    // We only expect one entry to be updated at a time from the client in this new architecture,
-    // but if we receive the whole object, let's process it.
     for (const [date, content] of Object.entries(data)) {
         await Journal.findOneAndUpdate(
-            { date },
-            { date, content },
+            { date, userId: session.userId },
+            { date, content, userId: session.userId },
             { upsert: true, new: true }
         );
     }
     
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update journal' }, { status: 500 });
+    console.error("JOURNAL POST ERROR:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

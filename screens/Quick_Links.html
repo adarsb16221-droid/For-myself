@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orbit - Quick Links</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#93000a",
+                        "tertiary": "#ffb783",
+                        "outline-variant": "#464554",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-tertiary-container": "#452000",
+                        "secondary-container": "#00a572",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#0b1326",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-container": "#d97721",
+                        "on-error": "#690005",
+                        "outline": "#908fa0",
+                        "background": "#0b1326",
+                        "on-tertiary-fixed": "#301400",
+                        "on-secondary": "#003824",
+                        "on-primary": "#1000a9",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#00311f",
+                        "primary": "#c0c1ff",
+                        "surface": "#0b1326",
+                        "surface-tint": "#c0c1ff",
+                        "on-background": "#dae2fd",
+                        "surface-container-low": "#131b2e",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-variant": "#2d3449",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-primary-container": "#0d0096",
+                        "surface-bright": "#31394d",
+                        "on-tertiary": "#4f2500",
+                        "surface-container": "#171f33",
+                        "on-surface": "#dae2fd",
+                        "tertiary-fixed": "#ffdcc5",
+                        "surface-container-high": "#222a3d",
+                        "inverse-primary": "#494bd6",
+                        "on-primary-fixed": "#07006c",
+                        "inverse-on-surface": "#283044",
+                        "primary-fixed": "#e1e0ff",
+                        "secondary": "#4edea3",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-surface": "#dae2fd",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-container-lowest": "#060e20",
+                        "primary-container": "#8083ff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-container-highest": "#2d3449",
+                        "on-surface-variant": "#c7c4d7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "component-gap": "1rem",
+                        "container-padding": "2rem",
+                        "stack-lg": "2rem",
+                        "gutter": "1.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "display-lg-mobile": ["Outfit"],
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "title-sm": ["Outfit"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "24px", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(19, 27, 46, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input:focus {
+            border-color: #8083ff;
+            box-shadow: 0 0 10px rgba(128, 131, 255, 0.2);
+            outline: none;
+        }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #c0c1ff, #4edea3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-lg overflow-x-hidden">
+<!-- Background Shader -->
+
+<div class="flex h-screen overflow-hidden">
+<!-- SideNav (Desktop) -->
+<nav class="hidden md:flex flex-col h-full py-stack-lg px-gutter bg-surface/60 backdrop-blur-md border-r border-white/10 shadow-2xl h-screen w-[280px] sticky top-0 left-0 z-40">
+<div class="mb-stack-lg flex items-center gap-4 px-4">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/10">
+<img class="w-full h-full object-cover" data-alt="A stylized, futuristic, dark-mode 3D avatar of a professional user in an Orbit space station environment, wearing sleek, high-tech glasses with subtle glowing indigo details, set against a dark slate background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9qHkWTVc2uXrTMDbBLszTwzeyjnDWURr9qq6BOqGtt6okugdiz3SxpzH-d1zffHBCieQK90KoCtQKX2qxjMYzPMYNNkdVELX3qz8jJJEX4T-TR7Fw9w4WbYn_w5jxhFOTIQxv2ct29STxKwNtXB6QA4gu3is3MuXcZ8VkhOJJd0xqZXx_JSCTDV1ZTd_S3oXuLP2eGNqxtQN4wgd8jZTS91XCYqt84bIhHL9tmb-iVZRjMvTNXQvyAzdpaIJKVmgNPEHLMnw-tGM"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Orbit</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deep Work Space</p>
+</div>
+</div>
+<div class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-lg text-body-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="font-body-lg text-body-lg">Journal</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold border-r-2 border-primary bg-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="link" style="font-variation-settings: 'FILL' 1;">link</span>
+<span class="font-body-lg text-body-lg">Quick Links</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-body-lg text-body-lg">Schedule</span>
+</a>
+</div>
+<div class="mt-auto space-y-2 pt-stack-lg">
+<button class="w-full py-3 px-4 bg-inverse-primary hover:bg-primary-container text-white font-title-sm text-title-sm rounded-lg transition-all duration-300 hover:scale-[1.05] shadow-[0_0_15px_rgba(73,75,214,0.3)] mb-stack-md flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span> New Task
+                </button>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-lg text-body-lg">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-lg text-body-lg">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-container-padding w-full h-16 bg-transparent transition-all duration-300 md:hidden z-30">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-white/10">
+<img class="w-full h-full object-cover" data-alt="A stylized, futuristic, dark-mode 3D avatar of a professional user in an Orbit space station environment, wearing sleek, high-tech glasses with subtle glowing indigo details, set against a dark slate background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDs6TrYVNk2HeGNhGyJMOJoEZdfDW5Cw1ijHLTMbkskshGuC91RmAKMezCEbTzRcbJt3CD_zg_8xHdZUXvlvOW1EW6D67tOrx1TDDskORCbtEW7XI87a2MpIhgPCFri5TwaHI52kjMXH7o55VamQIZhZVpXBM-EcCT9ttp0_faPkUP63mgBWRBeY3maNc97P00YjrZmBF1CmkFtVNJATIFxebEWLkEncvSvuIU3LOQw3I6Z-jLR2jeSqBloKoIrH7cK3RQQ7H0Fb8c"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Orbit</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-container-padding pb-32 md:pb-container-padding">
+<div class="max-w-4xl mx-auto w-full">
+<!-- Header -->
+<div class="mb-stack-lg md:mb-[4rem]">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
+                            Quick <span class="text-gradient">Links</span>
+</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">
+                            Curate your most essential resources. Add bookmarks to tools, docs, and references for instant access during deep work sessions.
+                        </p>
+</div>
+<!-- Bento Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-component-gap">
+<!-- Add New Link Form (Left/Top) -->
+<div class="lg:col-span-4 lg:col-start-1">
+<div class="glass-panel rounded-xl p-6 shadow-2xl transition-all duration-300 sticky top-stack-lg">
+<h3 class="font-title-sm text-title-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="add_link">add_link</span>
+                                     Add Resource
+                                </h3>
+<form class="space-y-4">
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-2 uppercase">Link Name</label>
+<input class="w-full glass-input rounded-lg px-4 py-3 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/50 transition-all duration-200" placeholder="e.g., Figma Design System" type="text"/>
+</div>
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-2 uppercase">URL</label>
+<input class="w-full glass-input rounded-lg px-4 py-3 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/50 transition-all duration-200" placeholder="https://" type="url"/>
+</div>
+<div class="pt-2">
+<button class="w-full bg-inverse-primary hover:bg-primary-container text-white font-title-sm text-title-sm py-3 rounded-lg transition-all duration-300 hover:scale-[1.02] shadow-[0_0_15px_rgba(73,75,214,0.3)]" type="button">
+                                            Save Link
+                                        </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Saved Links List (Right/Bottom) -->
+<div class="lg:col-span-8 space-y-4">
+<!-- Link Card 1 -->
+<a class="block glass-panel rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] group cursor-pointer relative overflow-hidden" href="#">
+<div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors duration-500"></div>
+<div class="flex items-start justify-between relative z-10">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high border border-white/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="design_services">design_services</span>
+</div>
+<div>
+<h4 class="font-title-sm text-title-sm text-on-surface group-hover:text-primary transition-colors">Orbit Design System</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 truncate max-w-sm">figma.com/file/orbit-design-system-v2</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+<button class="text-on-surface-variant hover:text-error p-2 rounded-lg hover:bg-error/10 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</a>
+<!-- Link Card 2 -->
+<a class="block glass-panel rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] group cursor-pointer relative overflow-hidden" href="#">
+<div class="absolute right-0 top-0 w-32 h-32 bg-secondary/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-secondary/10 transition-colors duration-500"></div>
+<div class="flex items-start justify-between relative z-10">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high border border-white/5 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="code">code</span>
+</div>
+<div>
+<h4 class="font-title-sm text-title-sm text-on-surface group-hover:text-secondary transition-colors">API Documentation</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 truncate max-w-sm">docs.orbit.dev/api/v1/endpoints</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+<button class="text-on-surface-variant hover:text-error p-2 rounded-lg hover:bg-error/10 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</a>
+<!-- Link Card 3 -->
+<a class="block glass-panel rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] group cursor-pointer relative overflow-hidden" href="#">
+<div class="absolute right-0 top-0 w-32 h-32 bg-tertiary/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-tertiary/10 transition-colors duration-500"></div>
+<div class="flex items-start justify-between relative z-10">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high border border-white/5 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+</div>
+<div>
+<h4 class="font-title-sm text-title-sm text-on-surface group-hover:text-tertiary transition-colors">Q3 Analytics Dashboard</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 truncate max-w-sm">metabase.internal.orbit.co/dashboard/42</p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+<button class="text-on-surface-variant hover:text-error p-2 rounded-lg hover:bg-error/10 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

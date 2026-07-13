@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orbit - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed": "#e1e0ff",
+                      "surface-bright": "#31394d",
+                      "on-tertiary-container": "#452000",
+                      "surface-container-high": "#222a3d",
+                      "on-tertiary": "#4f2500",
+                      "on-secondary": "#003824",
+                      "tertiary-fixed": "#ffdcc5",
+                      "on-primary-fixed-variant": "#2f2ebe",
+                      "on-secondary-container": "#00311f",
+                      "secondary-fixed-dim": "#4edea3",
+                      "surface": "#0b1326",
+                      "secondary": "#4edea3",
+                      "surface-tint": "#c0c1ff",
+                      "on-error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#ffb783",
+                      "error": "#ffb4ab",
+                      "surface-container": "#171f33",
+                      "on-surface": "#dae2fd",
+                      "background": "#0b1326",
+                      "tertiary": "#ffb783",
+                      "secondary-fixed": "#6ffbbe",
+                      "outline-variant": "#464554",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-tertiary-fixed-variant": "#703700",
+                      "on-background": "#dae2fd",
+                      "on-surface-variant": "#c7c4d7",
+                      "surface-container-highest": "#2d3449",
+                      "primary": "#c0c1ff",
+                      "primary-fixed-dim": "#c0c1ff",
+                      "primary-container": "#8083ff",
+                      "on-secondary-fixed": "#002113",
+                      "surface-variant": "#2d3449",
+                      "on-primary-container": "#0d0096",
+                      "on-error": "#690005",
+                      "inverse-primary": "#494bd6",
+                      "tertiary-container": "#d97721",
+                      "on-primary-fixed": "#07006c",
+                      "inverse-surface": "#dae2fd",
+                      "inverse-on-surface": "#283044",
+                      "on-primary": "#1000a9",
+                      "surface-dim": "#0b1326",
+                      "secondary-container": "#00a572",
+                      "on-tertiary-fixed": "#301400",
+                      "error-container": "#93000a",
+                      "surface-container-low": "#131b2e",
+                      "surface-container-lowest": "#060e20",
+                      "outline": "#908fa0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "2rem",
+                      "gutter": "1.5rem",
+                      "stack-md": "1rem",
+                      "container-padding": "2rem",
+                      "component-gap": "1rem"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Outfit"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "title-sm": [
+                              "Outfit"
+                      ],
+                      "display-lg-mobile": [
+                              "Outfit"
+                      ],
+                      "display-lg": [
+                              "Outfit"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "title-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(45, 52, 73, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-modal {
+            background: rgba(45, 52, 73, 0.6);
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(192, 193, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        /* Animated Plasma Background */
+        .plasma-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: #0b1326;
+        }
+        .plasma-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(128,131,255,0.4) 0%, rgba(11,19,38,0) 70%);
+            top: -10%;
+            left: -10%;
+        }
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(78,222,163,0.3) 0%, rgba(11,19,38,0) 70%);
+            bottom: -10%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(217,119,33,0.2) 0%, rgba(11,19,38,0) 70%);
+            top: 40%;
+            left: 60%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 30px) scale(1.1); }
+            100% { transform: translate(-30px, 50px) scale(0.9); }
+        }
+
+        /* Checkbox Customization */
+        .custom-checkbox {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .custom-checkbox:checked {
+            background-color: #4edea3;
+            border-color: #4edea3;
+        }
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 7px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        .task-input:focus-within {
+            border-color: #8083ff;
+            box-shadow: 0 0 10px rgba(128, 131, 255, 0.2);
+        }
+
+        /* Custom Scrollbar for inner lists if needed */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-lg antialiased overflow-x-hidden min-h-screen flex">
+<!-- Plasma Background -->
+<div class="plasma-bg">
+<div class="plasma-orb orb-1"></div>
+<div class="plasma-orb orb-2"></div>
+<div class="plasma-orb orb-3"></div>
+</div>
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-surface/60 backdrop-blur-md h-screen w-[280px] sticky top-0 left-0 border-r border-white/10 shadow-2xl flex-col py-stack-lg px-gutter z-50">
+<!-- Header -->
+<div class="flex items-center gap-4 mb-12">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Orbit</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deep Work Space</p>
+</div>
+</div>
+<!-- Main Nav -->
+<div class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold border-r-2 border-primary bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-body-lg text-body-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-body-lg text-body-lg">Journal</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">link</span>
+<span class="font-body-lg text-body-lg">Quick Links</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-body-lg text-body-lg">Schedule</span>
+</a>
+</div>
+<!-- CTA -->
+<button class="w-full py-3 mb-8 bg-inverse-primary text-white rounded-lg font-title-sm text-title-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_14px_0_rgba(73,75,214,0.39)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+            New Task
+        </button>
+<!-- Footer Nav -->
+<div class="space-y-2 pt-4 border-t border-white/5">
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span>Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col relative z-10 w-full">
+<!-- TopAppBar (Mobile Only - Simplified for Context) -->
+<header class="md:hidden flex justify-between items-center px-container-padding w-full h-16 bg-transparent">
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Orbit</h1>
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-container-padding flex-1 max-w-7xl mx-auto w-full space-y-stack-lg mt-8">
+<!-- Header Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-2">Good morning, Alex.</h2>
+<div class="inline-flex items-center gap-2 bg-secondary/10 px-4 py-1.5 rounded-full border border-secondary/20">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">3 Tasks Completed Today</span>
+</div>
+</div>
+<div class="text-right hidden md:block">
+<p class="font-headline-md text-headline-md text-on-surface-variant">October 24, 2023</p>
+<p class="font-body-sm text-body-sm text-outline">Focus Session: Ready</p>
+</div>
+</section>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-component-gap">
+<!-- Left Column (Tasks & Input) -->
+<div class="lg:col-span-8 flex flex-col gap-component-gap">
+<!-- Quick Input Panel -->
+<div class="glass-panel rounded-xl p-6 glow-hover transition-all duration-300 task-input flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">add_circle</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-title-sm text-title-sm placeholder:text-outline p-0" placeholder="What needs to be done?" type="text"/>
+<div class="flex gap-2 border-l border-white/10 pl-4">
+<button class="p-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">calendar_today</span>
+</button>
+<button class="p-2 rounded-lg text-on-surface-variant hover:text-tertiary-container hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">flag</span>
+</button>
+</div>
+</div>
+<!-- Daily Habits List -->
+<div class="glass-panel rounded-xl p-6 flex-1 flex flex-col min-h-[300px]">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">repeat</span>
+                                Daily Habits
+                            </h3>
+<button class="text-primary hover:text-primary-container font-label-caps text-label-caps uppercase tracking-wider transition-colors">View All</button>
+</div>
+<ul class="space-y-3 flex-1 overflow-y-auto pr-2">
+<li class="group flex items-center justify-between p-3 rounded-lg hover:bg-white/5 border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center gap-4">
+<input class="custom-checkbox" type="checkbox"/>
+<span class="font-body-lg text-body-lg text-on-surface group-hover:text-primary-fixed transition-colors">Morning Meditation (10m)</span>
+</div>
+<span class="px-2 py-1 rounded bg-secondary/10 text-secondary font-label-caps text-[10px] uppercase">Wellness</span>
+</li>
+<li class="group flex items-center justify-between p-3 rounded-lg hover:bg-white/5 border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center gap-4">
+<input checked="" class="custom-checkbox" type="checkbox"/>
+<span class="font-body-lg text-body-lg text-outline line-through">Review Project Timeline</span>
+</div>
+<span class="px-2 py-1 rounded bg-primary/10 text-primary font-label-caps text-[10px] uppercase">Work</span>
+</li>
+<li class="group flex items-center justify-between p-3 rounded-lg hover:bg-white/5 border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center gap-4">
+<input class="custom-checkbox" type="checkbox"/>
+<span class="font-body-lg text-body-lg text-on-surface group-hover:text-primary-fixed transition-colors">Read 20 pages</span>
+</div>
+<span class="px-2 py-1 rounded bg-tertiary-container/10 text-tertiary-container font-label-caps text-[10px] uppercase">Learning</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Right Column (Widgets) -->
+<div class="lg:col-span-4 flex flex-col gap-component-gap">
+<!-- Pomodoro Widget -->
+<div class="glass-panel rounded-xl p-8 flex flex-col items-center justify-center relative overflow-hidden group glow-hover transition-all duration-300 min-h-[300px]">
+<!-- Subtle background decoration -->
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl"></div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-widest mb-4">Deep Work Session</span>
+<!-- Timer Display -->
+<div class="font-display-lg text-[64px] leading-none text-on-surface font-bold tracking-tighter mb-8 font-['Outfit'] drop-shadow-[0_0_15px_rgba(192,193,255,0.2)]">
+                                25:00
+                            </div>
+<!-- Controls -->
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 rounded-full bg-surface-variant/50 hover:bg-surface-variant flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors border border-white/10">
+<span class="material-symbols-outlined">restart_alt</span>
+</button>
+<button class="w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(192,193,255,0.4)]">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-variant/50 hover:bg-surface-variant flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors border border-white/10">
+<span class="material-symbols-outlined">skip_next</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Mini Agenda / Next Up -->
+<div class="glass-panel rounded-xl p-6 flex-1 flex flex-col">
+<h3 class="font-title-sm text-title-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">upcoming</span>
+                            Next Up
+                        </h3>
+<div class="space-y-4">
+<div class="pl-4 border-l-2 border-primary relative">
+<div class="absolute w-2 h-2 rounded-full bg-primary -left-[5px] top-1.5"></div>
+<p class="font-body-sm text-body-sm text-on-surface">Design Review Sync</p>
+<p class="font-label-caps text-[11px] text-outline mt-1">11:30 AM - 12:00 PM</p>
+</div>
+<div class="pl-4 border-l-2 border-surface-variant relative">
+<div class="absolute w-2 h-2 rounded-full bg-surface-variant -left-[5px] top-1.5"></div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Lunch Break</p>
+<p class="font-label-caps text-[11px] text-outline mt-1">12:30 PM - 1:30 PM</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

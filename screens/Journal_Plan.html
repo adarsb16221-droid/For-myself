@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orbit - Daily Journal &amp; Plan</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "error-container": "#93000a",
+                        "tertiary": "#ffb783",
+                        "outline-variant": "#464554",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-tertiary-container": "#452000",
+                        "secondary-container": "#00a572",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#0b1326",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-container": "#d97721",
+                        "on-error": "#690005",
+                        "outline": "#908fa0",
+                        "background": "#0b1326",
+                        "on-tertiary-fixed": "#301400",
+                        "on-secondary": "#003824",
+                        "on-primary": "#1000a9",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#00311f",
+                        "primary": "#c0c1ff",
+                        "surface": "#0b1326",
+                        "surface-tint": "#c0c1ff",
+                        "on-background": "#dae2fd",
+                        "surface-container-low": "#131b2e",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-variant": "#2d3449",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-primary-container": "#0d0096",
+                        "surface-bright": "#31394d",
+                        "on-tertiary": "#4f2500",
+                        "surface-container": "#171f33",
+                        "on-surface": "#dae2fd",
+                        "tertiary-fixed": "#ffdcc5",
+                        "surface-container-high": "#222a3d",
+                        "inverse-primary": "#494bd6",
+                        "on-primary-fixed": "#07006c",
+                        "inverse-on-surface": "#283044",
+                        "primary-fixed": "#e1e0ff",
+                        "secondary": "#4edea3",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-surface": "#dae2fd",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-container-lowest": "#060e20",
+                        "primary-container": "#8083ff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-container-highest": "#2d3449",
+                        "on-surface-variant": "#c7c4d7"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "component-gap": "1rem",
+                        "container-padding": "2rem",
+                        "stack-lg": "2rem",
+                        "gutter": "1.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "display-lg-mobile": ["Outfit"],
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "title-sm": ["Outfit"],
+                        "body-lg": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "display-lg-mobile": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "title-sm": ["18px", { lineHeight: "24px", fontWeight: "500" }],
+                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for glassmorphic feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex overflow-hidden relative">
+<!-- Background Shader -->
+
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex h-screen w-[280px] sticky top-0 left-0 bg-surface/60 backdrop-blur-md border-r border-white/10 shadow-2xl flex-col py-stack-lg px-gutter z-40">
+<!-- Header -->
+<div class="flex items-center gap-4 mb-12 px-2">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+<img class="w-full h-full object-cover" data-alt="A highly detailed close-up of a futuristic, glowing avatar profile picture. The image features a minimalist, abstract humanoid shape constructed from translucent, light-refracting glass materials. Set against a deep, dark slate background, the avatar is illuminated by soft, volumetric lighting in hues of indigo and emerald. The aesthetic is clean, professional, and evocative of advanced digital workspace environments." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF7vqKqILERcAVCoJ7O-RIHowr1nI7mcDgrTQbJfffJd5G6Q9_oIPkLhFKeArk6RX98svPQINBq7rTQHtOHeR2htOwl-dcspMrPZaso9r1Ptx-Vo1XkAB73kPYv5iXsQ0DXrnBZx2FwYTmQkrNwXMvS8iKK24YuDbSmy7dUwsma7x8d6D9mR-2liBeW7ymcAp_iipR_ZRvWAoC5cftuf6BFD-4WRbtMuVkpxnaogqtbFiEcyt6XoKI1LTrAmhcCNsl3f2RC7LxX_0"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Orbit</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deep Work Space</p>
+</div>
+</div>
+<!-- Main Navigation -->
+<ul class="flex-1 flex flex-col gap-2">
+<!-- Dashboard (Inactive) -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span class="font-title-sm text-title-sm">Dashboard</span>
+</a>
+</li>
+<!-- Journal (Active) -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold border-r-2 border-primary bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-title-sm text-title-sm">Journal</span>
+</a>
+</li>
+<!-- Quick Links (Inactive) -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">link</span>
+<span class="font-title-sm text-title-sm">Quick Links</span>
+</a>
+</li>
+<!-- Schedule (Inactive) -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">calendar_month</span>
+<span class="font-title-sm text-title-sm">Schedule</span>
+</a>
+</li>
+</ul>
+<!-- CTA -->
+<div class="mt-8 mb-8">
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg font-label-caps text-label-caps font-bold hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(192,193,255,0.3)] transition-all duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                New Task
+            </button>
+</div>
+<!-- Footer Navigation -->
+<ul class="flex flex-col gap-2 border-t border-white/10 pt-6">
+<li>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span class="font-body-sm text-body-sm">Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant font-medium hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">help</span>
+<span class="font-body-sm text-body-sm">Support</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden z-10 relative">
+<!-- TopAppBar -->
+<header class="bg-transparent w-full h-16 flex justify-between items-center px-container-padding transition-all duration-300 z-30">
+<div class="flex items-center gap-4 md:hidden">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Orbit</span>
+</div>
+<!-- Spacer for desktop to align actions right -->
+<div class="hidden md:block flex-1"></div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-white/20 md:hidden ml-2">
+<img class="w-full h-full object-cover" data-alt="A highly detailed close-up of a futuristic, glowing avatar profile picture. The image features a minimalist, abstract humanoid shape constructed from translucent, light-refracting glass materials. Set against a deep, dark slate background, the avatar is illuminated by soft, volumetric lighting in hues of indigo and emerald. The aesthetic is clean, professional, and evocative of advanced digital workspace environments." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDutfhIx4C2IVF8PlyZiv2rngEM8iIpUb-ynbEEyxR7n2SH_Ucz5cSmXLjKxVsTk-kKul3mqbvOBISUgAusugYNTVWKebpD_KjCMQeCuc2FSoFyp9aCTWTJHPyc4jVYrl3-k495j0G6q5E_zUduuMgGZNastFGn6dC5xBxMe3yw0jfx8F89kv8SdZSqjXQZnkgKZoEtdS51-ynzT3izWAb-3n0fhk2S_pjHC53mSCI1HKyMSBf8acOSU35_-J72N4_ugiu6KZK_928"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 flex flex-col p-container-padding pt-0 max-w-[1400px] mx-auto w-full overflow-hidden h-full">
+<!-- Header Section -->
+<div class="mb-stack-lg mt-4 flex-shrink-0">
+<h2 class="font-display-lg-mobile md:font-display-lg text-on-surface">
+                    Daily <span class="bg-gradient-to-r from-primary via-primary-container to-secondary bg-clip-text text-transparent">Journal &amp; Plan</span>
+</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Reflect on your progress and set your intentions.</p>
+</div>
+<!-- Bento/Glass Layout -->
+<div class="flex-1 flex flex-col lg:flex-row gap-gutter min-h-0 pb-stack-lg">
+<!-- Left Sidebar: Date Picker / Overview (Glass Panel) -->
+<aside class="w-full lg:w-[320px] flex-shrink-0 flex flex-col bg-surface-container-low/40 backdrop-blur-[16px] border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+<!-- Month Selector -->
+<div class="p-gutter border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1"><span class="material-symbols-outlined">chevron_left</span></button>
+<span class="font-title-sm text-title-sm text-on-surface font-semibold">October 2023</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<!-- Date List -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+<!-- Past Day -->
+<button class="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 border border-transparent transition-all text-left group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-variant/50 flex flex-col items-center justify-center border border-white/5">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Wed</span>
+<span class="font-title-sm text-title-sm text-on-surface">25</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium group-hover:text-primary transition-colors">Completed</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">3 tasks • 2 notes</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary opacity-50">check_circle</span>
+</button>
+<!-- Active Day -->
+<button class="w-full flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/30 transition-all text-left shadow-[0_0_15px_rgba(192,193,255,0.1)] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent"></div>
+<div class="flex items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex flex-col items-center justify-center shadow-lg">
+<span class="font-label-caps text-label-caps opacity-80">Thu</span>
+<span class="font-title-sm text-title-sm font-bold">26</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-primary font-semibold">Today</p>
+<p class="font-label-caps text-label-caps text-primary/70">In progress</p>
+</div>
+</div>
+</button>
+<!-- Future Day -->
+<button class="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 border border-transparent transition-all text-left opacity-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-variant/30 flex flex-col items-center justify-center border border-white/5">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Fri</span>
+<span class="font-title-sm text-title-sm text-on-surface">27</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface">Upcoming</p>
+</div>
+</div>
+</button>
+</div>
+<!-- Stats Mini -->
+<div class="p-gutter border-t border-white/5 bg-black/20">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Weekly Focus</span>
+<span class="font-label-caps text-label-caps text-secondary">72%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[72%] rounded-full shadow-[0_0_10px_rgba(78,222,163,0.5)]"></div>
+</div>
+</div>
+</aside>
+<!-- Right Editor Area (Glass Panel) -->
+<section class="flex-1 flex flex-col bg-surface-container/60 backdrop-blur-[24px] border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] relative">
+<!-- Subtle top light edge -->
+<div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+<!-- Editor Header -->
+<header class="px-container-padding py-gutter flex justify-between items-center border-b border-white/5 bg-white/[0.01]">
+<div class="flex items-center gap-4">
+<h3 class="font-headline-md text-headline-md text-on-surface">Thursday, Oct 26</h3>
+<!-- Saving Indicator -->
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-surface-variant/50 border border-white/5">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse shadow-[0_0_5px_rgba(78,222,163,0.8)]"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Saving...</span>
+</div>
+</div>
+<!-- Action -->
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-label-caps text-label-caps font-bold hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(192,193,255,0.4)] transition-all duration-300 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">save</span>
+                            Save Journal
+                        </button>
+</header>
+<!-- Editor Content -->
+<div class="flex-1 p-container-padding flex flex-col gap-6 overflow-y-auto">
+<!-- Top Inputs (Focus/Goals) -->
+<div class="flex flex-col gap-4">
+<input class="w-full bg-transparent border-none text-title-sm font-title-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-0 px-0 py-2 border-b border-white/5 focus:border-primary transition-colors rounded-none" placeholder="What is your main focus for today?" type="text"/>
+</div>
+<!-- Main Textarea -->
+<div class="flex-1 flex flex-col min-h-[300px]">
+<textarea class="w-full flex-1 bg-transparent border-none resize-none text-body-lg font-body-lg text-on-surface placeholder:text-on-surface-variant/40 focus:ring-0 p-0 leading-relaxed" placeholder="Start writing your thoughts, reflections, or detailed plans here..."></textarea>
+</div>
+<!-- Quick Tags -->
+<div class="flex gap-2 flex-wrap mt-auto pt-4 border-t border-white/5">
+<span class="px-3 py-1 rounded-full bg-primary-container/20 text-primary-container border border-primary-container/30 font-label-caps text-label-caps cursor-pointer hover:bg-primary-container/30 transition-colors">#DeepWork</span>
+<span class="px-3 py-1 rounded-full bg-secondary-container/20 text-secondary border border-secondary-container/30 font-label-caps text-label-caps cursor-pointer hover:bg-secondary-container/30 transition-colors">#Planning</span>
+<button class="px-3 py-1 rounded-full bg-surface-variant/50 text-on-surface-variant border border-white/10 font-label-caps text-label-caps hover:bg-white/10 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">add</span> Add Tag
+                            </button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

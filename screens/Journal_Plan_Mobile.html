@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orbit - Daily Journal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "primary-fixed": "#e1e0ff",
+                            "surface-bright": "#31394d",
+                            "on-tertiary-container": "#452000",
+                            "surface-container-high": "#222a3d",
+                            "on-tertiary": "#4f2500",
+                            "on-secondary": "#003824",
+                            "tertiary-fixed": "#ffdcc5",
+                            "on-primary-fixed-variant": "#2f2ebe",
+                            "on-secondary-container": "#00311f",
+                            "secondary-fixed-dim": "#4edea3",
+                            "surface": "#0b1326",
+                            "secondary": "#4edea3",
+                            "surface-tint": "#c0c1ff",
+                            "on-error-container": "#ffdad6",
+                            "tertiary-fixed-dim": "#ffb783",
+                            "error": "#ffb4ab",
+                            "surface-container": "#171f33",
+                            "on-surface": "#dae2fd",
+                            "background": "#0b1326",
+                            "tertiary": "#ffb783",
+                            "secondary-fixed": "#6ffbbe",
+                            "outline-variant": "#464554",
+                            "on-secondary-fixed-variant": "#005236",
+                            "on-tertiary-fixed-variant": "#703700",
+                            "on-background": "#dae2fd",
+                            "on-surface-variant": "#c7c4d7",
+                            "surface-container-highest": "#2d3449",
+                            "primary": "#c0c1ff",
+                            "primary-fixed-dim": "#c0c1ff",
+                            "primary-container": "#8083ff",
+                            "on-secondary-fixed": "#002113",
+                            "surface-variant": "#2d3449",
+                            "on-primary-container": "#0d0096",
+                            "on-error": "#690005",
+                            "inverse-primary": "#494bd6",
+                            "tertiary-container": "#d97721",
+                            "on-primary-fixed": "#07006c",
+                            "inverse-surface": "#dae2fd",
+                            "inverse-on-surface": "#283044",
+                            "on-primary": "#1000a9",
+                            "surface-dim": "#0b1326",
+                            "secondary-container": "#00a572",
+                            "on-tertiary-fixed": "#301400",
+                            "error-container": "#93000a",
+                            "surface-container-low": "#131b2e",
+                            "surface-container-lowest": "#060e20",
+                            "outline": "#908fa0"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "stack-sm": "0.5rem",
+                            "stack-lg": "2rem",
+                            "gutter": "1.5rem",
+                            "stack-md": "1rem",
+                            "container-padding": "2rem",
+                            "component-gap": "1rem"
+                    },
+                    "fontFamily": {
+                            "headline-md": ["Outfit"],
+                            "body-sm": ["Inter"],
+                            "body-lg": ["Inter"],
+                            "label-caps": ["Inter"],
+                            "title-sm": ["Outfit"],
+                            "display-lg-mobile": ["Outfit"],
+                            "display-lg": ["Outfit"]
+                    },
+                    "fontSize": {
+                            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                            "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "title-sm": ["18px", {"lineHeight": "24px", "fontWeight": "500"}],
+                            "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                            "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            border-color: #c0c1ff;
+            box-shadow: 0 0 15px rgba(192, 193, 255, 0.2);
+            outline: none;
+        }
+        .animated-blob-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background-color: #0b1326;
+            overflow: hidden;
+        }
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background: #8083ff;
+            top: -50px;
+            left: -50px;
+            animation-delay: 0s;
+        }
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #00a572;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 50px) scale(1.1); }
+            100% { transform: translate(-20px, 80px) scale(0.9); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen relative pb-24 font-body-lg">
+<div class="animated-blob-bg">
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+</div>
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-white/10 dark:bg-surface/30 backdrop-blur-lg border-b border-white/10 shadow-2xl scale-95 duration-200 transition-transform hover:scale-105 hover:border-white/25 transition-all duration-300 docked full-width top-0">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="A futuristic circular avatar portrait of a modern professional against a dark moody background with subtle neon indigo and emerald highlights. The aesthetic is clean, spatial, and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL6P9pceW1PWHgMeWONSjlPRUg-GSVRpUDf3lcOPCevDFKHwaFMHKoPhNVtCfy0wL4_qIe7YQAFksnkyln8mcxp7yiP0Or2IAJ6PWzvx4sKOefmhE5CUdkYVo8e3IZovGvNN5ewImPGIrhCqV8DmrbbV1m9rurAmwrHpTGHG510H0A-hUrtnKGh6ZG7U5hrK-n8psfAiM52OEst1zKgycqN0bBIgXZMXMYAL63k2MqhhQCBm1QvNLb8Oh9-6LhsHFpiEvVg-w840k"/>
+</div>
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-primary dark:text-primary-fixed-dim tracking-tighter">Orbit</h1>
+</div>
+<button class="text-primary dark:text-primary-fixed-dim flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+</header>
+<main class="pt-24 px-4 max-w-lg mx-auto">
+<!-- Date Selection -->
+<section class="mb-stack-lg mt-stack-md">
+<div class="flex items-center justify-between mb-stack-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">Daily Journal</h2>
+<span class="font-label-caps text-label-caps text-secondary-fixed bg-secondary-container/20 px-3 py-1 rounded-full border border-secondary/20">Today</span>
+</div>
+<div class="flex gap-3 overflow-x-auto pb-2 snap-x hide-scrollbar">
+<!-- Previous Day -->
+<button class="flex-shrink-0 snap-center w-16 h-20 glass-panel rounded-xl flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:scale-105 transition-transform">
+<span class="font-label-caps text-label-caps opacity-70">TUE</span>
+<span class="font-title-sm text-title-sm">23</span>
+</button>
+<!-- Current Day -->
+<button class="flex-shrink-0 snap-center w-16 h-20 glass-panel border-primary/50 bg-primary/10 rounded-xl flex flex-col items-center justify-center gap-1 text-primary shadow-[0_0_15px_rgba(192,193,255,0.1)] scale-105 transition-transform">
+<span class="font-label-caps text-label-caps">WED</span>
+<span class="font-title-sm text-title-sm font-bold">24</span>
+</button>
+<!-- Next Day -->
+<button class="flex-shrink-0 snap-center w-16 h-20 glass-panel rounded-xl flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:scale-105 transition-transform">
+<span class="font-label-caps text-label-caps opacity-70">THU</span>
+<span class="font-title-sm text-title-sm">25</span>
+</button>
+<!-- Future Day -->
+<button class="flex-shrink-0 snap-center w-16 h-20 glass-panel rounded-xl flex flex-col items-center justify-center gap-1 text-on-surface-variant opacity-50 cursor-not-allowed">
+<span class="font-label-caps text-label-caps opacity-70">FRI</span>
+<span class="font-title-sm text-title-sm">26</span>
+</button>
+</div>
+</section>
+<!-- Editor Area -->
+<section class="glass-panel rounded-2xl p-6 mb-stack-lg flex flex-col gap-4">
+<input class="w-full bg-transparent border-none text-headline-md font-headline-md text-on-surface placeholder:text-on-surface-variant/50 focus:ring-0 p-0" placeholder="What's your main focus today?" type="text"/>
+<div class="h-px w-full bg-white/5 my-2"></div>
+<textarea class="w-full min-h-[200px] glass-input rounded-xl p-4 text-body-lg font-body-lg text-on-surface placeholder:text-on-surface-variant/40 resize-none" placeholder="Start typing your journal entry..."></textarea>
+<div class="flex gap-2 mt-2">
+<button class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors hover:scale-105">
+<span class="material-symbols-outlined">image</span>
+</button>
+<button class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors hover:scale-105">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors hover:scale-105">
+<span class="material-symbols-outlined">format_list_bulleted</span>
+</button>
+</div>
+</section>
+<!-- Action Button -->
+<button class="w-full bg-inverse-primary text-white font-title-sm text-title-sm py-4 rounded-xl shadow-[0_10px_20px_rgba(73,75,214,0.3)] hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(73,75,214,0.5)] transition-all duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">save</span>
+            Save Journal
+        </button>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 bg-white/10 dark:bg-surface-container-lowest/40 backdrop-blur-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.4)] rounded-t-xl docked full-width bottom-0 active:scale-90 transition-transform duration-150">
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-2xl">event</span>
+<span class="font-label-caps text-label-caps mt-1">Schedule</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary scale-110" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">list_alt</span>
+<span class="font-label-caps text-label-caps mt-1">Tasks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-60 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-2xl">account_circle</span>
+<span class="font-label-caps text-label-caps mt-1">User</span>
+</a>
+</nav>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Safe area padding for bottom nav on modern mobile devices */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe {
+                padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+                height: calc(4rem + env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</body></html>

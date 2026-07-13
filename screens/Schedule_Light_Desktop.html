@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Schedule Builder - Orbit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#bac5f0",
+                        "surface-container": "#e6eeff",
+                        "error": "#ba1a1a",
+                        "on-surface": "#0d1c2e",
+                        "on-tertiary-container": "#fefcff",
+                        "surface-bright": "#f8f9ff",
+                        "primary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#17228f",
+                        "tertiary-fixed": "#dbe1ff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#494bd6",
+                        "surface": "#f8f9ff",
+                        "secondary": "#4953bc",
+                        "secondary-fixed-dim": "#bdc2ff",
+                        "surface-variant": "#d5e3fc",
+                        "on-secondary-fixed": "#000767",
+                        "primary-container": "#6063ee",
+                        "tertiary-container": "#68739a",
+                        "inverse-primary": "#c0c1ff",
+                        "on-primary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#8792fe",
+                        "surface-dim": "#ccdbf3",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#0d1a3c",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "inverse-surface": "#233144",
+                        "on-primary-fixed": "#07006c",
+                        "outline": "#767586",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c7c4d7",
+                        "secondary-fixed": "#e0e0ff",
+                        "on-secondary-fixed-variant": "#2f3aa3",
+                        "tertiary": "#505b80",
+                        "on-surface-variant": "#464554",
+                        "on-tertiary-fixed-variant": "#3a456a",
+                        "on-background": "#0d1c2e",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "primary": "#4648d4",
+                        "surface-container-highest": "#d5e3fc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "panel-padding": "24px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "margin-desktop": "40px",
+                        "unit": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md relative overflow-x-hidden">
+<!-- Ambient Background Elements -->
+<div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-fixed-dim/30 blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-surface-variant/40 blur-[150px]"></div>
+</div>
+<!-- TopAppBar -->
+<header class="w-full h-16 border-b border-white/50 bg-white/40 backdrop-blur-[20px] shadow-[0px_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-center px-gutter sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Orbit</h1>
+</div>
+<div class="flex-1 max-w-md mx-4">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
+<input class="w-full bg-white/60 border border-black/10 rounded-full py-2 pl-10 pr-4 text-body-sm font-body-sm focus:outline-none focus:border-primary/50 focus:bg-white/80 transition-colors placeholder:text-on-surface-variant/50" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/20 hover:text-primary transition-colors text-on-surface-variant active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-white/20 hover:text-primary transition-colors text-on-surface-variant active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">apps</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white/50">
+<img alt="John Doe" class="w-full h-full object-cover" data-alt="A small, professional headshot of a user. The style is bright, clear, and modern, fitting a high-end corporate application. The lighting is soft and flattering, with a neutral light background to match a minimal UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXvxWCF1tS5voBb467Bh0u6UH2jWNpssTfc-Cc7Wd_j5KqveCs1twBtKlLv_t3RtqKVJo1lTdc_uAIL451Tbh55djP-V6DjSmSAUOfZQnWP9QWI4tIPGZX1gs1kYXhyl_RyFJmtCOmuL2cOCQ4H55NCOpdTD1m6I2BqGgu9U_gdKvLZTZoUHSqDHxJt54m5NZpRMxF8_3cMDIpjqoD8ENHJ5FBcvzCPVBACTLpPdL1D3q0lgXmDQLET5ywM8ZvA49vsAipJDjD5ZY"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 w-full max-w-container-max mx-auto h-[calc(100vh-4rem)]">
+<!-- SideNavBar -->
+<nav class="h-full w-64 border-r border-white/50 bg-white/40 backdrop-blur-[40px] shadow-[0px_10px_40px_rgba(0,0,0,0.04)] hidden lg:flex flex-col sticky top-0">
+<div class="p-6 border-b border-white/20">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Orbit Suite</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Enterprise Edition</p>
+<button class="mt-6 w-full bg-primary text-on-primary py-2 px-4 rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                    New Project
+                </button>
+</div>
+<div class="flex-1 py-4 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/20 hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                            Dashboard
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/20 hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+                            Analytics
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-l-4 border-primary bg-primary/5 active:scale-[0.98] transition-transform duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+                            Projects
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/20 hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">group</span>
+                            Team
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/20 hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                            Settings
+                        </a>
+</li>
+</ul>
+</div>
+<div class="p-4 border-t border-white/20">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/20 hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">help</span>
+                            Help
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-white/20 hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">logout</span>
+                            Sign Out
+                        </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 p-margin-desktop overflow-y-auto">
+<div class="mb-8 flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Schedule Builder</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Manage project timelines and resources.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-4 py-2 rounded-lg border border-primary/20 text-primary font-label-md text-label-md hover:bg-white/50 transition-colors bg-white/30 backdrop-blur-md">
+                        Import Data
+                    </button>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Add Event
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout for Schedule Builder -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Calendar Widget (Left Col) -->
+<div class="lg:col-span-4 flex flex-col gap-8">
+<!-- Mini Calendar -->
+<div class="glass-panel rounded-xl p-panel-padding">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">October 2023</h3>
+<div class="flex gap-2">
+<button class="p-1 rounded hover:bg-white/40 text-on-surface-variant transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="p-1 rounded hover:bg-white/40 text-on-surface-variant transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center font-label-md text-label-md text-on-surface-variant mb-2">
+<div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center font-body-sm text-body-sm">
+<div class="py-2 text-on-surface-variant/40">25</div><div class="py-2 text-on-surface-variant/40">26</div><div class="py-2 text-on-surface-variant/40">27</div><div class="py-2 text-on-surface-variant/40">28</div><div class="py-2 text-on-surface-variant/40">29</div><div class="py-2 text-on-surface-variant/40">30</div>
+<div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">1</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">2</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">3</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">4</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer relative">5<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span></div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">6</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">7</div>
+<div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">8</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer relative">9<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-secondary rounded-full"></span></div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">10</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">11</div><div class="py-2 rounded-full bg-primary text-on-primary cursor-pointer shadow-sm">12</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">13</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">14</div>
+<div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">15</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">16</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">17</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">18</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">19</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">20</div><div class="py-2 rounded-full hover:bg-white/50 cursor-pointer">21</div>
+</div>
+</div>
+<!-- Upcoming Filters -->
+<div class="glass-panel rounded-xl p-panel-padding flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Filters</h3>
+<div class="space-y-4">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-4 h-4 rounded text-primary bg-white/60 border-black/10 focus:ring-primary/50 transition-colors" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Design Phase</span>
+<span class="ml-auto w-3 h-3 rounded-full bg-primary/80"></span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-4 h-4 rounded text-primary bg-white/60 border-black/10 focus:ring-primary/50 transition-colors" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Development</span>
+<span class="ml-auto w-3 h-3 rounded-full bg-secondary/80"></span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-4 h-4 rounded text-primary bg-white/60 border-black/10 focus:ring-primary/50 transition-colors" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">QA Testing</span>
+<span class="ml-auto w-3 h-3 rounded-full bg-tertiary-fixed-dim"></span>
+</label>
+</div>
+<hr class="my-6 border-white/40"/>
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-3 uppercase tracking-wider">Resources</h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-variant/50 border border-white/50 font-body-sm text-body-sm text-on-surface flex items-center gap-1 cursor-pointer hover:bg-surface-variant transition-colors">
+<img class="w-4 h-4 rounded-full object-cover" data-alt="Tiny circular avatar of a professional team member. Light studio background, modern and clean style suitable for a professional dashboard UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCT3rFaoaNgxJe9f_sjI_K0nFW7ZTW-e_nfxbc7acvKIY3DMYw-ktwGa-OOY2nHkn_LjPelbZ3rlDB5t1B1rH-7Eqij_L290NszD5sxcUIQc8XIxt1DYDTrLsl4n0x_GHj52tbwQFTwjiXsf1lR3Uq4PO21hZNLUi8koOG1kY6a2zuYUMgbYWRokZRTXKvw1Y8zK4dXGSl3Kcn_ssNz06mk7CYcWF559VYLOYm2NCSfFWCg3IQ5zTF5Wcp9aUjQxbCzbb9TF8zxlA"/>
+                                Alex
+                            </span>
+<span class="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 font-body-sm text-body-sm text-primary flex items-center gap-1 cursor-pointer">
+<img class="w-4 h-4 rounded-full object-cover" data-alt="Tiny circular avatar of a professional team member. Light studio background, modern and clean style suitable for a professional dashboard UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDG8zw8Fs-_h6Hiidv90QqKaLlLgZ7B7uNpDQtRHMtnd_I0EcHUMesMCAvyOAxCvI66v_x6f5n2Ad0QnKdUC6-eC5-m1TCOOMfQ2Ek-505j9ufW68HAGxB0soUCB34E58MM3Gl0rqCHGGGtplyXlI_TQ7x_eOAqYu3807DlDjGngjJPpPZ_l-WkOSbKaWAk03yM0MywGfBnt9m9uxbrnoGzweHUuzI5r-9vKhqoclMJxZtII4LWiQAbylviof-1HBGrHa2jqgpRhwg"/>
+                                Sarah
+                            </span>
+<button class="w-8 h-8 rounded-full border border-dashed border-on-surface-variant/30 flex items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Timeline View (Right Col) -->
+<div class="lg:col-span-8 glass-panel rounded-xl flex flex-col overflow-hidden">
+<!-- Timeline Header -->
+<div class="p-4 border-b border-white/40 flex justify-between items-center bg-white/20">
+<div class="flex bg-surface-variant/30 rounded-lg p-1 border border-white/30">
+<button class="px-4 py-1.5 rounded-md bg-white/80 text-on-surface font-label-md text-label-md shadow-sm">Week</button>
+<button class="px-4 py-1.5 rounded-md text-on-surface-variant font-label-md text-label-md hover:bg-white/40 transition-colors">Month</button>
+<button class="px-4 py-1.5 rounded-md text-on-surface-variant font-label-md text-label-md hover:bg-white/40 transition-colors">Timeline</button>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Oct 8 - 14, 2023</span>
+</div>
+<!-- Timeline Grid -->
+<div class="flex-1 relative overflow-auto p-4 min-h-[500px]">
+<!-- Background Grid Lines -->
+<div class="absolute inset-0 p-4 pointer-events-none z-0">
+<div class="w-full h-full flex">
+<div class="w-16 border-r border-black/5"></div>
+<div class="flex-1 grid grid-cols-5 divide-x divide-black/5">
+<div></div><div></div><div></div><div></div><div></div>
+</div>
+</div>
+</div>
+<!-- Content Container -->
+<div class="relative z-10 w-full h-full flex flex-col gap-4">
+<!-- Day Header -->
+<div class="flex ml-16 text-center font-label-md text-label-md text-on-surface-variant mb-2">
+<div class="flex-1 py-2">Mon 9</div>
+<div class="flex-1 py-2">Tue 10</div>
+<div class="flex-1 py-2 text-primary font-bold">Wed 11</div>
+<div class="flex-1 py-2">Thu 12</div>
+<div class="flex-1 py-2">Fri 13</div>
+</div>
+<!-- Row 1: Design -->
+<div class="flex items-center gap-4 relative min-h-[64px]">
+<div class="w-12 text-right font-label-md text-label-md text-on-surface-variant">Design</div>
+<div class="flex-1 relative h-12 bg-white/20 rounded-lg border border-white/30 backdrop-blur-sm">
+<!-- Event Block -->
+<div class="absolute left-[10%] w-[40%] top-1 bottom-1 bg-primary/20 border border-primary/30 rounded-md p-2 flex flex-col justify-center cursor-pointer hover:shadow-md transition-shadow group">
+<div class="w-1 h-full absolute left-0 top-0 bg-primary rounded-l-md"></div>
+<span class="font-label-md text-label-md text-primary ml-2 truncate">UI Concept Refinement</span>
+<div class="hidden group-hover:block absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs px-2 py-1 rounded whitespace-nowrap z-50 shadow-lg">
+                                            UI Concept Refinement (Mon-Tue)
+                                        </div>
+</div>
+<!-- Event Block 2 -->
+<div class="absolute left-[60%] w-[30%] top-1 bottom-1 bg-primary/10 border border-primary/20 rounded-md p-2 flex flex-col justify-center cursor-pointer hover:shadow-md transition-shadow group">
+<div class="w-1 h-full absolute left-0 top-0 bg-primary/50 rounded-l-md"></div>
+<span class="font-label-md text-label-md text-primary/80 ml-2 truncate">Client Review</span>
+</div>
+</div>
+</div>
+<!-- Row 2: Dev -->
+<div class="flex items-center gap-4 relative min-h-[64px]">
+<div class="w-12 text-right font-label-md text-label-md text-on-surface-variant">Dev</div>
+<div class="flex-1 relative h-12 bg-white/20 rounded-lg border border-white/30 backdrop-blur-sm">
+<!-- Event Block -->
+<div class="absolute left-[30%] w-[50%] top-1 bottom-1 bg-secondary/20 border border-secondary/30 rounded-md p-2 flex flex-col justify-center cursor-pointer hover:shadow-md transition-shadow group">
+<div class="w-1 h-full absolute left-0 top-0 bg-secondary rounded-l-md"></div>
+<span class="font-label-md text-label-md text-on-secondary-container ml-2 truncate">API Integration</span>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex -space-x-1">
+<img class="w-5 h-5 rounded-full border border-white" data-alt="Tiny circular avatar of a developer. Light background, clear and professional for a UI element." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCggEGdwLyCITVZf5kDq99LD8SuLl03CrLYtmF9TiZAC89D2rh69C_cfsrtgk3HKJtGZV8wcVE6N5_KggZbGP4AFyk8311wsFmo5w9x_tFpetH382YJJpW9IGDc8NX8DsRDFU8Tg7JKx7f3kpRfbI7-pKD7BvHAkaaOfAGI8rpib4Mcohzde6xYfkS8TSFi0HewS2G23_2AAQ-BGWw51BREaFEU1n8t2M4ru8fmklfI8TlPCcQCTcExrLc2bPrj5JR2Hqbn6B8yYRQ"/>
+<img class="w-5 h-5 rounded-full border border-white" data-alt="Tiny circular avatar of a developer. Light background, clear and professional for a UI element." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkLNTIlQM2O3AlgUNS99WDHKmOJAUc0njKC1DGF8HxbODlbgJl-TlOUqEA6f5R1_pbzXSCruogv_kWxPOF_T0vYm_gyX-oRu2K1mylxwocUZOuaXaltnz4oCH-ufvgcD0dDRZXnYv7bilowuMq4r12FCZKUgQVq3etyZXeV0GvqHorxbh0eefqVSv_i149dt3okE-b9ISi1-EHkteXHlaZ-Avm8FyRTH7uIKGnVs1zK5QuLRU2_vluDsKUPfghdfYWWgEGuaT27yo"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 3: Marketing -->
+<div class="flex items-center gap-4 relative min-h-[64px]">
+<div class="w-12 text-right font-label-md text-label-md text-on-surface-variant">Mktg</div>
+<div class="flex-1 relative h-12 bg-white/20 rounded-lg border border-white/30 backdrop-blur-sm">
+<!-- Event Block -->
+<div class="absolute left-[80%] w-[20%] top-1 bottom-1 bg-tertiary-fixed-dim/40 border border-tertiary-fixed-dim/60 rounded-md p-2 flex flex-col justify-center cursor-pointer hover:shadow-md transition-shadow">
+<div class="w-1 h-full absolute left-0 top-0 bg-tertiary rounded-l-md"></div>
+<span class="font-label-md text-label-md text-on-surface ml-2 truncate">Launch Prep</span>
+</div>
+</div>
+</div>
+<!-- Current Time Indicator -->
+<div class="absolute top-0 bottom-0 left-[50%] w-px bg-error/50 z-20 pointer-events-none flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-error absolute -top-1"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orbit - Journal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "tertiary-fixed-dim": "#bac5f0",
+                            "surface-container": "#e6eeff",
+                            "error": "#ba1a1a",
+                            "on-surface": "#0d1c2e",
+                            "on-tertiary-container": "#fefcff",
+                            "surface-bright": "#f8f9ff",
+                            "primary-fixed": "#e1e0ff",
+                            "on-secondary": "#ffffff",
+                            "surface-container-high": "#dce9ff",
+                            "on-tertiary": "#ffffff",
+                            "on-secondary-container": "#17228f",
+                            "tertiary-fixed": "#dbe1ff",
+                            "on-primary-fixed-variant": "#2f2ebe",
+                            "on-error-container": "#93000a",
+                            "surface-tint": "#494bd6",
+                            "surface": "#f8f9ff",
+                            "secondary": "#4953bc",
+                            "secondary-fixed-dim": "#bdc2ff",
+                            "surface-variant": "#d5e3fc",
+                            "on-secondary-fixed": "#000767",
+                            "primary-container": "#6063ee",
+                            "tertiary-container": "#68739a",
+                            "inverse-primary": "#c0c1ff",
+                            "on-primary-container": "#fffbff",
+                            "on-error": "#ffffff",
+                            "secondary-container": "#8792fe",
+                            "surface-dim": "#ccdbf3",
+                            "error-container": "#ffdad6",
+                            "on-tertiary-fixed": "#0d1a3c",
+                            "on-primary": "#ffffff",
+                            "inverse-on-surface": "#eaf1ff",
+                            "inverse-surface": "#233144",
+                            "on-primary-fixed": "#07006c",
+                            "outline": "#767586",
+                            "surface-container-lowest": "#ffffff",
+                            "surface-container-low": "#eff4ff",
+                            "background": "#f8f9ff",
+                            "outline-variant": "#c7c4d7",
+                            "secondary-fixed": "#e0e0ff",
+                            "on-secondary-fixed-variant": "#2f3aa3",
+                            "tertiary": "#505b80",
+                            "on-surface-variant": "#464554",
+                            "on-tertiary-fixed-variant": "#3a456a",
+                            "on-background": "#0d1c2e",
+                            "primary-fixed-dim": "#c0c1ff",
+                            "primary": "#4648d4",
+                            "surface-container-highest": "#d5e3fc"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "panel-padding": "24px",
+                            "gutter": "24px",
+                            "container-max": "1440px",
+                            "margin-desktop": "40px",
+                            "unit": "8px",
+                            "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                            "body-lg": ["Inter"],
+                            "body-sm": ["Inter"],
+                            "headline-xl": ["Outfit"],
+                            "headline-md": ["Outfit"],
+                            "headline-lg-mobile": ["Outfit"],
+                            "label-md": ["Inter"],
+                            "headline-lg": ["Outfit"],
+                            "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                            "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for cleaner mobile feel */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen relative overflow-hidden font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Ambient Glass Background Orbs -->
+<div class="fixed top-[-10%] left-[-20%] w-[70vw] h-[70vw] rounded-full bg-primary-fixed blur-[80px] opacity-60 z-0 pointer-events-none"></div>
+<div class="fixed bottom-[10%] right-[-20%] w-[80vw] h-[80vw] rounded-full bg-tertiary-fixed blur-[100px] opacity-40 z-0 pointer-events-none"></div>
+<div class="relative z-10 w-full min-h-screen flex flex-col pt-16 pb-24 md:hidden">
+<!-- TopAppBar (from JSON) -->
+<header class="fixed top-0 w-full flex items-center justify-between px-margin-mobile h-16 z-50 bg-white/40 dark:bg-on-surface/40 backdrop-blur-xl border-b border-white/50 shadow-[0px_10px_40px_rgba(0,0,0,0.04)]">
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-white/20 transition-colors active:scale-95 duration-200 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary-fixed-dim">Orbit</h1>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-white/50 shadow-sm active:scale-95 transition-transform duration-200 cursor-pointer">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A clean, professional headshot avatar of a user. The lighting is soft and bright, maintaining a luminous, airy aesthetic consistent with a modern light-mode UI. The background is a subtle, out-of-focus pastel tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFYQvnRqHiS5D1TOyGGMVIpQinpH2APre7YZ0zw9CeAQae7ESaBjhE-63EMYX8ApJlogFaAQCZ7dqZz0OKx1JfUAI97CXhIGwg85mdFQmJp1chYRbg4c2RCJdkkXxhAlbo_hYY2RsDaJvirrsMkR_6R8iIb9nQumzceN6h_3KrVl7CXhcU7sg9rT8wZXjp9JVlrlwxdy7CeBiEJsZAf3TWeIiMC6a6f9MpbSr2FntEFvkjBOO-pu21ZQo0-yCGzEUshjUSYpqpT30"/>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 px-margin-mobile py-6 flex flex-col gap-6">
+<!-- Context Header -->
+<div class="flex items-center justify-between px-2">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Journal Entry</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">calendar_today</span>
+                        October 24, 2023
+                    </p>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-highest/50 backdrop-blur-md border border-white/50 flex items-center justify-center text-primary hover:bg-surface-container-highest transition-colors shadow-sm">
+<span class="material-symbols-outlined">mood</span>
+</button>
+</div>
+<!-- Glassmorphic Editor Container -->
+<div class="flex-1 flex flex-col backdrop-blur-[24px] bg-white/40 border-t border-l border-white/50 border-b border-r border-white/20 shadow-[0px_10px_40px_rgba(0,0,0,0.04)] rounded-xl overflow-hidden focus-within:shadow-[0px_10px_40px_rgba(70,72,212,0.1)] transition-shadow duration-300">
+<!-- Title Input -->
+<div class="px-panel-padding pt-6 pb-4">
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-headline-md text-headline-md text-on-surface placeholder:text-on-surface-variant/50 outline-none" placeholder="Title your thoughts..." type="text"/>
+</div>
+<!-- Divider -->
+<div class="w-full h-[1px] bg-white/50 mx-panel-padding w-[calc(100%-48px)]"></div>
+<!-- Body Textarea -->
+<div class="flex-1 px-panel-padding py-4 flex flex-col">
+<textarea class="w-full flex-1 bg-transparent border-none p-0 focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 outline-none resize-none min-h-[200px]" placeholder="Start writing here..."></textarea>
+</div>
+<!-- Editor Toolbar / Actions -->
+<div class="bg-white/20 backdrop-blur-md px-panel-padding py-3 flex items-center justify-between border-t border-white/30">
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-white/40 hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 20px;">format_bold</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-white/40 hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 20px;">format_italic</span>
+</button>
+<div class="w-[1px] h-4 bg-on-surface-variant/20 mx-1"></div>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-white/40 hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 20px;">image</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-white/40 hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 20px;">mic</span>
+</button>
+</div>
+<button class="bg-primary/10 text-primary px-3 py-1.5 rounded-full font-label-md text-label-md flex items-center gap-1 border border-primary/20 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 16px;">sell</span>
+                        Tag
+                    </button>
+</div>
+</div>
+<!-- Primary Save Action -->
+<button class="w-full bg-primary text-on-primary font-body-lg text-body-lg font-semibold py-4 rounded-xl shadow-[0_4px_14px_0_rgba(70,72,212,0.39)] hover:shadow-[0_6px_20px_rgba(70,72,212,0.23)] hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98]">
+<span class="material-symbols-outlined">save</span>
+                Save Entry
+            </button>
+</main>
+<!-- BottomNavBar (from JSON) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-20 bg-white/40 dark:bg-on-surface/40 backdrop-blur-xl border-t border-white/50 shadow-[0px_-10px_40px_rgba(0,0,0,0.04)] rounded-t-xl">
+<!-- Inactive: Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-primary-container/20 transition-all active:scale-90 duration-200 w-16 h-14 rounded-xl" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</a>
+<!-- Inactive: Analytics -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-primary-container/20 transition-all active:scale-90 duration-200 w-16 h-14 rounded-xl" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-md text-label-md mt-1">Analytics</span>
+</a>
+<!-- Active: Tasks (Mapped conceptually to Plan/Journal main entity) -->
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-xl px-4 py-1 hover:bg-primary-container/20 transition-all active:scale-90 duration-200 shadow-sm h-14" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md mt-1">Tasks</span>
+</a>
+<!-- Inactive: Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-primary-container/20 transition-all active:scale-90 duration-200 w-16 h-14 rounded-xl" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</a>
+</nav>
+</div>
+</body></html>

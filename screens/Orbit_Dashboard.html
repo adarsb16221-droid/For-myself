@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orbit Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#d97721",
+                        "outline-variant": "#464554",
+                        "surface-container": "#171f33",
+                        "surface-container-high": "#222a3d",
+                        "surface": "#0b1326",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "inverse-surface": "#dae2fd",
+                        "tertiary": "#ffb783",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-secondary-container": "#00311f",
+                        "on-error-container": "#ffdad6",
+                        "surface-bright": "#31394d",
+                        "on-background": "#dae2fd",
+                        "on-tertiary-fixed": "#301400",
+                        "background": "#0b1326",
+                        "primary-container": "#8083ff",
+                        "surface-container-lowest": "#060e20",
+                        "surface-variant": "#2d3449",
+                        "on-primary-fixed": "#07006c",
+                        "on-secondary": "#003824",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "surface-tint": "#c0c1ff",
+                        "secondary-container": "#00a572",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed-variant": "#005236",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-tertiary-container": "#452000",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#0b1326",
+                        "on-tertiary": "#4f2500",
+                        "on-error": "#690005",
+                        "primary-fixed": "#e1e0ff",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-highest": "#2d3449",
+                        "tertiary-fixed": "#ffdcc5",
+                        "outline": "#908fa0",
+                        "on-primary-container": "#0d0096",
+                        "primary": "#c0c1ff",
+                        "on-surface-variant": "#c7c4d7",
+                        "inverse-primary": "#494bd6",
+                        "error-container": "#93000a",
+                        "on-primary": "#1000a9",
+                        "on-surface": "#dae2fd",
+                        "secondary": "#4edea3",
+                        "surface-container-low": "#131b2e",
+                        "inverse-on-surface": "#283044",
+                        "on-tertiary-fixed-variant": "#703700"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "container-padding": "2rem",
+                        "stack-md": "1rem",
+                        "gutter": "1.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "2rem",
+                        "component-gap": "1rem"
+                    },
+                    fontFamily: {
+                        "title-sm": ["Outfit"],
+                        "display-lg-mobile": ["Outfit"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "body-lg": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    fontSize: {
+                        "title-sm": ["18px", { lineHeight: "24px", fontWeight: "500" }],
+                        "display-lg-mobile": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+                        "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { margin: 0; overflow-x: hidden; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px) scale(1.02);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .task-item:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .checkbox-custom {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .checkbox-custom:checked {
+            background-color: theme('colors.secondary');
+            border-color: theme('colors.secondary');
+        }
+        .checkbox-custom:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, theme('colors.primary'), theme('colors.secondary'));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-20">
+<!-- Fixed Shader Background -->
+<div class="fixed inset-0 w-full h-full -z-10 overflow-hidden opacity-50">
+<!-- STITCH_SHADER_START:ANIMATION_3 class="absolute inset-0 w-full h-full" -->
+<div class="absolute inset-0 w-full h-full" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_3" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_3');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+// Simplified noise for smooth blob movement
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 center = vec2(0.5, 0.5);
+    
+    // Base background color (Slate #0f172a)
+    vec3 baseColor = vec3(0.0588, 0.0902, 0.1647);
+    
+    // Blob 1: Top-left, Indigo (#6366f1)
+    vec2 pos1 = vec2(0.2 + 0.1 * sin(u_time * 0.5), 0.8 + 0.1 * cos(u_time * 0.4));
+    float d1 = length(uv - pos1);
+    vec3 color1 = vec3(0.388, 0.4, 0.945); // Indigo
+    float blob1 = smoothstep(0.5, 0.0, d1);
+    
+    // Blob 2: Bottom-right, Purple (#a855f7)
+    vec2 pos2 = vec2(0.8 + 0.15 * cos(u_time * 0.3), 0.2 + 0.1 * sin(u_time * 0.6));
+    float d2 = length(uv - pos2);
+    vec3 color2 = vec3(0.659, 0.333, 0.969); // Purple
+    float blob2 = smoothstep(0.6, 0.0, d2);
+    
+    // Blob 3: Center, Pink (#ec4899)
+    vec2 pos3 = vec2(0.5 + 0.2 * sin(u_time * 0.4), 0.5 + 0.15 * cos(u_time * 0.5));
+    float d3 = length(uv - pos3);
+    vec3 color3 = vec3(0.925, 0.282, 0.6); // Pink
+    float blob3 = smoothstep(0.4, 0.0, d3);
+    
+    // Blend blobs with low opacity and heavy blur feel (smoothstep does the heavy lifting)
+    vec3 finalColor = baseColor;
+    finalColor = mix(finalColor, color1, blob1 * 0.35);
+    finalColor = mix(finalColor, color2, blob2 * 0.3);
+    finalColor = mix(finalColor, color3, blob3 * 0.25);
+    
+    // Add subtle grain for texture
+    float grain = (hash(uv + u_time) - 0.5) * 0.02;
+    finalColor += grain;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_3 -->
+</div>
+<!-- Top Navigation Container (Not standard TopAppBar, custom for this screen) -->
+<header class="sticky top-0 z-40 glass-panel px-6 py-4 flex flex-col gap-2 rounded-b-xl shadow-lg border-b border-white/10">
+<div class="flex justify-between items-center w-full">
+<div>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">Orbit</h1>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors border border-white/10">
+<span class="material-symbols-outlined text-primary-fixed-dim">dark_mode</span>
+</button>
+</div>
+<div class="mt-2 flex justify-between items-end">
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Oct 24, 2023</p>
+<h2 class="font-display-lg-mobile text-display-lg-mobile font-bold">Good <span class="gradient-text">Morning</span>, User</h2>
+</div>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary/10 text-secondary border border-secondary/20">
+<span class="material-symbols-outlined text-[14px] mr-1">check_circle</span>
+                7 Tasks Completed
+            </span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="px-4 py-6 flex flex-col gap-6 max-w-2xl mx-auto">
+<!-- Task Input Section -->
+<section class="glass-panel p-4 rounded-xl flex flex-col gap-3 shadow-md">
+<div class="flex gap-2 items-center">
+<input class="flex-1 bg-surface-container-high/50 border border-white/10 rounded-lg px-4 py-3 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm" placeholder="What needs to be done?" type="text"/>
+</div>
+<div class="flex justify-between items-center">
+<select class="bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary">
+<option value="work">Work</option>
+<option value="personal">Personal</option>
+<option value="health">Health</option>
+</select>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-title-sm text-title-sm font-semibold hover:scale-105 transition-transform shadow-[0_0_15px_rgba(192,193,255,0.3)]">Add Task</button>
+</div>
+</section>
+<!-- Daily Habits -->
+<section>
+<h3 class="font-title-sm text-title-sm font-semibold mb-3 flex items-center gap-2 text-primary-fixed-dim">
+<span class="material-symbols-outlined">routine</span> Daily Habits
+            </h3>
+<div class="flex flex-col gap-2">
+<!-- Habit 1 -->
+<div class="glass-card rounded-xl p-4 flex items-center justify-between task-item cursor-pointer">
+<div class="flex items-center gap-3">
+<input class="checkbox-custom" type="checkbox"/>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Morning Meditation</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary-container/20 text-secondary border border-secondary/10">Health</span>
+</div>
+</div>
+<!-- Habit 2 -->
+<div class="glass-card rounded-xl p-4 flex items-center justify-between task-item cursor-pointer">
+<div class="flex items-center gap-3">
+<input checked="" class="checkbox-custom" type="checkbox"/>
+<span class="font-body-lg text-body-lg text-on-surface-variant line-through font-medium">Hydrate 1L</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary-container/20 text-secondary border border-secondary/10">Health</span>
+</div>
+</div>
+</div>
+</section>
+<!-- One-off Tasks -->
+<section>
+<h3 class="font-title-sm text-title-sm font-semibold mb-3 flex items-center gap-2 text-primary-fixed-dim">
+<span class="material-symbols-outlined">checklist</span> Focus Tasks
+            </h3>
+<div class="flex flex-col gap-3">
+<!-- Task 1 -->
+<div class="glass-card rounded-xl p-4 flex flex-col gap-2 task-item cursor-pointer">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3 mt-1">
+<input class="checkbox-custom mt-0.5" type="checkbox"/>
+<div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium block">Finalize Q3 Report</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> Due Today, 5 PM</span>
+</div>
+</div>
+<button class="text-outline-variant hover:text-error transition-colors p-1">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+<div class="ml-8 flex gap-2">
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary border border-primary/10">Work</span>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-tertiary/20 text-tertiary border border-tertiary/10">High Priority</span>
+</div>
+</div>
+<!-- Task 2 -->
+<div class="glass-card rounded-xl p-4 flex flex-col gap-2 task-item cursor-pointer">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3 mt-1">
+<input class="checkbox-custom mt-0.5" type="checkbox"/>
+<div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium block">Call Plumber</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">location_on</span> Home</span>
+</div>
+</div>
+<button class="text-outline-variant hover:text-error transition-colors p-1">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+<div class="ml-8 flex gap-2">
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-white/10">Personal</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Pomodoro Widget -->
+<section class="mt-4">
+<div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden border-t-2 border-primary/30">
+<!-- Decorative background glow for timer -->
+<div class="absolute inset-0 bg-primary/5 blur-3xl rounded-full"></div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase z-10 mb-2">Deep Focus</h4>
+<div class="font-display-lg text-display-lg font-bold text-primary z-10 my-2 tracking-tighter" style="font-variant-numeric: tabular-nums;">
+                    25:00
+                </div>
+<div class="flex gap-4 z-10 mt-4">
+<button class="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition-colors border-white/20 hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined text-on-surface">replay</span>
+</button>
+<button class="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(192,193,255,0.4)] hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-on-primary text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition-colors border-white/20 hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined text-on-surface">skip_next</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 bg-white/10 dark:bg-surface-container-lowest/40 backdrop-blur-2xl border-t border-white/10 rounded-t-xl shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+<!-- Active Tab: Home -->
+<a class="flex flex-col items-center justify-center text-primary scale-110" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-60 hover:opacity-100 transition-opacity active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-2xl">event</span>
+<span class="font-label-caps text-label-caps mt-1">Schedule</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-60 hover:opacity-100 transition-opacity active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-2xl">list_alt</span>
+<span class="font-label-caps text-label-caps mt-1">Tasks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-60 hover:opacity-100 transition-opacity active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-2xl">account_circle</span>
+<span class="font-label-caps text-label-caps mt-1">User</span>
+</a>
+</nav>
+</body></html>

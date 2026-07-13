@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orbit Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Outfit:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#bac5f0",
+                        "surface-container": "#e6eeff",
+                        "error": "#ba1a1a",
+                        "on-surface": "#0d1c2e",
+                        "on-tertiary-container": "#fefcff",
+                        "surface-bright": "#f8f9ff",
+                        "primary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#17228f",
+                        "tertiary-fixed": "#dbe1ff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#494bd6",
+                        "surface": "#f8f9ff",
+                        "secondary": "#4953bc",
+                        "secondary-fixed-dim": "#bdc2ff",
+                        "surface-variant": "#d5e3fc",
+                        "on-secondary-fixed": "#000767",
+                        "primary-container": "#6063ee",
+                        "tertiary-container": "#68739a",
+                        "inverse-primary": "#c0c1ff",
+                        "on-primary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#8792fe",
+                        "surface-dim": "#ccdbf3",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#0d1a3c",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "inverse-surface": "#233144",
+                        "on-primary-fixed": "#07006c",
+                        "outline": "#767586",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c7c4d7",
+                        "secondary-fixed": "#e0e0ff",
+                        "on-secondary-fixed-variant": "#2f3aa3",
+                        "tertiary": "#505b80",
+                        "on-surface-variant": "#464554",
+                        "on-tertiary-fixed-variant": "#3a456a",
+                        "on-background": "#0d1c2e",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "primary": "#4648d4",
+                        "surface-container-highest": "#d5e3fc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "panel-padding": "24px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "margin-desktop": "40px",
+                        "unit": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-xl": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Outfit"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f8f9ff;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(240, 100%, 95%, 1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(280, 100%, 95%, 1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass-panel {
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.04);
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .pt-safe { padding-top: env(safe-area-inset-top); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background min-h-screen pb-24 md:pb-0 relative">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/40 backdrop-blur-xl shadow-[0px_10px_40px_rgba(0,0,0,0.04)] pt-safe">
+<div class="flex items-center justify-between px-margin-mobile h-16">
+<button class="text-primary hover:bg-white/20 transition-colors active:scale-95 transition-transform duration-200 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">Orbit</h1>
+<button class="hover:bg-white/20 transition-colors active:scale-95 transition-transform duration-200 p-1 rounded-full flex items-center justify-center">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small, circular avatar portrait of a modern professional user. The lighting is soft and flattering, suitable for a light-mode glassmorphic application interface. The background is a subtle, solid pastel tone that complements an indigo and white color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEKVrtVHPDeoBzjP1AoEgHQeDQ1s0BuE-j9238SjEHGJZhTarNmI-pHtGJSQMOTglRYfDjYyHXyj5co7qU1L_pOiIa_12AsPwPlJASCmn-wjZXrMQX2EXOOxpj5C8d-ySbbI06I2TziIn8gLPawLTYL6JRVt40bytHzcLpAOoskmRCDPGtXptujW0RiJ58zesd_vbZLQWzke5_Bx5gbZ5nGUq8lhAznZWIDavii6qSsjkcVmEEeWJ9rSg7EIj3C34bj4GKvvINUTE"/>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-margin-mobile flex flex-col gap-unit mx-auto max-w-container-max md:px-margin-desktop md:pt-32">
+<!-- Greeting & Badge -->
+<section class="glass-panel rounded-xl p-panel-padding flex flex-col gap-unit mb-4">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Good Morning, Alex</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Here is your focus for today.</p>
+</div>
+<div class="bg-surface-container-high rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="local_fire_department" data-weight="fill" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-4">
+<div class="flex-1 bg-surface-container-highest rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full w-3/4 rounded-full"></div>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">75% Complete</span>
+</div>
+</section>
+<!-- Bento Grid: Key Metrics -->
+<section class="grid grid-cols-2 gap-4 mb-4">
+<div class="glass-panel rounded-xl p-4 flex flex-col justify-between aspect-square">
+<div class="flex justify-between items-center w-full">
+<div class="bg-primary-container/20 rounded-full p-2">
+<span class="material-symbols-outlined text-primary" data-icon="check_circle">check_circle</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tasks</span>
+</div>
+<div>
+<div class="font-headline-xl text-headline-xl text-on-surface">12</div>
+<div class="font-label-md text-label-md text-tertiary">Completed</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-4 flex flex-col justify-between aspect-square">
+<div class="flex justify-between items-center w-full">
+<div class="bg-secondary-container/20 rounded-full p-2">
+<span class="material-symbols-outlined text-secondary" data-icon="schedule">schedule</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Hours</span>
+</div>
+<div>
+<div class="font-headline-xl text-headline-xl text-on-surface">4.5</div>
+<div class="font-label-md text-label-md text-tertiary">Deep Work</div>
+</div>
+</div>
+</section>
+<!-- Task List -->
+<section class="flex flex-col gap-4">
+<h3 class="font-headline-md text-headline-md text-on-surface px-2">Upcoming Tasks</h3>
+<!-- Task Card 1 -->
+<div class="glass-panel rounded-xl p-4 flex items-center gap-4 relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-xl"></div>
+<button class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center hover:border-primary transition-colors">
+<!-- Check icon appears on completion -->
+</button>
+<div class="flex-1">
+<h4 class="font-body-lg text-body-lg text-on-surface font-semibold">Review Q3 Marketing Deck</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="event">event</span>
+                        Today, 2:00 PM
+                    </p>
+</div>
+<span class="bg-error-container text-on-error-container font-label-md text-label-md px-2 py-1 rounded-full">High</span>
+</div>
+<!-- Task Card 2 -->
+<div class="glass-panel rounded-xl p-4 flex items-center gap-4 relative overflow-hidden">
+<button class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center hover:border-primary transition-colors">
+</button>
+<div class="flex-1">
+<h4 class="font-body-lg text-body-lg text-on-surface font-semibold">Weekly Team Sync</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="event">event</span>
+                        Today, 4:00 PM
+                    </p>
+</div>
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-white object-cover" data-alt="A tiny, circular avatar of a team member in a professional setting. Light mode style, soft pastel background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJ2FUg6OSpG4b1j2FoMru7bXxHbwKboVkEVsQz-DSpXUIvP3Pe1bRt_iCgkVX1SAK0nQAVGAh7RsEZzw2lqiPGNJDGwZtUG96nVFbqzeWCVr5VsyfgoNeiRjqBmOUk18F24U4rcz9D0P-_wV2pVDZ1myceFi2zVIVQPKLKQw_I_No_7E4DlwNoxI2MXsW2Z6ep9E_TmJbCkIQ8Gnz8W35yWvNkONN53WP6aefFWRbwRPaK9qs55qRb1AnNVRXkWefDdtvZoSD7iis"/>
+<img class="w-6 h-6 rounded-full border-2 border-white object-cover" data-alt="Another tiny, circular avatar of a team member in a professional setting. Light mode style, soft pastel background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaPxPC2TBJEXGJLYZA4aNkncL5ltt1kvzHfQCxLDF-8-RPcXwyPF3Bj0dMncOVwPmh8l1srnCR7HSRm5I6YWTBVpJp56JQC4I-y1tM6rZ50dsBmAxUhgeoYTxfaKtagY5x0bwDLn3kZsuKyoc5D9JA7is3vH7HDmwRJX_6XnyPjKTvK8V6VCQjwCDBT_-3ycv7Q6Xte7bkSymUyCNfE5Lw5YYY-XqsEhs39p3MzdFAV__Gkjr5c6rFQ1uCBfmNotwGOuCtytTim-s"/>
+</div>
+</div>
+<!-- Task Card 3 -->
+<div class="glass-panel rounded-xl p-4 flex items-center gap-4 relative overflow-hidden opacity-70">
+<button class="w-6 h-6 rounded-full border-2 border-primary bg-primary flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-white text-[16px]" data-icon="check">check</span>
+</button>
+<div class="flex-1">
+<h4 class="font-body-lg text-body-lg text-on-surface font-semibold line-through">Update Design System</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="done_all">done_all</span>
+                        Completed 10:30 AM
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-20 bg-white/40 backdrop-blur-xl shadow-[0px_-10px_40px_rgba(0,0,0,0.04)] rounded-t-xl md:hidden">
+<button class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-xl px-4 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="home" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-primary-container/20 transition-all rounded-xl px-4 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-label-md text-label-md mt-1">Analytics</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-primary-container/20 transition-all rounded-xl px-4 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-label-md text-label-md mt-1">Tasks</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-primary-container/20 transition-all rounded-xl px-4 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</button>
+</nav>
+</body></html>
