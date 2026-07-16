@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
 
-export default function Header({ title, subtitle, showDate = true, tasksCompleted = 0 }) {
+export default function Header({ title, subtitle, showDate = true, tasksCompleted = 0, currentScheduleBlock = null }) {
   const [dateStr, setDateStr] = useState('');
   const [greeting, setGreeting] = useState('Morning');
   const { theme, toggleTheme } = useTheme();
@@ -19,6 +19,15 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
     else if (hour < 17) setGreeting('Afternoon');
     else setGreeting('Evening');
   }, []);
+
+  const formatTime = (time24) => {
+    if (!time24) return '';
+    const [h, m] = time24.split(':');
+    let hours = parseInt(h, 10);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${hours}:${m} ${ampm}`;
+  };
 
   return (
     <header className="relative z-40 glass-panel px-6 py-4 flex flex-col gap-2 rounded-b-xl shadow-lg border-b border-white/10">
@@ -35,7 +44,7 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
       </div>
 
       {(subtitle || showDate) && (
-        <div className="mt-2 flex justify-between items-end">
+        <div className="mt-2 flex justify-between items-end flex-wrap gap-4">
           <div>
             {showDate && <p className="font-body-sm text-[14px] text-on-surface-variant">{dateStr}</p>}
             {subtitle ? (
@@ -47,16 +56,28 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
                 <h2 className="font-display-lg-mobile text-[32px] font-bold leading-tight mt-1">{subtitle}</h2>
               )
             ) : null}
+            {tasksCompleted > 0 && (
+              <div className="flex gap-2 mt-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary/10 text-secondary border border-secondary/20">
+                  <span className="material-symbols-outlined text-[14px] mr-1">check_circle</span>
+                  {tasksCompleted} Tasks Completed
+                </span>
+              </div>
+            )}
           </div>
-        </div>
-      )}
 
-      {tasksCompleted > 0 && (
-        <div className="flex gap-2 mt-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary/10 text-secondary border border-secondary/20">
-            <span className="material-symbols-outlined text-[14px] mr-1">check_circle</span>
-            {tasksCompleted} Tasks Completed
-          </span>
+          {currentScheduleBlock && (
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex flex-col min-w-[200px] shadow-sm ml-auto">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="material-symbols-outlined text-primary text-[16px]">schedule</span>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Current Schedule</p>
+              </div>
+              <p className="font-body-lg text-on-surface font-medium leading-tight">{currentScheduleBlock.title}</p>
+              <p className="font-label-caps text-[11px] text-outline tracking-widest mt-1">
+                {formatTime(currentScheduleBlock.startTime)} - {formatTime(currentScheduleBlock.endTime)}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </header>

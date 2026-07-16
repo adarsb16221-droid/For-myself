@@ -48,3 +48,30 @@ export async function DELETE(req) {
     return NextResponse.json({ error: 'Failed to delete schedule item' }, { status: 500 });
   }
 }
+
+export async function PUT(req) {
+  try {
+    await connectToDatabase();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const data = await req.json();
+    const { _id, ...updateData } = data;
+    
+    if (!_id) {
+      return NextResponse.json({ error: 'Schedule ID is required' }, { status: 400 });
+    }
+
+    const updatedSchedule = await Schedule.findOneAndUpdate(
+      { _id, userId: session.userId },
+      updateData,
+      { new: true }
+    );
+    
+    if (!updatedSchedule) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    return NextResponse.json(updatedSchedule);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update schedule item' }, { status: 500 });
+  }
+}

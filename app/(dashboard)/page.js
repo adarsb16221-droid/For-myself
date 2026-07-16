@@ -4,34 +4,90 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import TaskCard from '@/components/TaskCard';
 import Pomodoro from '@/components/Pomodoro';
+import Spinner from '@/components/Spinner';
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
-  const [taskInput, setTaskInput] = useState('');
-  const [taskCategory, setTaskCategory] = useState('Work');
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [processingTasks, setProcessingTasks] = useState(new Set());
+  
+  const [schedule, setSchedule] = useState([]);
+  
+  // Habit Add State
+  const [showAddHabit, setShowAddHabit] = useState(false);
+  const [habitInput, setHabitInput] = useState('');
+  const [habitCategory, setHabitCategory] = useState('Health');
 
+  // Focus Task Add State
+  const [showAddFocus, setShowAddFocus] = useState(false);
+  const [focusInput, setFocusInput] = useState('');
+  const [focusCategory, setFocusCategory] = useState('Work');
 
-  async function fetchTasks() {
-    try {
-      const res = await fetch('/api/tasks');
-      if (res.ok) {
-        const data = await res.json();
-        setTasks(data);
+  const [currentBlock, setCurrentBlock] = useState(null);
+
+  useEffect(() => {
+    async function fetchTasks() {
+      try {
+        const res = await fetch('/api/tasks');
+        if (res.ok) {
+          const data = await res.json();
+          setTasks(data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch tasks', e);
+      } finally {
+        setIsLoadingTasks(false);
       }
-    } catch (e) {
-      console.error('Failed to fetch tasks', e);
     }
-  }
 
-  const addTask = async (e) => {
+    async function fetchSchedule() {
+      try {
+        const res = await fetch('/api/schedule');
+        if (res.ok) {
+          const data = await res.json();
+          setSchedule(data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch schedule', e);
+      }
+    }
+
+    fetchTasks();
+    fetchSchedule();
+  }, []);
+
+  useEffect(() => {
+    // Determine current block
+    const updateCurrentBlock = () => {
+      const now = new Date();
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const currentTime = `${h}:${m}`;
+      
+      const active = schedule.find(b => currentTime >= b.startTime && currentTime <= b.endTime);
+      setCurrentBlock(active || null);
+    };
+    
+    if (schedule.length > 0) {
+      updateCurrentBlock();
+      const interval = setInterval(updateCurrentBlock, 60000); // Check every minute
+      return () => clearInterval(interval);
+    }
+  }, [schedule]);
+
+
+  const addTask = async (e, isRegular) => {
     e.preventDefault();
-    if (!taskInput.trim()) return;
+    const input = isRegular ? habitInput : focusInput;
+    const category = isRegular ? habitCategory : focusCategory;
+    
+    if (!input.trim()) return;
     
     const newTask = {
-      text: taskInput,
-      category: taskCategory,
+      text: input,
+      category: category,
       priority: 'medium',
-      isRegular: false
+      isRegular: isRegular
     };
 
     try {
@@ -43,7 +99,13 @@ export default function Home() {
       if (res.ok) {
         const createdTask = await res.json();
         setTasks([createdTask, ...tasks]);
-        setTaskInput('');
+        if (isRegular) {
+          setHabitInput('');
+          setShowAddHabit(false);
+        } else {
+          setFocusInput('');
+          setShowAddFocus(false);
+        }
       }
     } catch(e) {
       console.error(e);
@@ -51,6 +113,7 @@ export default function Home() {
   };
 
   const toggleTask = async (task) => {
+    setProcessingTasks(prev => new Set(prev).add(task._id));
     const updated = { ...task, completed: !task.completed, completedAt: !task.completed ? new Date().toISOString() : null };
     try {
       await fetch('/api/tasks', {
@@ -59,70 +122,175 @@ export default function Home() {
         body: JSON.stringify(updated)
       });
       setTasks(tasks.map(t => t._id === task._id ? updated : t));
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+      console.error(e); 
+    } finally {
+      setProcessingTasks(prev => {
+        const next = new Set(prev);
+        next.delete(task._id);
+        return next;
+      });
+    }
   };
 
   const deleteTask = async (id) => {
+    setProcessingTasks(prev => new Set(prev).add(id));
     try {
       await fetch(`/api/tasks?id=${id}`, { method: 'DELETE' });
       setTasks(tasks.filter(t => t._id !== id));
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+      console.error(e); 
+    } finally {
+      setProcessingTasks(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const editTask = async (task, newText) => {
+    setProcessingTasks(prev => new Set(prev).add(task._id));
+    const updated = { ...task, text: newText };
+    try {
+      await fetch('/api/tasks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+      setTasks(tasks.map(t => t._id === task._id ? updated : t));
+    } catch(e) {
+      console.error(e);
+    } finally {
+      setProcessingTasks(prev => {
+        const next = new Set(prev);
+        next.delete(task._id);
+        return next;
+      });
+    }
+  };
+
+  const moveTask = async (taskToMove, direction) => {
+    const contextTasks = taskToMove.isRegular ? dailyTasks : oneOffTasks;
+    const currentIndex = contextTasks.findIndex(t => t._id === taskToMove._id);
+    if (currentIndex === -1) return;
+
+    const nowTime = new Date().getTime();
+    let newOrder;
+    if (direction === 'first') {
+      newOrder = (contextTasks[0]?.order || nowTime) - 1000;
+    } else if (direction === 'last') {
+      newOrder = (contextTasks[contextTasks.length - 1]?.order || nowTime) + 1000;
+    } else if (direction === 'up' && currentIndex > 0) {
+      const prevTask = contextTasks[currentIndex - 1];
+      const prevPrevTask = contextTasks[currentIndex - 2];
+      if (prevPrevTask) {
+        newOrder = ((prevTask.order || nowTime) + (prevPrevTask.order || nowTime)) / 2;
+      } else {
+        newOrder = (prevTask.order || nowTime) - 1000;
+      }
+    } else if (direction === 'down' && currentIndex < contextTasks.length - 1) {
+      const nextTask = contextTasks[currentIndex + 1];
+      const nextNextTask = contextTasks[currentIndex + 2];
+      if (nextNextTask) {
+        newOrder = ((nextTask.order || nowTime) + (nextNextTask.order || nowTime)) / 2;
+      } else {
+        newOrder = (nextTask.order || nowTime) + 1000;
+      }
+    } else {
+      return; 
+    }
+
+    const updated = { ...taskToMove, order: newOrder };
+    
+    // Optimistic update
+    const newTasks = tasks.map(t => t._id === taskToMove._id ? updated : t)
+      .sort((a, b) => {
+        const orderA = a.order || nowTime;
+        const orderB = b.order || nowTime;
+        if (orderA !== orderB) return orderA - orderB;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+    setTasks(newTasks);
+
+    try {
+      await fetch('/api/tasks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+    } catch(e) {
+      console.error(e);
+    }
+  };
+
+  // Utility to format 24h time to 12h time for current block display
+  const formatTime = (time24) => {
+    const [h, m] = time24.split(':');
+    let hours = parseInt(h, 10);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${hours}:${m} ${ampm}`;
   };
 
   const dailyTasks = tasks.filter(t => t.isRegular);
   const oneOffTasks = tasks.filter(t => !t.isRegular);
   const tasksCompleted = tasks.filter(t => t.completed).length;
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
   return (
     <>
-      <Header title="Orbit" subtitle="Greeting" tasksCompleted={tasksCompleted} />
+      <Header title="Orbit" subtitle="Greeting" tasksCompleted={tasksCompleted} currentScheduleBlock={currentBlock} />
       
-      <main className="px-4 py-6 flex flex-col gap-6 max-w-2xl mx-auto w-full flex-1">
-        {/* Task Input Section */}
-        <section className="glass-panel p-4 rounded-xl flex flex-col gap-3 shadow-md">
-          <form onSubmit={addTask} className="flex flex-col gap-3">
-            <div className="flex gap-2 items-center">
-              <input 
-                className="flex-1 bg-surface-container-high/50 border border-white/10 rounded-lg px-4 py-3 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm" 
-                placeholder="What needs to be done?" 
-                type="text"
-                value={taskInput}
-                onChange={(e) => setTaskInput(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-between items-center">
-              <select 
-                className="bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary"
-                value={taskCategory}
-                onChange={(e) => setTaskCategory(e.target.value)}
-              >
-                <option value="Work">Work</option>
-                <option value="Personal">Personal</option>
-                <option value="Health">Health</option>
-                <option value="General">General</option>
-              </select>
-              <button 
-                type="submit"
-                className="bg-primary text-on-primary px-6 py-2 rounded-lg font-title-sm text-[16px] font-semibold hover:scale-105 transition-transform shadow-[0_0_15px_rgba(192,193,255,0.3)]"
-              >
-                Add Task
-              </button>
-            </div>
-          </form>
-        </section>
+      <main className="px-4 py-6 flex flex-col gap-6 max-w-7xl mx-auto w-full flex-1">
+
 
         {/* Daily Habits */}
         <section>
-          <h3 className="font-title-sm text-[18px] font-semibold mb-3 flex items-center gap-2 text-primary-fixed-dim">
-            <span className="material-symbols-outlined">routine</span> Daily Habits
-          </h3>
-          <div className="flex flex-col gap-2">
-            {dailyTasks.length === 0 ? (
-              <p className="text-on-surface-variant text-sm italic opacity-70">No daily habits yet.</p>
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+              <span className="material-symbols-outlined">routine</span> Daily Habits
+            </h3>
+            <button 
+              onClick={() => setShowAddHabit(!showAddHabit)}
+              className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+            >
+              <span className="material-symbols-outlined text-[18px]">{showAddHabit ? 'close' : 'add'}</span> 
+              {showAddHabit ? 'Cancel' : 'Add Tasks'}
+            </button>
+          </div>
+          
+          {showAddHabit && (
+            <form onSubmit={(e) => addTask(e, true)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+              <input 
+                className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
+                placeholder="New habit..." 
+                type="text"
+                autoFocus
+                value={habitInput}
+                onChange={(e) => setHabitInput(e.target.value)}
+              />
+              <div className="flex justify-between items-center">
+                <select 
+                  className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                  value={habitCategory}
+                  onChange={(e) => setHabitCategory(e.target.value)}
+                >
+                  <option value="Health">Health</option>
+                  <option value="Wealth">Wealth</option>
+                  <option value="Knowledge">Knowledge</option>
+                </select>
+                <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                  Add Habit
+                </button>
+              </div>
+            </form>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {isLoadingTasks ? (
+              <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
+            ) : dailyTasks.length === 0 ? (
+              <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No daily habits yet.</p>
             ) : (
               dailyTasks.map(task => (
                 <TaskCard 
@@ -130,6 +298,9 @@ export default function Home() {
                   task={task} 
                   onToggle={toggleTask} 
                   onDelete={deleteTask} 
+                  onEdit={editTask}
+                  onMove={moveTask}
+                  isLoading={processingTasks.has(task._id)}
                 />
               ))
             )}
@@ -138,12 +309,51 @@ export default function Home() {
 
         {/* One-off Tasks */}
         <section>
-          <h3 className="font-title-sm text-[18px] font-semibold mb-3 flex items-center gap-2 text-primary-fixed-dim">
-            <span className="material-symbols-outlined">checklist</span> Focus Tasks
-          </h3>
-          <div className="flex flex-col gap-3">
-            {oneOffTasks.length === 0 ? (
-              <p className="text-on-surface-variant text-sm italic opacity-70">No tasks remaining.</p>
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+              <span className="material-symbols-outlined">checklist</span> Focus Tasks
+            </h3>
+            <button 
+              onClick={() => setShowAddFocus(!showAddFocus)}
+              className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+            >
+              <span className="material-symbols-outlined text-[18px]">{showAddFocus ? 'close' : 'add'}</span> 
+              {showAddFocus ? 'Cancel' : 'Add Tasks'}
+            </button>
+          </div>
+
+          {showAddFocus && (
+            <form onSubmit={(e) => addTask(e, false)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+              <input 
+                className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
+                placeholder="New focus task..." 
+                type="text"
+                autoFocus
+                value={focusInput}
+                onChange={(e) => setFocusInput(e.target.value)}
+              />
+              <div className="flex justify-between items-center">
+                <select 
+                  className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                  value={focusCategory}
+                  onChange={(e) => setFocusCategory(e.target.value)}
+                >
+                  <option value="Work">Work</option>
+                  <option value="Personal">Personal</option>
+                  <option value="General">General</option>
+                </select>
+                <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                  Add Task
+                </button>
+              </div>
+            </form>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {isLoadingTasks ? (
+              <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
+            ) : oneOffTasks.length === 0 ? (
+              <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No tasks remaining.</p>
             ) : (
               oneOffTasks.map(task => (
                 <TaskCard 
@@ -151,6 +361,9 @@ export default function Home() {
                   task={task} 
                   onToggle={toggleTask} 
                   onDelete={deleteTask} 
+                  onEdit={editTask}
+                  onMove={moveTask}
+                  isLoading={processingTasks.has(task._id)}
                 />
               ))
             )}

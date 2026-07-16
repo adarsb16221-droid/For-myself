@@ -9,7 +9,7 @@ export async function GET(req) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const tasks = await Task.find({ userId: session.userId }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ userId: session.userId }).sort({ order: 1, createdAt: -1 });
     return NextResponse.json(tasks);
   } catch (error) {
     console.error("TASKS GET ERROR:", error);

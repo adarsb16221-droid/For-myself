@@ -17,6 +17,7 @@ const TaskSchema = new mongoose.Schema({
   completed: { type: Boolean, default: false },
   completedAt: { type: String, default: null },
   history: { type: [String], default: [] },
+  order: { type: Number, default: () => Date.now() },
 }, { timestamps: true });
 
 export default mongoose.models.Task || mongoose.model('Task', TaskSchema);
