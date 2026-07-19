@@ -75,6 +75,31 @@ export default function Home() {
     }
   }, [schedule]);
 
+  // Daily Rollover Check (resets habits if tab is left open overnight)
+  useEffect(() => {
+    const checkRollover = () => {
+      const todayDateStr = new Date().toISOString().split('T')[0];
+      setTasks(prevTasks => {
+        let hasChanges = false;
+        const newTasks = prevTasks.map(task => {
+          if (task.isRegular && task.completed && task.completedAt) {
+            const completedDateStr = task.completedAt.split('T')[0];
+            if (completedDateStr !== todayDateStr) {
+              hasChanges = true;
+              return { ...task, completed: false, completedAt: null };
+            }
+          }
+          return task;
+        });
+        return hasChanges ? newTasks : prevTasks;
+      });
+    };
+
+    const interval = setInterval(checkRollover, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
+
 
   const addTask = async (e, isRegular) => {
     e.preventDefault();
@@ -243,132 +268,133 @@ export default function Home() {
       
       <main className="px-4 py-6 flex flex-col gap-6 max-w-7xl mx-auto w-full flex-1">
 
-
-        {/* Daily Habits */}
-        <section>
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-              <span className="material-symbols-outlined">routine</span> Daily Habits
-            </h3>
-            <button 
-              onClick={() => setShowAddHabit(!showAddHabit)}
-              className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">{showAddHabit ? 'close' : 'add'}</span> 
-              {showAddHabit ? 'Cancel' : 'Add Tasks'}
-            </button>
-          </div>
-          
-          {showAddHabit && (
-            <form onSubmit={(e) => addTask(e, true)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
-              <input 
-                className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
-                placeholder="New habit..." 
-                type="text"
-                autoFocus
-                value={habitInput}
-                onChange={(e) => setHabitInput(e.target.value)}
-              />
-              <div className="flex justify-between items-center">
-                <select 
-                  className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
-                  value={habitCategory}
-                  onChange={(e) => setHabitCategory(e.target.value)}
-                >
-                  <option value="Health">Health</option>
-                  <option value="Wealth">Wealth</option>
-                  <option value="Knowledge">Knowledge</option>
-                </select>
-                <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
-                  Add Habit
-                </button>
-              </div>
-            </form>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {isLoadingTasks ? (
-              <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
-            ) : dailyTasks.length === 0 ? (
-              <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No daily habits yet.</p>
-            ) : (
-              dailyTasks.map(task => (
-                <TaskCard 
-                  key={task._id} 
-                  task={task} 
-                  onToggle={toggleTask} 
-                  onDelete={deleteTask} 
-                  onEdit={editTask}
-                  onMove={moveTask}
-                  isLoading={processingTasks.has(task._id)}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Daily Habits (Smaller Area) */}
+          <section className="lg:col-span-1 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <span className="material-symbols-outlined">routine</span> Daily Habits
+              </h3>
+              <button 
+                onClick={() => setShowAddHabit(!showAddHabit)}
+                className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">{showAddHabit ? 'close' : 'add'}</span> 
+                {showAddHabit ? 'Cancel' : 'Add Tasks'}
+              </button>
+            </div>
+            
+            {showAddHabit && (
+              <form onSubmit={(e) => addTask(e, true)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+                <input 
+                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
+                  placeholder="New habit..." 
+                  type="text"
+                  autoFocus
+                  value={habitInput}
+                  onChange={(e) => setHabitInput(e.target.value)}
                 />
-              ))
+                <div className="flex justify-between items-center">
+                  <select 
+                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                    value={habitCategory}
+                    onChange={(e) => setHabitCategory(e.target.value)}
+                  >
+                    <option value="Health">Health</option>
+                    <option value="Wealth">Wealth</option>
+                    <option value="Knowledge">Knowledge</option>
+                  </select>
+                  <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                    Add Habit
+                  </button>
+                </div>
+              </form>
             )}
-          </div>
-        </section>
 
-        {/* One-off Tasks */}
-        <section>
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-              <span className="material-symbols-outlined">checklist</span> Focus Tasks
-            </h3>
-            <button 
-              onClick={() => setShowAddFocus(!showAddFocus)}
-              className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">{showAddFocus ? 'close' : 'add'}</span> 
-              {showAddFocus ? 'Cancel' : 'Add Tasks'}
-            </button>
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+              {isLoadingTasks ? (
+                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
+              ) : dailyTasks.length === 0 ? (
+                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No daily habits yet.</p>
+              ) : (
+                dailyTasks.map(task => (
+                  <TaskCard 
+                    key={task._id} 
+                    task={task} 
+                    onToggle={toggleTask} 
+                    onDelete={deleteTask} 
+                    onEdit={editTask}
+                    onMove={moveTask}
+                    isLoading={processingTasks.has(task._id)}
+                  />
+                ))
+              )}
+            </div>
+          </section>
 
-          {showAddFocus && (
-            <form onSubmit={(e) => addTask(e, false)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
-              <input 
-                className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
-                placeholder="New focus task..." 
-                type="text"
-                autoFocus
-                value={focusInput}
-                onChange={(e) => setFocusInput(e.target.value)}
-              />
-              <div className="flex justify-between items-center">
-                <select 
-                  className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
-                  value={focusCategory}
-                  onChange={(e) => setFocusCategory(e.target.value)}
-                >
-                  <option value="Work">Work</option>
-                  <option value="Personal">Personal</option>
-                  <option value="General">General</option>
-                </select>
-                <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
-                  Add Task
-                </button>
-              </div>
-            </form>
-          )}
+          {/* One-off Tasks (Focus Tasks - Larger Area) */}
+          <section className="lg:col-span-2 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <span className="material-symbols-outlined">checklist</span> Focus Tasks
+              </h3>
+              <button 
+                onClick={() => setShowAddFocus(!showAddFocus)}
+                className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">{showAddFocus ? 'close' : 'add'}</span> 
+                {showAddFocus ? 'Cancel' : 'Add Tasks'}
+              </button>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {isLoadingTasks ? (
-              <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
-            ) : oneOffTasks.length === 0 ? (
-              <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No tasks remaining.</p>
-            ) : (
-              oneOffTasks.map(task => (
-                <TaskCard 
-                  key={task._id} 
-                  task={task} 
-                  onToggle={toggleTask} 
-                  onDelete={deleteTask} 
-                  onEdit={editTask}
-                  onMove={moveTask}
-                  isLoading={processingTasks.has(task._id)}
+            {showAddFocus && (
+              <form onSubmit={(e) => addTask(e, false)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+                <input 
+                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
+                  placeholder="New focus task..." 
+                  type="text"
+                  autoFocus
+                  value={focusInput}
+                  onChange={(e) => setFocusInput(e.target.value)}
                 />
-              ))
+                <div className="flex justify-between items-center">
+                  <select 
+                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                    value={focusCategory}
+                    onChange={(e) => setFocusCategory(e.target.value)}
+                  >
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="General">General</option>
+                  </select>
+                  <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                    Add Task
+                  </button>
+                </div>
+              </form>
             )}
-          </div>
-        </section>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {isLoadingTasks ? (
+                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
+              ) : oneOffTasks.length === 0 ? (
+                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No tasks remaining.</p>
+              ) : (
+                oneOffTasks.map(task => (
+                  <TaskCard 
+                    key={task._id} 
+                    task={task} 
+                    onToggle={toggleTask} 
+                    onDelete={deleteTask} 
+                    onEdit={editTask}
+                    onMove={moveTask}
+                    isLoading={processingTasks.has(task._id)}
+                  />
+                ))
+              )}
+            </div>
+          </section>
+        </div>
 
         {/* Pomodoro Widget */}
         <Pomodoro />

@@ -10,6 +10,7 @@ export default function BottomNav() {
     { name: 'Schedule', href: '/schedule', icon: 'event' },
     { name: 'Journal', href: '/journal', icon: 'list_alt' },
     { name: 'Links', href: '/links', icon: 'link' },
+    { name: 'Data', href: '/analytics', icon: 'insights' },
   ];
 
   return (

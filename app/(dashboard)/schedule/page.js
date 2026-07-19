@@ -173,10 +173,10 @@ export default function SchedulePage() {
     <>
       <Header title="Orbit" subtitle="Schedule Builder" showDate={false} />
       
-      <main className="px-4 py-6 flex gap-6 max-w-7xl mx-auto w-full flex-1 h-[calc(100vh-100px)] overflow-hidden">
+      <main className="px-4 py-6 flex flex-col md:flex-row gap-6 max-w-7xl mx-auto w-full flex-1 h-[calc(100vh-100px)] overflow-hidden">
         
         {/* Sidebar: Tasks */}
-        <div className="w-1/3 flex flex-col gap-4 bg-surface-container-low rounded-xl p-4 border border-white/5 h-full overflow-y-auto hidden md:flex shadow-sm">
+        <div className="w-full md:w-1/3 flex flex-col gap-4 bg-surface-container-low rounded-xl p-4 border border-white/5 h-[30%] md:h-full overflow-y-auto shadow-sm shrink-0">
           <h2 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim sticky top-0 bg-surface-container-low z-10 pb-2 border-b border-white/5">
             <span className="material-symbols-outlined">drag_indicator</span> Tasks Pool
           </h2>
@@ -187,7 +187,7 @@ export default function SchedulePage() {
           ) : tasks.length === 0 ? (
             <p className="text-on-surface-variant text-sm italic opacity-70">No tasks available.</p>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col md:flex-col sm:flex-row sm:flex-wrap gap-2">
               {tasks.map(task => (
                 <div 
                   key={task._id} 
@@ -196,7 +196,7 @@ export default function SchedulePage() {
                     e.dataTransfer.setData('taskTitle', task.text);
                     e.dataTransfer.effectAllowed = 'copy';
                   }}
-                  className="glass-card rounded-lg p-3 border border-white/10 cursor-grab hover:bg-white/5 transition-colors active:cursor-grabbing flex flex-col gap-1 shadow-sm group"
+                  className="glass-card rounded-lg p-3 border border-white/10 cursor-grab hover:bg-white/5 transition-colors active:cursor-grabbing flex flex-col gap-1 shadow-sm group sm:w-[calc(50%-0.25rem)] md:w-full"
                 >
                   <div className="flex justify-between items-start">
                     <span className="font-body-sm text-[14px] font-medium text-on-surface">{task.text}</span>
@@ -213,7 +213,7 @@ export default function SchedulePage() {
         </div>
 
         {/* Main Area: Timeline Grid */}
-        <div className="flex-1 flex flex-col bg-surface-container-low rounded-xl border border-white/5 h-full overflow-hidden relative shadow-sm">
+        <div className="flex-1 w-full flex flex-col bg-surface-container-low rounded-xl border border-white/5 h-full overflow-hidden relative shadow-sm">
           <div className="p-4 border-b border-white/5 bg-surface-container flex justify-between items-center z-20 shadow-sm relative">
             <h2 className="font-headline-md text-[20px] font-bold flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">calendar_month</span> Today's Timeline

@@ -14,6 +14,7 @@ export default function SideNav() {
     { name: 'Journal', href: '/journal', icon: 'auto_stories' },
     { name: 'Quick Links', href: '/links', icon: 'link' },
     { name: 'Schedule', href: '/schedule', icon: 'calendar_month' },
+    { name: 'Analytics', href: '/analytics', icon: 'insights' },
   ];
 
   return (
