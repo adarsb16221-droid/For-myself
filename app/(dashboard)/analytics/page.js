@@ -32,11 +32,20 @@ export default function AnalyticsPage() {
   // Number of tasks done on each day
   const getConsistencyData = () => {
     const dailyCounts = {};
+    
     tasks.forEach(task => {
-      if (task.completed && task.completedAt) {
+      // For one-off tasks
+      if (!task.isRegular && task.completed && task.completedAt) {
         // Get date string (YYYY-MM-DD)
         const dateStr = new Date(task.completedAt).toISOString().split('T')[0];
         dailyCounts[dateStr] = (dailyCounts[dateStr] || 0) + 1;
+      }
+      
+      // For regular tasks (habits), use the history array
+      if (task.isRegular && task.history && task.history.length > 0) {
+        task.history.forEach(dateStr => {
+          dailyCounts[dateStr] = (dailyCounts[dateStr] || 0) + 1;
+        });
       }
     });
 
@@ -68,9 +77,9 @@ export default function AnalyticsPage() {
     const points = { Health: 0, Wealth: 0, Knowledge: 0 };
     
     tasks.forEach(task => {
-      if (task.isRegular && task.completed) {
+      if (task.isRegular && task.history && task.history.length > 0) {
         if (points[task.category] !== undefined) {
-          points[task.category] += 1; // 1 point per completed daily habit
+          points[task.category] += task.history.length; // 1 point per completed daily habit day
         }
       }
     });
