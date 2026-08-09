@@ -3,22 +3,54 @@
 import { useState } from 'react';
 import Spinner from '@/components/Spinner';
 
-export default function TaskCard({ task, onToggle, onDelete, onEdit, onMove, isLoading }) {
+export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, isLoading }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editInput, setEditInput] = useState(task.text);
   const [showMoveMenu, setShowMoveMenu] = useState(false);
+  
+  const [showAddSubtask, setShowAddSubtask] = useState(false);
+  const [subtaskInput, setSubtaskInput] = useState('');
+
   const isCompleted = task.completed;
+  const subtasks = task.subtasks || [];
 
   const handleSave = (e) => {
     e.stopPropagation();
     if (editInput.trim() && editInput !== task.text) {
-      onEdit(task, editInput);
+      onUpdate(task, { text: editInput });
     }
     setIsEditing(false);
   };
 
+  const handleAddSubtask = (e) => {
+    e.preventDefault();
+    if (!subtaskInput.trim()) return;
+    const newSubtask = {
+      id: Date.now().toString(),
+      text: subtaskInput.trim(),
+      completed: false
+    };
+    onUpdate(task, { subtasks: [...subtasks, newSubtask] });
+    setSubtaskInput('');
+    setShowAddSubtask(false);
+  };
+
+  const handleToggleSubtask = (e, subtaskId) => {
+    e.stopPropagation();
+    const newSubtasks = subtasks.map(st => 
+      st.id === subtaskId ? { ...st, completed: !st.completed } : st
+    );
+    onUpdate(task, { subtasks: newSubtasks });
+  };
+
+  const handleDeleteSubtask = (e, subtaskId) => {
+    e.stopPropagation();
+    const newSubtasks = subtasks.filter(st => st.id !== subtaskId);
+    onUpdate(task, { subtasks: newSubtasks });
+  };
+
   // Determine colors based on category/priority
-  let badgeClass = 'bg-surface-variant text-on-surface-variant border border-white/10';
+  let badgeClass = 'bg-surface-variant text-on-surface-variant border border-on-surface/10';
   if (task.category === 'Work') badgeClass = 'bg-primary/20 text-primary border border-primary/10';
   if (task.category === 'Health') badgeClass = 'bg-secondary-container/20 text-secondary border border-secondary/10';
   if (task.category === 'Personal') badgeClass = 'bg-tertiary/20 text-tertiary border border-tertiary/10';
@@ -28,24 +60,24 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit, onMove, isL
   return (
     <div className={`glass-card rounded-xl p-4 flex flex-col gap-2 task-item cursor-pointer ${isCompleted ? 'opacity-60' : ''}`}>
       <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3 mt-1">
+        <div className="flex items-start gap-3 mt-1 w-full overflow-hidden">
           {isLoading ? (
-            <Spinner size="sm" className="mt-0.5" />
+            <Spinner size="sm" className="mt-0.5 shrink-0" />
           ) : (
             <input 
               type="checkbox" 
-              className="checkbox-custom mt-0.5" 
+              className="checkbox-custom mt-0.5 shrink-0" 
               checked={isCompleted}
               onChange={() => onToggle(task)}
               disabled={isLoading}
             />
           )}
-          <div className="flex-1 w-full">
+          <div className="flex-1 w-full min-w-0">
             {isEditing ? (
               <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                 <input 
                   type="text"
-                  className="flex-1 bg-surface-container-high/50 border border-white/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[15px]"
+                  className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[15px]"
                   value={editInput}
                   onChange={e => setEditInput(e.target.value)}
                   autoFocus
@@ -62,7 +94,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit, onMove, isL
                 </button>
               </div>
             ) : (
-              <span className={`font-body-lg text-[16px] text-on-surface font-medium block ${isCompleted ? 'line-through text-on-surface-variant' : ''}`}>
+              <span className={`font-body-lg text-[16px] text-on-surface font-medium block break-words ${isCompleted ? 'line-through text-on-surface-variant' : ''}`}>
                 {task.text}
               </span>
             )}
@@ -77,42 +109,99 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit, onMove, isL
                 <span className="material-symbols-outlined text-[14px]">priority_high</span> High Priority
               </span>
             )}
+
+            {/* Subtasks Section */}
+            {(subtasks.length > 0 || showAddSubtask) && (
+              <div className="mt-3 flex flex-col gap-2 w-full" onClick={e => e.stopPropagation()}>
+                {subtasks.map(st => (
+                  <div key={st.id} className="flex items-start gap-2 bg-on-surface/10 rounded p-1.5 border border-on-surface/5 group">
+                    <input 
+                      type="checkbox" 
+                      className="checkbox-custom mt-0.5 w-3.5 h-3.5 shrink-0" 
+                      checked={st.completed}
+                      onChange={(e) => handleToggleSubtask(e, st.id)}
+                      disabled={isLoading}
+                    />
+                    <span className={`flex-1 text-[13px] font-medium break-words ${st.completed ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>
+                      {st.text}
+                    </span>
+                    <button 
+                      onClick={(e) => handleDeleteSubtask(e, st.id)}
+                      className="opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all p-0.5 shrink-0"
+                      disabled={isLoading}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">close</span>
+                    </button>
+                  </div>
+                ))}
+                
+                {showAddSubtask && (
+                  <form onSubmit={handleAddSubtask} className="flex items-center gap-2 mt-1">
+                    <input 
+                      type="text"
+                      className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[13px]"
+                      placeholder="Subtask..."
+                      value={subtaskInput}
+                      onChange={e => setSubtaskInput(e.target.value)}
+                      autoFocus
+                      onKeyDown={e => {
+                        if (e.key === 'Escape') setShowAddSubtask(false);
+                      }}
+                    />
+                    <button type="submit" className="text-primary hover:text-primary-fixed-dim p-1 shrink-0">
+                      <span className="material-symbols-outlined text-[16px]">check</span>
+                    </button>
+                    <button type="button" onClick={() => setShowAddSubtask(false)} className="text-error hover:text-error/80 p-1 shrink-0">
+                      <span className="material-symbols-outlined text-[16px]">close</span>
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
           </div>
         </div>
         
-        <div className="flex items-center gap-1">
+        <div className="flex flex-col items-center gap-1 sm:gap-1.5 shrink-0 ml-2 -mt-1 sm:-mt-0.5">
+          <button 
+            onClick={(e) => { e.stopPropagation(); setShowAddSubtask(true); }}
+            className="text-outline-variant hover:text-primary transition-colors p-0.5 sm:p-1"
+            disabled={isLoading}
+            title="Add Subtask"
+          >
+            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">add_task</span>
+          </button>
           {!isEditing && (
             <button 
               onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-              className="text-outline-variant hover:text-primary transition-colors p-1"
+              className="text-outline-variant hover:text-primary transition-colors p-0.5 sm:p-1"
               disabled={isLoading}
             >
-              <span className="material-symbols-outlined text-[18px]">edit</span>
+              <span className="material-symbols-outlined text-[16px] sm:text-[18px]">edit</span>
             </button>
           )}
           <div className="relative">
             <button 
               onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
-              className="text-outline-variant hover:text-on-surface transition-colors p-1"
+              className="text-outline-variant hover:text-on-surface transition-colors p-0.5 sm:p-1"
               disabled={isLoading}
             >
-              <span className="material-symbols-outlined text-[20px]">swap_vert</span>
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">swap_vert</span>
             </button>
             {showMoveMenu && (
-              <div className="absolute right-0 top-full mt-1 bg-surface-container-high border border-white/10 rounded-md shadow-lg z-10 flex flex-col min-w-[140px] py-1 animate-in fade-in zoom-in-95">
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-white/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'first'); setShowMoveMenu(false); }}>Move to First</button>
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-white/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'up'); setShowMoveMenu(false); }}>Move Up</button>
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-white/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'down'); setShowMoveMenu(false); }}>Move Down</button>
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-white/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'last'); setShowMoveMenu(false); }}>Move to Last</button>
+              <div className="absolute right-0 top-full mt-1 bg-surface-container-high border border-on-surface/10 rounded-md shadow-lg z-10 flex flex-col min-w-[140px] py-1 animate-in fade-in zoom-in-95">
+                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'first'); setShowMoveMenu(false); }}>Move to First</button>
+                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'up'); setShowMoveMenu(false); }}>Move Up</button>
+                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'down'); setShowMoveMenu(false); }}>Move Down</button>
+                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'last'); setShowMoveMenu(false); }}>Move to Last</button>
               </div>
             )}
           </div>
           <button 
             onClick={(e) => { e.stopPropagation(); onDelete(task._id); }}
-            className="text-outline-variant hover:text-error transition-colors p-1"
+            className="text-outline-variant hover:text-error transition-colors p-0.5 sm:p-1"
             disabled={isLoading}
           >
-            <span className="material-symbols-outlined text-[20px]">delete</span>
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">delete</span>
           </button>
         </div>
       </div>

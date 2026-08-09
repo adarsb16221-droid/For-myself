@@ -57,7 +57,7 @@ export default function Pomodoro() {
       <div className="flex gap-4 z-10 mt-4">
         <button 
           onClick={resetTimer}
-          className="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition-colors border-white/20 hover:scale-105 active:scale-95"
+          className="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-on-surface/5 transition-colors border-on-surface/20 hover:scale-105 active:scale-95"
         >
           <span className="material-symbols-outlined text-on-surface">replay</span>
         </button>
@@ -70,7 +70,7 @@ export default function Pomodoro() {
           </span>
         </button>
         <button 
-          className="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition-colors border-white/20 hover:scale-105 active:scale-95 opacity-50 cursor-not-allowed"
+          className="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-on-surface/5 transition-colors border-on-surface/20 hover:scale-105 active:scale-95 opacity-50 cursor-not-allowed"
         >
           <span className="material-symbols-outlined text-on-surface">skip_next</span>
         </button>

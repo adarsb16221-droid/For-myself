@@ -2,27 +2,85 @@
 import { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 
+function getOffsetDate(baseDateStr, offsetDays) {
+  const d = new Date(baseDateStr);
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().split('T')[0];
+}
+
+function PageContent({ dateStr, content, onChange, readOnly }) {
+  const isToday = dateStr === new Date().toISOString().split('T')[0];
+  const displayDate = isToday ? 'Today' : new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+  return (
+    <div className="flex flex-col h-full w-full">
+      <div className="flex justify-between items-center gap-2 border-b border-on-surface/10 pb-3 mb-4">
+        <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary">
+          <span className="material-symbols-outlined text-[20px]">menu_book</span> 
+          <span className="hidden sm:inline">{dateStr}</span>
+        </h3>
+        <h3 className="font-headline-md text-[18px] sm:text-[20px] font-bold text-on-surface">
+          {displayDate}
+        </h3>
+      </div>
+      
+      <textarea 
+        className="w-full flex-1 bg-transparent border-none p-1 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 transition-all font-body-lg resize-none leading-relaxed"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, var(--color-on-surface-variant) 31px, var(--color-on-surface-variant) 32px)',
+          lineHeight: '32px',
+          backgroundAttachment: 'local'
+        }}
+        value={content || ''} 
+        onChange={(e) => onChange && onChange(dateStr, e.target.value)} 
+        placeholder="Write your thoughts here..."
+        readOnly={readOnly}
+      ></textarea>
+    </div>
+  );
+}
+
 export default function JournalPage() {
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [content, setContent] = useState('');
+  // The right page date. Left page is always rightDate - 1.
+  const [rightDate, setRightDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [entries, setEntries] = useState({});
   const [status, setStatus] = useState('');
-  const [isFlipping, setIsFlipping] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
   const timeoutRef = useRef(null);
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Flip Animation State
+  const [flipState, setFlipState] = useState({
+    isFlipping: false,
+    direction: null, // 'next' or 'prev'
+    progress: 'idle', // 'idle' | 'start' | 'animating'
+    animatingToRightDate: null
+  });
 
   async function fetchJournalEntry() {
     try {
       const res = await fetch('/api/journal');
       if (res.ok) {
         const data = await res.json();
-        setContent(data[date] || '');
+        setEntries(data);
       }
     } catch(e) {
       console.error(e);
     }
   }
 
-  const saveJournal = async (saveDate = date, saveContent = content) => {
+  useEffect(() => {
+    fetchJournalEntry();
+  }, []);
+
+  const saveJournal = async (saveDate, saveContent) => {
     try {
       setStatus('Saving...');
       const payload = { [saveDate]: saveContent };
@@ -40,132 +98,201 @@ export default function JournalPage() {
     }
   };
 
-  useEffect(() => {
-    fetchJournalEntry();
-  }, [date]);
-
-  const handleContentChange = (e) => {
-    const newContent = e.target.value;
-    setContent(newContent);
+  const handleContentChange = (dateStr, newContent) => {
+    setEntries(prev => ({ ...prev, [dateStr]: newContent }));
     setStatus('Saving soon...');
     
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    timeoutRef.current = setTimeout(() => {
-      saveJournal(date, newContent);
-    }, 1000);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => saveJournal(dateStr, newContent), 1000);
   };
 
-  const changeDate = (days) => {
-    if (isFlipping) return;
+  const turnPage = (direction) => {
+    if (flipState.isFlipping) return;
     
-    const direction = days > 0 ? 'next' : 'prev';
-    setIsFlipping(`${direction}-out`);
+    const offset = direction === 'next' ? (isMobile ? 1 : 2) : (isMobile ? -1 : -2);
+    const newRightDate = getOffsetDate(rightDate, offset);
     
-    setTimeout(() => {
-      const currDate = new Date(date);
-      currDate.setDate(currDate.getDate() + days);
-      setDate(currDate.toISOString().split('T')[0]);
-      
-      setIsFlipping(`${direction}-in`);
-      
-      setTimeout(() => {
-        setIsFlipping(false);
-      }, 600);
-    }, 600);
+    setFlipState({
+      isFlipping: true,
+      direction,
+      progress: 'start',
+      animatingToRightDate: newRightDate
+    });
+
+    // Trigger animation in next frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setFlipState(prev => ({ ...prev, progress: 'animating' }));
+        
+        // After animation completes
+        setTimeout(() => {
+          setRightDate(newRightDate);
+          setFlipState({ isFlipping: false, direction: null, progress: 'idle', animatingToRightDate: null });
+        }, 800); // match transition duration
+      });
+    });
   };
 
-  const jumpToDate = (newDateStr) => {
-    if (isFlipping || newDateStr === date) return;
-    
-    const diff = new Date(newDateStr) - new Date(date);
-    const direction = diff > 0 ? 'next' : 'prev';
-    
-    setIsFlipping(`${direction}-out`);
-    
-    setTimeout(() => {
-      setDate(newDateStr);
-      setIsFlipping(`${direction}-in`);
-      setTimeout(() => setIsFlipping(false), 600);
-    }, 600);
+  const jumpToDate = (e) => {
+    if (flipState.isFlipping) return;
+    setRightDate(e.target.value);
+  };
+
+  // Calculate dates to render
+  const currentRight = rightDate;
+  const currentLeft = getOffsetDate(rightDate, -1);
+  
+  let baseLeft = currentLeft;
+  let baseRight = currentRight;
+  
+  if (flipState.isFlipping) {
+    baseLeft = getOffsetDate(flipState.animatingToRightDate, -1);
+    baseRight = flipState.animatingToRightDate;
+  }
+
+  const getFadeStyle = (isTarget) => {
+    if (!isTarget) return { opacity: 1 };
+    if (flipState.progress === 'start') return { opacity: 0, transition: 'none' };
+    if (flipState.progress === 'animating') return { opacity: 1, transition: 'opacity 500ms ease-out 300ms' };
+    return { opacity: 1 };
   };
 
   return (
     <>
       <Header title="Orbit" subtitle="Journal & Plan" showDate={false} />
       
-      <main className="px-2 py-4 sm:py-6 flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto w-full flex-1 overflow-x-hidden sm:overflow-visible">
+      <main className="px-2 py-4 sm:py-6 flex flex-col gap-4 sm:gap-6 max-w-6xl mx-auto w-full flex-1 overflow-x-hidden sm:overflow-visible">
         
-        <div className="flex items-center justify-between sm:justify-center w-full gap-1 sm:gap-4" style={{ perspective: '2000px' }}>
-          
+        {/* Controls */}
+        <div className="flex justify-between items-center w-full px-2 sm:px-12 z-10">
           <button 
-            onClick={() => changeDate(-1)}
-            disabled={isFlipping}
-            className="p-1 sm:p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50 shrink-0"
+            onClick={() => turnPage('prev')}
+            disabled={flipState.isFlipping}
+            className="p-2 sm:p-3 rounded-full hover:bg-on-surface/5 text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50 flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-3xl sm:text-5xl">chevron_left</span>
+            <span className="material-symbols-outlined text-3xl">chevron_left</span>
+            <span className="hidden sm:inline font-medium">Previous Page</span>
           </button>
 
-          <section 
-            className="glass-panel p-4 sm:p-8 rounded-r-2xl sm:rounded-r-3xl rounded-l-sm flex flex-col gap-4 sm:gap-6 shadow-[-5px_10px_20px_rgba(0,0,0,0.15)] sm:shadow-[-10px_10px_30px_rgba(0,0,0,0.2)] flex-1 w-full max-w-full sm:max-w-2xl relative bg-[#f9f7f1] dark:bg-[#202020] border-l-[8px] sm:border-l-[16px] border-l-black/30 dark:border-l-black/50"
-            style={{
-              transition: 'transform 600ms ease-in-out, opacity 600ms ease-in-out',
-              transform: isFlipping === 'next-out' ? 'rotateY(-90deg)' :
-                         isFlipping === 'next-in' ? 'rotateY(90deg)' :
-                         isFlipping === 'prev-out' ? 'rotateY(90deg)' :
-                         isFlipping === 'prev-in' ? 'rotateY(-90deg)' : 'rotateY(0deg)',
-              opacity: isFlipping && isFlipping.includes('-out') ? 0 : 1,
-              transformStyle: 'preserve-3d',
-              transformOrigin: 'left center'
-            }}
-          >
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4 border-b border-black/10 dark:border-white/10 pb-3 sm:pb-4">
-              <div className="flex flex-col gap-1 w-full sm:w-auto">
-                <h3 className="font-title-sm text-[16px] sm:text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                  <span className="material-symbols-outlined">menu_book</span> Date
-                </h3>
-                <input 
-                  type="date" 
-                  value={date} 
-                  onChange={e => jumpToDate(e.target.value)} 
-                  className="bg-transparent border border-black/20 dark:border-white/20 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-on-surface text-sm focus:outline-none focus:border-primary font-bold cursor-pointer w-full sm:w-auto"
-                />
-              </div>
-              
-              <div className="text-left sm:text-right mt-2 sm:mt-0">
-                <h3 className="font-headline-md text-[20px] sm:text-[24px] font-bold text-gray-800 dark:text-gray-100">
-                  {date === new Date().toISOString().split('T')[0] ? 'Today' : new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                </h3>
-                <div className="h-4 sm:h-5">
-                  {status && <span className="text-xs sm:text-sm text-primary animate-pulse font-medium">{status}</span>}
-                </div>
-              </div>
+          <div className="flex flex-col items-center">
+            <input 
+              type="date" 
+              value={rightDate} 
+              onChange={jumpToDate} 
+              className="bg-transparent border border-on-surface/20 rounded-lg px-3 py-1.5 text-on-surface text-sm focus:outline-none focus:border-primary font-bold cursor-pointer hover:bg-on-surface/5 transition-colors"
+              title="Jump to date"
+            />
+            <div className="h-4 mt-1">
+              {status && <span className="text-xs text-primary animate-pulse font-medium">{status}</span>}
             </div>
-            
-            <textarea 
-              className="w-full min-h-[400px] sm:min-h-[500px] bg-transparent border-none p-1 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:ring-0 transition-all font-body-lg resize-y leading-relaxed"
-              style={{
-                backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, rgba(0,0,0,0.1) 31px, rgba(0,0,0,0.1) 32px)',
-                lineHeight: '32px',
-                backgroundAttachment: 'local'
-              }}
-              value={content} 
-              onChange={handleContentChange} 
-              placeholder="Write your thoughts here..."
-            ></textarea>
-          </section>
+          </div>
 
           <button 
-            onClick={() => changeDate(1)}
-            disabled={isFlipping}
-            className="p-1 sm:p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50 shrink-0"
+            onClick={() => turnPage('next')}
+            disabled={flipState.isFlipping}
+            className="p-2 sm:p-3 rounded-full hover:bg-on-surface/5 text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50 flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-3xl sm:text-5xl">chevron_right</span>
+            <span className="hidden sm:inline font-medium">Next Page</span>
+            <span className="material-symbols-outlined text-3xl">chevron_right</span>
           </button>
         </div>
 
+        {/* Book Container */}
+        <div className="w-full flex-1 min-h-[500px] sm:min-h-[600px] relative" style={{ perspective: '2500px' }}>
+          
+          {/* Mobile View - Single Page */}
+          <div 
+            className="md:hidden glass-panel w-full h-full rounded-2xl p-4 sm:p-6 shadow-xl relative border-l-[8px] border-l-on-surface/30 origin-left"
+            style={{
+              transition: flipState.progress === 'animating' ? 'transform 800ms cubic-bezier(0.4, 0.0, 0.2, 1)' : 'none',
+              transformStyle: 'preserve-3d',
+              transform: flipState.progress === 'start' ? (flipState.direction === 'next' ? 'rotateY(90deg)' : 'rotateY(-90deg)') : 'rotateY(0deg)'
+            }}
+          >
+            <div className="w-full h-full" style={getFadeStyle(true)}>
+              <PageContent 
+                dateStr={baseRight} 
+                content={entries[baseRight]} 
+                onChange={handleContentChange} 
+                readOnly={flipState.isFlipping}
+              />
+            </div>
+          </div>
+
+          {/* Desktop View - Open Book */}
+          <div className="hidden md:flex w-full h-full relative shadow-2xl rounded-2xl">
+            
+            {/* Left Page (Base) */}
+            <div className="w-1/2 h-full glass-panel rounded-l-2xl rounded-r-none border-r border-black/10 dark:border-black/50 p-8 shadow-[inset_-10px_0_20px_rgba(0,0,0,0.05)] relative z-0">
+              <div className="w-full h-full" style={getFadeStyle(flipState.direction === 'prev')}>
+                <PageContent 
+                  dateStr={baseLeft} 
+                  content={entries[baseLeft]} 
+                  onChange={handleContentChange}
+                  readOnly={flipState.isFlipping}
+                />
+              </div>
+            </div>
+            
+            {/* Right Page (Base) */}
+            <div className="w-1/2 h-full glass-panel rounded-r-2xl rounded-l-none border-l border-white/20 dark:border-white/5 p-8 shadow-[inset_10px_0_20px_rgba(0,0,0,0.05)] relative z-0">
+              <div className="w-full h-full" style={getFadeStyle(flipState.direction === 'next')}>
+                <PageContent 
+                  dateStr={baseRight} 
+                  content={entries[baseRight]} 
+                  onChange={handleContentChange}
+                  readOnly={flipState.isFlipping}
+                />
+              </div>
+            </div>
+
+            {/* Central Spine Shadow */}
+            <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-transparent via-black/10 to-transparent pointer-events-none z-10"></div>
+
+            {/* Flipper - Next (Flips Right to Left) */}
+            {flipState.isFlipping && flipState.direction === 'next' && (
+              <div 
+                className="absolute right-0 w-1/2 h-full z-20 origin-left"
+                style={{
+                  transition: 'transform 800ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  transformStyle: 'preserve-3d',
+                  transform: flipState.progress === 'animating' ? 'rotateY(-180deg)' : 'rotateY(0deg)'
+                }}
+              >
+                {/* Front (Old Right) */}
+                <div className="absolute inset-0 glass-panel rounded-r-2xl rounded-l-none p-8 shadow-[-5px_0_15px_rgba(0,0,0,0.1)]" style={{ backfaceVisibility: 'hidden' }}>
+                  <PageContent dateStr={currentRight} content={entries[currentRight]} readOnly />
+                </div>
+                {/* Back (New Left) */}
+                <div className="absolute inset-0 glass-panel rounded-l-2xl rounded-r-none p-8 shadow-[5px_0_15px_rgba(0,0,0,0.1)]" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                  <PageContent dateStr={baseLeft} content={entries[baseLeft]} readOnly />
+                </div>
+              </div>
+            )}
+
+            {/* Flipper - Prev (Flips Left to Right) */}
+            {flipState.isFlipping && flipState.direction === 'prev' && (
+              <div 
+                className="absolute left-0 w-1/2 h-full z-20 origin-right"
+                style={{
+                  transition: 'transform 800ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  transformStyle: 'preserve-3d',
+                  transform: flipState.progress === 'animating' ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                }}
+              >
+                {/* Front (Old Left) */}
+                <div className="absolute inset-0 glass-panel rounded-l-2xl rounded-r-none p-8 shadow-[5px_0_15px_rgba(0,0,0,0.1)]" style={{ backfaceVisibility: 'hidden' }}>
+                  <PageContent dateStr={currentLeft} content={entries[currentLeft]} readOnly />
+                </div>
+                {/* Back (New Right) */}
+                <div className="absolute inset-0 glass-panel rounded-r-2xl rounded-l-none p-8 shadow-[-5px_0_15px_rgba(0,0,0,0.1)]" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(-180deg)' }}>
+                  <PageContent dateStr={baseRight} content={entries[baseRight]} readOnly />
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
       </main>
     </>
   );

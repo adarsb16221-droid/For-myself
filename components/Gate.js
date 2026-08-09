@@ -31,7 +31,7 @@ export default function Gate() {
     <div className="page-view active" style={{ display: 'flex' }}>
       <div className="view-header">
         <div className="header-content">
-          <h1>Quick <span style={{ background: 'linear-gradient(135deg, #fff, var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Links</span></h1>
+          <h1>Quick <span className="gradient-text">Links</span></h1>
           <p>Manage your important links</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function Gate() {
                 <div className="task-content" style={{ cursor: 'pointer' }} onClick={() => window.open(link.url, '_blank')}>
                   <div className="task-text">
                     <span className="task-name">{link.name}</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{link.url}</span>
+                    <span className="text-xs text-on-surface-variant">{link.url}</span>
                   </div>
                 </div>
                 <div className="task-item-actions">

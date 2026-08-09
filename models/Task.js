@@ -17,6 +17,14 @@ const TaskSchema = new mongoose.Schema({
   completed: { type: Boolean, default: false },
   completedAt: { type: String, default: null },
   history: { type: [String], default: [] },
+  subtasks: {
+    type: [{
+      id: { type: String, required: true },
+      text: { type: String, required: true },
+      completed: { type: Boolean, default: false }
+    }],
+    default: []
+  },
   order: { type: Number, default: () => Date.now() },
 }, { timestamps: true });
 

@@ -30,14 +30,14 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
   };
 
   return (
-    <header className="relative z-40 glass-panel px-6 py-4 flex flex-col gap-2 rounded-b-xl shadow-lg border-b border-white/10">
+    <header className="relative z-40 glass-panel px-6 py-4 flex flex-col gap-2 rounded-b-xl shadow-lg border-b border-on-surface/10">
       <div className="flex justify-between items-center w-full">
         <div>
           <h1 className="font-headline-md text-[24px] font-bold tracking-tight text-primary">{title}</h1>
         </div>
         <button 
           onClick={toggleTheme}
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/5 transition-colors border border-on-surface/10"
         >
           <span className="material-symbols-outlined text-primary-fixed-dim">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
         </button>

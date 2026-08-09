@@ -139,7 +139,17 @@ export default function Home() {
 
   const toggleTask = async (task) => {
     setProcessingTasks(prev => new Set(prev).add(task._id));
-    const updated = { ...task, completed: !task.completed, completedAt: !task.completed ? new Date().toISOString() : null };
+    const isNowCompleted = !task.completed;
+    
+    const updatedSubtasks = (task.subtasks || []).map(st => ({ ...st, completed: isNowCompleted }));
+    
+    const updated = { 
+      ...task, 
+      completed: isNowCompleted, 
+      completedAt: isNowCompleted ? new Date().toISOString() : null,
+      subtasks: updatedSubtasks
+    };
+    
     try {
       await fetch('/api/tasks', {
         method: 'PUT',
@@ -174,9 +184,21 @@ export default function Home() {
     }
   };
 
-  const editTask = async (task, newText) => {
+  const updateTask = async (task, updates) => {
     setProcessingTasks(prev => new Set(prev).add(task._id));
-    const updated = { ...task, text: newText };
+    
+    const updated = { ...task, ...updates };
+    
+    if (updates.subtasks && updates.subtasks.length > 0) {
+      const allCompleted = updates.subtasks.every(st => st.completed);
+      updated.completed = allCompleted;
+      if (allCompleted && !task.completed) {
+        updated.completedAt = new Date().toISOString();
+      } else if (!allCompleted) {
+        updated.completedAt = null;
+      }
+    }
+
     try {
       await fetch('/api/tasks', {
         method: 'PUT',
@@ -323,7 +345,7 @@ export default function Home() {
                     task={task} 
                     onToggle={toggleTask} 
                     onDelete={deleteTask} 
-                    onEdit={editTask}
+                    onUpdate={updateTask}
                     onMove={moveTask}
                     isLoading={processingTasks.has(task._id)}
                   />
@@ -386,7 +408,7 @@ export default function Home() {
                     task={task} 
                     onToggle={toggleTask} 
                     onDelete={deleteTask} 
-                    onEdit={editTask}
+                    onUpdate={updateTask}
                     onMove={moveTask}
                     isLoading={processingTasks.has(task._id)}
                   />

@@ -44,7 +44,7 @@ export default function Journal() {
     <div className="page-view active" style={{ display: 'flex' }}>
       <div className="view-header">
         <div className="header-content">
-          <h1>Daily <span style={{ background: 'linear-gradient(135deg, #fff, var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Journal & Plan</span></h1>
+          <h1>Daily <span className="gradient-text">Journal & Plan</span></h1>
           <p>Write your thoughts, plans, and retrieve past entries</p>
         </div>
       </div>

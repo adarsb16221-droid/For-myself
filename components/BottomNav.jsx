@@ -7,6 +7,7 @@ export default function BottomNav() {
 
   const navItems = [
     { name: 'Home', href: '/', icon: 'home' },
+    { name: 'Orbit AI', href: '/chat', icon: 'psychiatry' },
     { name: 'Schedule', href: '/schedule', icon: 'event' },
     { name: 'Journal', href: '/journal', icon: 'list_alt' },
     { name: 'Links', href: '/links', icon: 'link' },
@@ -14,7 +15,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-2 h-16 bg-white/10 dark:bg-surface-container-lowest/40 backdrop-blur-2xl border-t border-white/10 rounded-t-xl shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-2 h-16 bg-on-surface/5 dark:bg-surface-container-lowest/40 backdrop-blur-2xl border-t border-on-surface/10 rounded-t-xl shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         return (

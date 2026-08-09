@@ -116,10 +116,9 @@ export default function AnalyticsPage() {
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1">
             
-            {/* Consistency Chart Section */}
-            <section className="glass-panel p-6 rounded-xl border border-white/5 shadow-lg flex flex-col min-h-[400px]">
+            <section className="glass-panel p-6 rounded-xl border border-on-surface/10 shadow-lg flex flex-col min-h-[400px]">
               <div className="mb-6">
-                <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary">
                   <span className="material-symbols-outlined">monitoring</span> Consistency
                 </h3>
                 <p className="text-sm text-on-surface-variant">Number of tasks completed per day</p>
@@ -129,19 +128,19 @@ export default function AnalyticsPage() {
                 {consistencyData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={consistencyData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-outline-variant)" />
                       <XAxis 
                         dataKey="displayDate" 
-                        stroke="rgba(255,255,255,0.5)" 
-                        tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 12 }}
+                        stroke="var(--color-outline)" 
+                        tick={{ fill: 'var(--color-on-surface-variant)', fontSize: 12 }}
                       />
                       <YAxis 
-                        stroke="rgba(255,255,255,0.5)" 
-                        tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 12 }}
+                        stroke="var(--color-outline)" 
+                        tick={{ fill: 'var(--color-on-surface-variant)', fontSize: 12 }}
                         allowDecimals={false}
                       />
                       <RechartsTooltip 
-                        contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: 'var(--color-surface-container-highest)', border: '1px solid var(--color-outline-variant)', borderRadius: '8px' }}
                         itemStyle={{ color: '#8AB4F8' }}
                       />
                       <Line 
@@ -164,9 +163,9 @@ export default function AnalyticsPage() {
             </section>
 
             {/* Points Chart Section */}
-            <section className="glass-panel p-6 rounded-xl border border-white/5 shadow-lg flex flex-col min-h-[400px]">
+            <section className="glass-panel p-6 rounded-xl border border-on-surface/10 shadow-lg flex flex-col min-h-[400px]">
               <div className="mb-6">
-                <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary">
                   <span className="material-symbols-outlined">radar</span> Habit Points
                 </h3>
                 <p className="text-sm text-on-surface-variant">Points gained from followed daily habits</p>
@@ -176,19 +175,19 @@ export default function AnalyticsPage() {
                 {pointsInfo.data.some(d => d.A > 0) ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={pointsInfo.data}>
-                      <PolarGrid stroke="rgba(255,255,255,0.2)" />
+                      <PolarGrid stroke="var(--color-outline-variant)" />
                       <PolarAngleAxis 
                         dataKey="subject" 
-                        tick={{ fill: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: 'bold' }} 
+                        tick={{ fill: 'var(--color-on-surface)', fontSize: 14, fontWeight: 'bold' }} 
                       />
                       <PolarRadiusAxis 
                         angle={30} 
                         domain={[0, pointsInfo.maxPoints]} 
-                        tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }}
+                        tick={{ fill: 'var(--color-on-surface-variant)', fontSize: 10 }}
                         tickCount={5}
                       />
                       <RechartsTooltip 
-                        contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: 'var(--color-surface-container-highest)', border: '1px solid var(--color-outline-variant)', borderRadius: '8px' }}
                       />
                       <Radar 
                         name="Points" 

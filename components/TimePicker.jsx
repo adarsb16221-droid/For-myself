@@ -54,7 +54,7 @@ export default function TimePicker({ value, onChange }) {
       <select 
         value={hour} 
         onChange={handleHourChange}
-        className="flex-1 bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm appearance-none cursor-pointer"
+        className="flex-1 bg-surface-container-high/50 border border-on-surface/10 rounded-lg px-2 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm appearance-none cursor-pointer"
       >
         {Array.from({ length: 12 }, (_, i) => {
           const val = (i + 1).toString().padStart(2, '0');
@@ -65,7 +65,7 @@ export default function TimePicker({ value, onChange }) {
       <select 
         value={minute} 
         onChange={handleMinuteChange}
-        className="flex-1 bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm appearance-none cursor-pointer"
+        className="flex-1 bg-surface-container-high/50 border border-on-surface/10 rounded-lg px-2 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm appearance-none cursor-pointer"
       >
         {['00', '15', '30', '45'].map(m => (
           <option key={m} value={m}>{m}</option>
@@ -74,7 +74,7 @@ export default function TimePicker({ value, onChange }) {
       <select 
         value={ampm} 
         onChange={handleAmpmChange}
-        className="flex-1 bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm appearance-none cursor-pointer"
+        className="flex-1 bg-surface-container-high/50 border border-on-surface/10 rounded-lg px-2 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-body-sm appearance-none cursor-pointer"
       >
         <option value="AM">AM</option>
         <option value="PM">PM</option>

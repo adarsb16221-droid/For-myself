@@ -115,6 +115,50 @@ export default function SchedulePage() {
     }
   };
 
+  const handleMobileAdd = async (taskTitle) => {
+    if (window.innerWidth >= 768) return; // Only trigger on mobile
+
+    const now = new Date();
+    let startMins = now.getHours() * 60;
+    
+    // Find next available hour slot
+    while (schedule.some(b => timeToMinutes(b.startTime) <= startMins && timeToMinutes(b.endTime) > startMins)) {
+      startMins += 60;
+    }
+    if (startMins >= 1440) startMins = 8 * 60; // default to 8 AM if it pushes past midnight
+    
+    const endMins = Math.min(1440, startMins + 60);
+
+    const mToTime = (mins) => {
+      const h = Math.floor(mins / 60);
+      const m = Math.floor(mins % 60);
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    };
+
+    const newBlock = {
+      title: taskTitle,
+      startTime: mToTime(startMins),
+      endTime: mToTime(endMins)
+    };
+
+    const tempId = Date.now().toString();
+    setSchedule(prev => [...prev, { ...newBlock, _id: tempId }]);
+
+    try {
+      const res = await fetch('/api/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBlock)
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setSchedule(prev => prev.map(b => b._id === tempId ? created : b));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const deleteScheduleBlock = async (id) => {
     setSchedule(prev => prev.filter(b => b._id !== id));
     try {
@@ -176,12 +220,16 @@ export default function SchedulePage() {
       <main className="px-4 py-6 flex flex-col md:flex-row gap-6 max-w-7xl mx-auto w-full flex-1 h-[calc(100vh-100px)] overflow-hidden">
         
         {/* Sidebar: Tasks */}
-        <div className="w-full md:w-1/3 flex flex-col gap-4 bg-surface-container-low rounded-xl p-4 border border-white/5 h-[30%] md:h-full overflow-y-auto shadow-sm shrink-0">
-          <h2 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim sticky top-0 bg-surface-container-low z-10 pb-2 border-b border-white/5">
-            <span className="material-symbols-outlined">drag_indicator</span> Tasks Pool
-          </h2>
-          <p className="text-xs text-on-surface-variant mb-2">Drag cards onto the timeline to schedule them.</p>
+        <div className="w-full md:w-1/3 flex flex-col bg-surface-container-low rounded-xl border border-white/5 h-[35%] md:h-full overflow-y-auto shadow-sm shrink-0 relative">
+          <div className="sticky top-0 bg-surface-container-low z-10 p-4 border-b border-white/5">
+            <h2 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+              <span className="material-symbols-outlined">drag_indicator</span> Tasks Pool
+            </h2>
+            <p className="text-xs text-on-surface-variant mt-1 hidden md:block">Drag cards onto the timeline to schedule them.</p>
+            <p className="text-xs text-on-surface-variant mt-1 md:hidden">Tap a card to schedule it, or drag on desktop.</p>
+          </div>
           
+          <div className="p-4 flex flex-col gap-4">
           {isLoading ? (
             <Spinner size="md" className="my-8" />
           ) : tasks.length === 0 ? (
@@ -196,7 +244,8 @@ export default function SchedulePage() {
                     e.dataTransfer.setData('taskTitle', task.text);
                     e.dataTransfer.effectAllowed = 'copy';
                   }}
-                  className="glass-card rounded-lg p-3 border border-white/10 cursor-grab hover:bg-white/5 transition-colors active:cursor-grabbing flex flex-col gap-1 shadow-sm group sm:w-[calc(50%-0.25rem)] md:w-full"
+                  onClick={() => handleMobileAdd(task.text)}
+                  className="glass-card rounded-lg p-3 border border-white/10 cursor-pointer md:cursor-grab hover:bg-white/5 transition-colors active:cursor-grabbing flex flex-col gap-1 shadow-sm group sm:w-[calc(50%-0.25rem)] md:w-full"
                 >
                   <div className="flex justify-between items-start">
                     <span className="font-body-sm text-[14px] font-medium text-on-surface">{task.text}</span>
@@ -210,6 +259,7 @@ export default function SchedulePage() {
               ))}
             </div>
           )}
+          </div>
         </div>
 
         {/* Main Area: Timeline Grid */}
