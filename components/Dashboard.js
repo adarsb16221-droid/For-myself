@@ -11,18 +11,6 @@ export default function Dashboard({ tasks, setTasks, fetchTasks, theme, toggleTh
   const [timerSeconds, setTimerSeconds] = useState(25 * 60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerMode, setTimerMode] = useState(25);
-  
-  useEffect(() => {
-    let interval;
-    if (isTimerRunning && timerSeconds > 0) {
-      interval = setInterval(() => setTimerSeconds(s => s - 1), 1000);
-    } else if (timerSeconds <= 0 && isTimerRunning) {
-      setIsTimerRunning(false);
-      playBeep();
-    }
-    return () => clearInterval(interval);
-  }, [isTimerRunning, timerSeconds]);
-
   const playBeep = () => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -37,6 +25,17 @@ export default function Dashboard({ tasks, setTasks, fetchTasks, theme, toggleTh
       osc.stop(ctx.currentTime + 0.2);
     } catch(e) {}
   };
+
+  useEffect(() => {
+    let interval;
+    if (isTimerRunning && timerSeconds > 0) {
+      interval = setInterval(() => setTimerSeconds(s => s - 1), 1000);
+    } else if (timerSeconds <= 0 && isTimerRunning) {
+      setTimeout(() => setIsTimerRunning(false), 0);
+      playBeep();
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timerSeconds]);
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);

@@ -8,7 +8,7 @@ export async function middleware(request) {
   const sessionCookie = request.cookies.get('session')?.value;
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ['/login', '/signup', '/api/auth/login', '/api/auth/signup'];
+  const publicRoutes = ['/login', '/signup', '/forgot-password', '/api/auth/login', '/api/auth/signup', '/api/auth/forgot-password', '/api/auth/reset-password'];
   const isPublicRoute = publicRoutes.includes(pathname);
 
   // If there's no session and the user is trying to access a protected route

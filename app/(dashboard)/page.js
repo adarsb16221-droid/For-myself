@@ -24,6 +24,9 @@ export default function Home() {
   const [focusCategory, setFocusCategory] = useState('Work');
 
   const [currentBlock, setCurrentBlock] = useState(null);
+  
+  // Done Tasks Modal State
+  const [showDoneTasks, setShowDoneTasks] = useState(false);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -280,13 +283,24 @@ export default function Home() {
     return `${hours}:${m} ${ampm}`;
   };
 
-  const dailyTasks = tasks.filter(t => t.isRegular);
-  const oneOffTasks = tasks.filter(t => !t.isRegular);
-  const tasksCompleted = tasks.filter(t => t.completed).length;
+  const dailyTasks = tasks.filter(t => t.isRegular && !t.completed);
+  const oneOffTasks = tasks.filter(t => !t.isRegular && !t.completed);
+  const completedTasks = tasks.filter(t => t.completed);
+  const tasksCompleted = completedTasks.length;
+
+  const actionButton = (
+    <button 
+      onClick={() => setShowDoneTasks(true)}
+      className="px-4 py-2 rounded-full flex items-center justify-center bg-primary text-on-primary hover:bg-primary/90 transition-all text-xs font-semibold shadow-[0_0_15px_rgba(70,72,212,0.3)] hover:scale-105 gap-1.5"
+    >
+      <span className="material-symbols-outlined text-[16px]">task_alt</span>
+      Done Tasks
+    </button>
+  );
 
   return (
     <>
-      <Header title="Orbit" subtitle="Greeting" tasksCompleted={tasksCompleted} currentScheduleBlock={currentBlock} />
+      <Header title="Orbit" subtitle="Greeting" tasksCompleted={tasksCompleted} currentScheduleBlock={currentBlock} actionButton={actionButton} />
       
       <main className="px-4 py-6 flex flex-col gap-6 max-w-7xl mx-auto w-full flex-1">
 
@@ -421,6 +435,46 @@ export default function Home() {
         {/* Pomodoro Widget */}
         <Pomodoro />
       </main>
+
+      {/* Done Tasks Modal */}
+      {showDoneTasks && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-surface-container rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[80vh] overflow-hidden border border-white/10 animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-surface/50 backdrop-blur-md">
+              <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[24px]">task_alt</span> Done Tasks
+              </h2>
+              <button onClick={() => setShowDoneTasks(false)} className="p-2 rounded-full hover:bg-white/10 text-on-surface-variant transition-colors flex items-center justify-center">
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1 flex flex-col gap-3 custom-scrollbar">
+              {completedTasks.length === 0 ? (
+                <div className="text-center py-12 opacity-70">
+                  <span className="material-symbols-outlined text-5xl mb-3 block text-on-surface-variant">inbox</span>
+                  <p className="text-on-surface-variant">No completed tasks yet.</p>
+                </div>
+              ) : (
+                completedTasks.map(task => (
+                  <div key={task._id} className="p-3 bg-surface/80 rounded-xl border border-white/5 flex justify-between items-center opacity-80 hover:opacity-100 hover:border-white/20 transition-all group">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="line-through text-sm font-medium text-on-surface-variant">{task.text}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-primary/70">{task.category}</span>
+                    </div>
+                    <button 
+                      onClick={() => toggleTask(task)} 
+                      disabled={processingTasks.has(task._id)}
+                      className="text-xs font-semibold text-primary hover:text-on-primary hover:bg-primary px-3 py-1.5 rounded-lg bg-primary/10 transition-colors disabled:opacity-50"
+                    >
+                      {processingTasks.has(task._id) ? '...' : 'Undo'}
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -11,6 +11,7 @@ export default function BottomNav() {
     { name: 'Schedule', href: '/schedule', icon: 'event' },
     { name: 'Journal', href: '/journal', icon: 'list_alt' },
     { name: 'Links', href: '/links', icon: 'link' },
+    { name: 'Focus', href: '/focus', icon: 'timer' },
     { name: 'Data', href: '/analytics', icon: 'insights' },
   ];
 

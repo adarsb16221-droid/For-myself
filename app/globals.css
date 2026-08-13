@@ -203,6 +203,28 @@
   }
 }
 
+/* Custom Scrollbar for Webkit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--outline-variant, #c7c4d7);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--outline, #767586);
+}
+
+/* Custom Scrollbar for Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--outline-variant, #c7c4d7) transparent;
+}
+
 @layer utilities {
   .glass-panel {
     background-color: rgba(255, 255, 255, 0.4);

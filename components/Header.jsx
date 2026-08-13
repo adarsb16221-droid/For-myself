@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
 
-export default function Header({ title, subtitle, showDate = true, tasksCompleted = 0, currentScheduleBlock = null }) {
+export default function Header({ title, subtitle, showDate = true, tasksCompleted = 0, currentScheduleBlock = null, actionButton = null }) {
   const [dateStr, setDateStr] = useState('');
   const [greeting, setGreeting] = useState('Morning');
   const { theme, toggleTheme } = useTheme();
@@ -35,12 +35,15 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
         <div>
           <h1 className="font-headline-md text-[24px] font-bold tracking-tight text-primary">{title}</h1>
         </div>
-        <button 
-          onClick={toggleTheme}
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/5 transition-colors border border-on-surface/10"
-        >
-          <span className="material-symbols-outlined text-primary-fixed-dim">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-        </button>
+        <div className="flex items-center gap-3">
+          {actionButton}
+          <button 
+            onClick={toggleTheme}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/5 transition-colors border border-on-surface/10"
+          >
+            <span className="material-symbols-outlined text-primary-fixed-dim">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+          </button>
+        </div>
       </div>
 
       {(subtitle || showDate) && (
