@@ -1,4 +1,4 @@
-export default function FaceAvatar({ isThinking, isSpeaking, emotion = 'neutral' }) {
+export default function FaceAvatar({ isThinking, isSpeaking, emotion = 'neutral', customSizeClass }) {
   const isAction = isThinking || isSpeaking || emotion !== 'neutral';
 
   let leftEyebrow = '';
@@ -33,9 +33,17 @@ export default function FaceAvatar({ isThinking, isSpeaking, emotion = 'neutral'
     }
   }
 
-  const finalMouthStyle = isSpeaking && emotion === 'neutral' 
-    ? 'mouth-talk bg-cyan-400 dark:bg-white shadow-[0_0_20px_rgba(34,211,238,0.8)] dark:shadow-[0_0_30px_rgba(255,255,255,1)] w-8 sm:w-12 h-1.5 sm:h-3 rounded-sm sm:rounded-lg' 
-    : (emotion !== 'neutral' ? mouthStyle : 'w-8 sm:w-12 h-1.5 sm:h-3 rounded-sm sm:rounded-lg bg-cyan-200/40 dark:bg-blue-200/40 shadow-[0_0_10px_rgba(103,232,249,0.3)] dark:shadow-[0_0_10px_rgba(191,219,254,0.3)] opacity-50');
+  let finalMouthStyle = emotion !== 'neutral' 
+    ? mouthStyle 
+    : 'w-8 sm:w-12 h-1.5 sm:h-3 rounded-sm sm:rounded-lg bg-cyan-200/40 dark:bg-blue-200/40 shadow-[0_0_10px_rgba(103,232,249,0.3)] dark:shadow-[0_0_10px_rgba(191,219,254,0.3)] opacity-50';
+
+  if (isSpeaking) {
+    if (emotion === 'neutral') {
+      finalMouthStyle = 'mouth-talk bg-cyan-400 dark:bg-white shadow-[0_0_20px_rgba(34,211,238,0.8)] dark:shadow-[0_0_30px_rgba(255,255,255,1)] w-8 sm:w-12 h-1.5 sm:h-3 rounded-sm sm:rounded-lg';
+    } else {
+      finalMouthStyle += ' mouth-talk';
+    }
+  }
 
   const eyeBase = isThinking && emotion === 'neutral' 
     ? 'eye-think-left bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)] dark:bg-white dark:shadow-[0_0_30px_rgba(255,255,255,1)]' 
@@ -45,8 +53,10 @@ export default function FaceAvatar({ isThinking, isSpeaking, emotion = 'neutral'
     ? 'eye-think-right bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)] dark:bg-white dark:shadow-[0_0_30px_rgba(255,255,255,1)]' 
     : 'eye-blink bg-cyan-300 shadow-[0_0_20px_rgba(103,232,249,0.6)] dark:bg-blue-50 dark:shadow-[0_0_20px_rgba(239,246,255,0.8)]';
 
+  const sizeClasses = customSizeClass || 'w-36 h-36 sm:w-56 sm:h-56 md:w-72 md:h-72';
+
   return (
-    <div className={`relative flex items-center justify-center w-36 h-36 sm:w-56 sm:h-56 md:w-72 md:h-72 rounded-[2rem] sm:rounded-[3.5rem] bg-gradient-to-br from-black/5 via-black/10 to-transparent dark:from-blue-400 dark:via-blue-500 dark:to-blue-600 border border-black/10 dark:border-blue-300 backdrop-blur-2xl transition-all duration-700 ${isAction ? 'face-active' : 'face-float'}`}>
+    <div className={`relative flex items-center justify-center ${sizeClasses} rounded-[2rem] sm:rounded-[3.5rem] bg-gradient-to-br from-black/5 via-black/10 to-transparent dark:from-blue-400 dark:via-blue-500 dark:to-blue-600 border border-black/10 dark:border-blue-300 backdrop-blur-2xl transition-all duration-700 ${isAction ? 'face-active' : 'face-float'}`}>
       {/* Inner glow and shadow */}
       <div className={`absolute inset-0 rounded-[2rem] sm:rounded-[3.5rem] shadow-[inset_0_0_60px_rgba(255,255,255,0.5)] dark:shadow-[inset_0_0_60px_rgba(255,255,255,0.3)] pointer-events-none transition-all duration-700 ${isAction ? 'shadow-[0_15px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_0_80px_rgba(59,130,246,0.6)]' : 'shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(59,130,246,0.3)]'}`} />
 

@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }) {
       <SideNav />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col relative z-10 w-full min-w-0 h-screen overflow-y-auto">
+      <div className="flex-1 flex flex-col w-full min-w-0 h-screen overflow-y-auto">
         {children}
       </div>
 

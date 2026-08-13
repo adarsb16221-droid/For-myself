@@ -324,3 +324,46 @@
     -webkit-text-fill-color: transparent;
   }
 }
+
+/* FaceAvatar Animations */
+.face-float {
+  animation: faceFloat 6s ease-in-out infinite;
+}
+.face-active {
+  transform: scale(1.03);
+}
+.eye-blink {
+  animation: eyeBlink 4.5s infinite;
+}
+.eye-think-left {
+  animation: eyeThinkLeft 3s infinite ease-in-out;
+}
+.eye-think-right {
+  animation: eyeThinkRight 3s infinite ease-in-out;
+}
+.mouth-talk {
+  animation: mouthTalk 0.12s infinite alternate ease-in-out;
+}
+
+@keyframes faceFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+@keyframes eyeBlink {
+  0%, 92%, 98%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+@keyframes eyeThinkLeft {
+  0%, 10% { transform: scaleY(1); }
+  15%, 45% { transform: scaleY(0.7); }
+  50%, 100% { transform: scaleY(1); }
+}
+@keyframes eyeThinkRight {
+  0%, 50% { transform: scaleY(1); }
+  55%, 85% { transform: scaleY(0.7); }
+  90%, 100% { transform: scaleY(1); }
+}
+@keyframes mouthTalk {
+  0% { transform: scale(0.95, 0.3); }
+  100% { transform: scale(0.85, 1.3); }
+}

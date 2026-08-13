@@ -37,7 +37,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [emotion, setEmotion] = useState('neutral');
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState('');
   const messagesEndRef = useRef(null);
@@ -52,16 +52,18 @@ export default function ChatPage() {
         speech.init({
           'volume': 1,
           'lang': 'en-US',
-          'rate': 2,
+          'rate': 1.25,
           'pitch': 1,
-          'splitSentences': true,
+          'splitSentences': false,
         }).then((data) => {
           speechRef.current = speech;
           const engVoices = data.voices.filter(v => v.lang.startsWith('en'));
           setVoices(engVoices);
           if (engVoices.length > 0) {
-            setSelectedVoice(engVoices[0].name);
-            speech.setVoice(engVoices[0].name);
+            const emilyVoice = engVoices.find(v => v.name.includes('Emily') || v.name.includes('Ireland'));
+            const defaultVoice = emilyVoice ? emilyVoice.name : engVoices[0].name;
+            setSelectedVoice(defaultVoice);
+            speech.setVoice(defaultVoice);
           }
         }).catch(e => {
           console.error("An error occured while initializing : ", e);
@@ -233,7 +235,7 @@ export default function ChatPage() {
                 <select 
                   value={selectedVoice} 
                   onChange={(e) => setSelectedVoice(e.target.value)}
-                  className="bg-surface/50 text-on-surface text-sm rounded-lg px-2 py-1.5 border border-on-surface/10 outline-none backdrop-blur-md shadow-lg max-w-[120px] sm:max-w-[180px] truncate"
+                  className="bg-surface/50 text-on-surface text-xs rounded-lg px-2 py-1 border border-on-surface/10 outline-none backdrop-blur-md shadow-lg max-w-[120px] sm:max-w-[160px] truncate"
                   title="Select Voice"
                 >
                   {voices.map(v => (
@@ -249,28 +251,21 @@ export default function ChatPage() {
                     speechRef.current.cancel();
                   }
                 }}
-                className={`flex items-center justify-center w-10 h-10 rounded-full transition-all backdrop-blur-md shadow-lg border ${
+                className={`flex items-center justify-center w-8 h-8 rounded-full transition-all backdrop-blur-md shadow-lg border ${
                   isVoiceEnabled 
                     ? 'bg-primary/20 text-primary border-primary/30 shadow-[0_0_15px_rgba(70,72,212,0.3)]' 
                     : 'bg-surface/50 text-on-surface-variant hover:text-on-surface border-on-surface/10 hover:bg-surface/80'
                 }`}
                 title={isVoiceEnabled ? "Disable Voice" : "Enable Voice"}
               >
-                <span className="material-symbols-outlined text-[20px]">{isVoiceEnabled ? 'volume_up' : 'volume_off'}</span>
+                <span className="material-symbols-outlined text-[18px]">{isVoiceEnabled ? 'volume_up' : 'volume_off'}</span>
               </button>
               <button 
                 onClick={() => setShowLog(true)} 
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface/50 hover:bg-surface/80 text-on-surface transition-all backdrop-blur-md shadow-lg border border-on-surface/10 text-sm font-medium"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface/50 hover:bg-surface/80 text-on-surface transition-all backdrop-blur-md shadow-lg border border-on-surface/10 text-xs font-medium"
               >
-                <span className="material-symbols-outlined text-[18px]">history</span>
+                <span className="material-symbols-outlined text-[16px]">history</span>
                 Chat Log
-              </button>
-              <button 
-                onClick={clearChat} 
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-surface/50 hover:bg-error/80 hover:text-error-container text-on-surface transition-all backdrop-blur-md shadow-lg border border-on-surface/10"
-                title="Clear Chat"
-              >
-                <span className="material-symbols-outlined text-[20px]">delete</span>
               </button>
             </div>
             
@@ -351,12 +346,21 @@ export default function ChatPage() {
                   <span className="material-symbols-outlined text-primary">history</span>
                   Conversation Log
                 </h3>
-                <button 
-                  onClick={() => setShowLog(false)}
-                  className="p-2 rounded-full hover:bg-on-surface/10 text-on-surface-variant transition-colors"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={clearChat}
+                    className="p-2 rounded-full hover:bg-error/10 text-error transition-colors"
+                    title="Clear Chat"
+                  >
+                    <span className="material-symbols-outlined">delete</span>
+                  </button>
+                  <button 
+                    onClick={() => setShowLog(false)}
+                    className="p-2 rounded-full hover:bg-on-surface/10 text-on-surface-variant transition-colors"
+                  >
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
               </div>
               
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-6">
@@ -409,44 +413,7 @@ export default function ChatPage() {
         .face-float {
           animation: float 6s ease-in-out infinite;
         }
-        .face-active {
-          transform: scale(1.03);
-        }
-        .eye-blink {
-          animation: blink 4.5s infinite;
-        }
-        .eye-think-left {
-          animation: thinkLeft 3s infinite ease-in-out;
-        }
-        .eye-think-right {
-          animation: thinkRight 3s infinite ease-in-out;
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes blink {
-          0%, 92%, 98%, 100% { transform: scaleY(1); }
-          95% { transform: scaleY(0.1); }
-        }
-        @keyframes thinkLeft {
-          0%, 10% { transform: scaleY(1); }
-          15%, 45% { transform: scaleY(0.7); }
-          50%, 100% { transform: scaleY(1); }
-        }
-        @keyframes thinkRight {
-          0%, 50% { transform: scaleY(1); }
-          55%, 85% { transform: scaleY(0.7); }
-          90%, 100% { transform: scaleY(1); }
-        }
-        .mouth-talk {
-          animation: talk 0.12s infinite alternate ease-in-out;
-        }
-        @keyframes talk {
-          0% { transform: scale(0.95, 0.3); }
-          100% { transform: scale(0.75, 2.2); }
-        }
+
       `}</style>
     </>
   );

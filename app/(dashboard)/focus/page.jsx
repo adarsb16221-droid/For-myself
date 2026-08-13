@@ -33,11 +33,17 @@ export default function FocusPage() {
         speech.init({
           'volume': 1,
           'lang': 'en-US',
-          'rate': 1.2,
+          'rate': 1.25,
           'pitch': 1,
-          'splitSentences': true,
-        }).then(() => {
+          'splitSentences': false,
+        }).then((data) => {
           speechRef.current = speech;
+          const engVoices = data.voices.filter(v => v.lang.startsWith('en'));
+          if (engVoices.length > 0) {
+            const emilyVoice = engVoices.find(v => v.name.includes('Emily') || v.name.includes('Ireland'));
+            const defaultVoice = emilyVoice ? emilyVoice.name : engVoices[0].name;
+            speech.setVoice(defaultVoice);
+          }
         }).catch(e => console.error("Speech init error:", e));
       }
     });
@@ -72,6 +78,22 @@ export default function FocusPage() {
     }
     return () => clearInterval(interval);
   }, [isFocusing, timerMinutes]);
+
+  // Randomly change emotions while focusing
+  useEffect(() => {
+    let emotionInterval;
+    if (isFocusing) {
+      emotionInterval = setInterval(() => {
+        if (!isSpeaking) {
+          const emotions = ['neutral', 'happy', 'worried', 'confused', 'neutral', 'neutral', 'neutral'];
+          setEmotion(emotions[Math.floor(Math.random() * emotions.length)]);
+        }
+      }, 4000); // Change emotion every 4 seconds
+    } else {
+      if (!isSpeaking) setEmotion('neutral');
+    }
+    return () => clearInterval(emotionInterval);
+  }, [isFocusing, isSpeaking]);
 
   useEffect(() => {
     let interval;
@@ -163,7 +185,7 @@ export default function FocusPage() {
 
   return (
     <>
-      <main className="relative flex flex-col w-full h-full min-h-[calc(100vh-80px)] flex-1 overflow-y-auto bg-background text-on-background pb-20">
+      <main className="relative flex flex-col w-full h-full flex-1 overflow-hidden bg-background text-on-background">
         <Header title="Deep Focus" />
         
         {/* Global Background Image */}
@@ -178,15 +200,15 @@ export default function FocusPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-background/90 to-background/80" />
         </div>
 
-        <div className="relative z-10 flex flex-col items-center justify-center w-full flex-1 p-6">
+        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full flex-1 p-4 sm:p-6 pt-10 sm:pt-12 pb-24 md:pb-12 overflow-hidden">
           
-          <div className="glass-card max-w-xl w-full rounded-[2rem] p-6 md:p-10 flex flex-col items-center shadow-2xl relative my-auto">
-            <h2 className="font-headline-lg text-[28px] md:text-[32px] font-bold text-on-surface mb-2">Focus Mode</h2>
-            <p className="text-on-surface-variant font-body-lg text-center mb-6">Eliminate distractions and get things done.</p>
+          <div className="glass-card max-w-xl w-full rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-2xl relative my-auto">
+            <h2 className="font-headline-lg text-[24px] md:text-[28px] font-bold text-on-surface mb-2">Focus Mode</h2>
+            <p className="text-on-surface-variant font-body-lg text-center text-sm md:text-base mb-4 md:mb-6">Eliminate distractions and get things done.</p>
 
-            <div className="flex justify-center items-center h-40 sm:h-48 md:h-64 w-full mb-4">
-              <div className="transform scale-[0.65] sm:scale-75 md:scale-100 origin-center">
-                <FaceAvatar isThinking={false} isSpeaking={isSpeaking} emotion={emotion} />
+            <div className="flex justify-center items-center w-full mb-6 md:mb-8 h-[120px] sm:h-[160px] md:h-[180px]">
+              <div className="transform scale-[0.8] sm:scale-[0.7] md:scale-[0.6] origin-center">
+                <FaceAvatar isThinking={false} isSpeaking={false} emotion={emotion} />
               </div>
             </div>
 
@@ -231,15 +253,17 @@ export default function FocusPage() {
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-background to-secondary/10 opacity-50" />
           
           <div className="relative z-10 flex flex-col items-center">
-            <div className="mb-8 sm:mb-12 md:mb-16 transform scale-90 sm:scale-125 md:scale-150">
-              <FaceAvatar isThinking={false} isSpeaking={isSpeaking} emotion={emotion} />
+            <div className="mb-4 sm:mb-8 md:mb-10 flex justify-center items-center h-[140px] sm:h-[224px] md:h-[288px]">
+              <div className="transform scale-[1] sm:scale-[1] md:scale-[1] origin-center">
+                <FaceAvatar isThinking={false} isSpeaking={false} emotion={emotion} />
+              </div>
             </div>
 
-            <div className="text-[70px] sm:text-[120px] md:text-[180px] leading-none font-black text-on-surface font-display-lg tracking-tighter drop-shadow-xl" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <div className="text-[60px] sm:text-[100px] md:text-[140px] leading-none font-black text-on-surface font-display-lg tracking-tighter drop-shadow-xl" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatTime(timerMinutes, timerSeconds)}
             </div>
 
-            <p className="text-sm sm:text-xl text-on-surface-variant font-medium mt-2 sm:mt-4 tracking-widest uppercase mb-10 sm:mb-16 animate-pulse text-center">Deep Work In Progress</p>
+            <p className="text-xs sm:text-lg md:text-xl text-on-surface-variant font-medium mt-2 sm:mt-4 tracking-widest uppercase mb-6 sm:mb-10 md:mb-12 animate-pulse text-center">Deep Work In Progress</p>
 
             <button 
               onClick={handleCancel}

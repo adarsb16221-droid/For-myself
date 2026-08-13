@@ -3,13 +3,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext({
-  theme: 'dark',
+  theme: 'light',
   toggleTheme: () => {},
   mounted: false,
 });
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -23,8 +23,8 @@ export function ThemeProvider({ children }) {
         document.documentElement.classList.remove('dark');
       }
     } else {
-      // Default to dark as per original app spec
-      document.documentElement.classList.add('dark');
+      // Default to light mode
+      document.documentElement.classList.remove('dark');
     }
   }, []);
 
