@@ -7,9 +7,9 @@ export default function BottomNav() {
 
   const navItems = [
     { name: 'Home', href: '/', icon: 'home' },
-    { name: 'Orbit AI', href: '/chat', icon: 'psychiatry' },
-    { name: 'Schedule', href: '/schedule', icon: 'event' },
-    { name: 'Journal', href: '/journal', icon: 'list_alt' },
+    { name: 'AI', href: '/chat', icon: 'psychiatry' },
+    { name: 'Plan', href: '/schedule', icon: 'event' },
+    { name: 'Log', href: '/journal', icon: 'list_alt' },
     { name: 'Links', href: '/links', icon: 'link' },
     { name: 'Focus', href: '/focus', icon: 'timer' },
     { name: 'Data', href: '/analytics', icon: 'insights' },
@@ -30,12 +30,12 @@ export default function BottomNav() {
             }`}
           >
             <span 
-              className="material-symbols-outlined text-2xl" 
+              className="material-symbols-outlined text-[20px]" 
               style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
             >
               {item.icon}
             </span>
-            <span className="font-label-caps text-[10px] mt-1 font-semibold tracking-wider uppercase">{item.name}</span>
+            <span className="font-label-caps text-[9px] mt-0.5 font-bold uppercase">{item.name}</span>
           </Link>
         );
       })}
