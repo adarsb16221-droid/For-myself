@@ -14,7 +14,20 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function() {
+      // Password is required only if the user is not logging in via Google
+      return this.authProvider !== 'google';
+    },
+  },
+  authProvider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local',
+  },
+  googleId: {
+    type: String,
+    sparse: true,
+    unique: true,
   },
   resetOtp: {
     type: String,
