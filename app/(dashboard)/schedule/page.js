@@ -89,11 +89,11 @@ export default function SchedulePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/schedule').then(res => res.json()),
-      fetch('/api/tasks').then(res => res.json())
+      fetch('/api/schedule', { cache: 'no-store' }).then(res => res.json()),
+      fetch('/api/tasks', { cache: 'no-store' }).then(res => res.json())
     ]).then(([schedData, taskData]) => {
       setSchedule(Array.isArray(schedData) ? schedData : []);
-      setTasks(Array.isArray(taskData) ? taskData : []);
+      setTasks(Array.isArray(taskData) ? taskData.filter(t => !t.completed) : []);
       setIsLoading(false);
     }).catch(e => {
       console.error(e);
@@ -232,33 +232,36 @@ export default function SchedulePage() {
           <div className="p-4 flex flex-col gap-4">
           {isLoading ? (
             <Spinner size="md" className="my-8" />
-          ) : tasks.length === 0 ? (
-            <p className="text-on-surface-variant text-sm italic opacity-70">No tasks available.</p>
-          ) : (
-            <div className="flex flex-col md:flex-col sm:flex-row sm:flex-wrap gap-2">
-              {tasks.map(task => (
-                <div 
-                  key={task._id} 
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData('taskTitle', task.text);
-                    e.dataTransfer.effectAllowed = 'copy';
-                  }}
-                  onClick={() => handleMobileAdd(task.text)}
-                  className="glass-card rounded-lg p-3 border border-white/10 cursor-pointer md:cursor-grab hover:bg-white/5 transition-colors active:cursor-grabbing flex flex-col gap-1 shadow-sm group sm:w-[calc(50%-0.25rem)] md:w-full"
-                >
-                  <div className="flex justify-between items-start">
-                    <span className="font-body-sm text-[14px] font-medium text-on-surface">{task.text}</span>
-                    <span className="material-symbols-outlined text-[16px] text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+          ) : (() => {
+            const availableTasks = tasks.filter(task => !schedule.some(block => block.title === task.text));
+            return availableTasks.length === 0 ? (
+              <p className="text-on-surface-variant text-sm italic opacity-70">No tasks available.</p>
+            ) : (
+              <div className="flex flex-col md:flex-col sm:flex-row sm:flex-wrap gap-2">
+                {availableTasks.map(task => (
+                  <div 
+                    key={task._id} 
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('taskTitle', task.text);
+                      e.dataTransfer.effectAllowed = 'copy';
+                    }}
+                    onClick={() => handleMobileAdd(task.text)}
+                    className="glass-card rounded-lg p-3 border border-white/10 cursor-pointer md:cursor-grab hover:bg-white/5 transition-colors active:cursor-grabbing flex flex-col gap-1 shadow-sm group sm:w-[calc(50%-0.25rem)] md:w-full"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-body-sm text-[14px] font-medium text-on-surface">{task.text}</span>
+                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary/70">{task.category}</span>
+                      {task.isRegular && <span className="text-[10px] bg-secondary/20 text-secondary px-1.5 rounded-full">Daily</span>}
+                    </div>
                   </div>
-                  <div className="flex gap-2 items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary/70">{task.category}</span>
-                    {task.isRegular && <span className="text-[10px] bg-secondary/20 text-secondary px-1.5 rounded-full">Daily</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            );
+          })()}
           </div>
         </div>
 

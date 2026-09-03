@@ -4,6 +4,9 @@ import Header from '@/components/Header';
 import Image from 'next/image';
 
 import FaceAvatar from '@/components/FaceAvatar';
+import CryptoJS from 'crypto-js';
+
+const CHAT_SECRET_KEY = 'orbit_frontend_secure_chat_key_99';
 
 // Typewriter Hook
 function useTypewriter(text, speed = 15) {
@@ -79,10 +82,23 @@ export default function ChatPage() {
   }, [selectedVoice]);
 
   useEffect(() => {
-    const savedMessages = localStorage.getItem('orbit_chat_history');
-    if (savedMessages) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setMessages(JSON.parse(savedMessages));
+    const savedData = localStorage.getItem('orbit_chat_history');
+    if (savedData) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(savedData, CHAT_SECRET_KEY);
+        const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+        if (decryptedString) {
+          setMessages(JSON.parse(decryptedString));
+        } else {
+          setMessages(JSON.parse(savedData)); // Fallback for legacy unencrypted
+        }
+      } catch (e) {
+        try {
+          setMessages(JSON.parse(savedData)); // Fallback for legacy unencrypted
+        } catch (e2) {
+          console.error("Could not load chat history");
+        }
+      }
     } else {
       setMessages([
         {
@@ -95,7 +111,8 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem('orbit_chat_history', JSON.stringify(messages));
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(messages), CHAT_SECRET_KEY).toString();
+      localStorage.setItem('orbit_chat_history', encrypted);
     }
     if (showLog) {
       logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -189,7 +206,8 @@ export default function ChatPage() {
         content: "Hello! I'm Orbit, your personal coach. I'm here to help you accelerate your growth in Health, Wealth, and Knowledge. How can we level up today?"
       }];
       setMessages(resetState);
-      localStorage.setItem('orbit_chat_history', JSON.stringify(resetState));
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(resetState), CHAT_SECRET_KEY).toString();
+      localStorage.setItem('orbit_chat_history', encrypted);
       setShowLog(false);
     }
   };

@@ -23,6 +23,17 @@ export async function GET(req) {
           hasUpdates = true;
         }
       }
+      
+      if (task.isGoal && !task.completed) {
+        if (task.subtasksResetAt !== todayDateStr) {
+          if (task.subtasks && task.subtasks.length > 0) {
+            task.subtasks.forEach(st => st.completed = false);
+          }
+          task.subtasksResetAt = todayDateStr;
+          await task.save();
+          hasUpdates = true;
+        }
+      }
     }
 
     if (hasUpdates) {

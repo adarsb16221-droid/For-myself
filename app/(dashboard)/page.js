@@ -22,16 +22,25 @@ export default function Home() {
   const [showAddFocus, setShowAddFocus] = useState(false);
   const [focusInput, setFocusInput] = useState('');
   const [focusCategory, setFocusCategory] = useState('Work');
+  const [focusLinkedGoal, setFocusLinkedGoal] = useState('');
+
+  // Goal Add State
+  const [showAddGoal, setShowAddGoal] = useState(false);
+  const [goalInput, setGoalInput] = useState('');
+  const [goalCategory, setGoalCategory] = useState('Personal');
 
   const [currentBlock, setCurrentBlock] = useState(null);
   
   // Done Tasks Modal State
   const [showDoneTasks, setShowDoneTasks] = useState(false);
 
+  // Drag and Drop State
+  const [draggedTaskId, setDraggedTaskId] = useState(null);
+
   useEffect(() => {
     async function fetchTasks() {
       try {
-        const res = await fetch('/api/tasks');
+        const res = await fetch('/api/tasks', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           setTasks(data);
@@ -45,7 +54,7 @@ export default function Home() {
 
     async function fetchSchedule() {
       try {
-        const res = await fetch('/api/schedule');
+        const res = await fetch('/api/schedule', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           setSchedule(data);
@@ -85,12 +94,29 @@ export default function Home() {
       setTasks(prevTasks => {
         let hasChanges = false;
         const newTasks = prevTasks.map(task => {
+          let updatedTask = { ...task };
+          let changed = false;
+
           if (task.isRegular && task.completed && task.completedAt) {
             const completedDateStr = task.completedAt.split('T')[0];
             if (completedDateStr !== todayDateStr) {
-              hasChanges = true;
-              return { ...task, completed: false, completedAt: null };
+              changed = true;
+              updatedTask.completed = false;
+              updatedTask.completedAt = null;
             }
+          }
+          
+          if (task.isGoal && !task.completed) {
+            if (task.subtasksResetAt !== todayDateStr) {
+              changed = true;
+              updatedTask.subtasks = (task.subtasks || []).map(st => ({ ...st, completed: false }));
+              updatedTask.subtasksResetAt = todayDateStr;
+            }
+          }
+
+          if (changed) {
+            hasChanges = true;
+            return updatedTask;
           }
           return task;
         });
@@ -104,10 +130,22 @@ export default function Home() {
 
 
 
-  const addTask = async (e, isRegular) => {
+  const addTask = async (e, type) => {
     e.preventDefault();
-    const input = isRegular ? habitInput : focusInput;
-    const category = isRegular ? habitCategory : focusCategory;
+    let input = focusInput;
+    let category = focusCategory;
+    let isRegular = false;
+    let isGoal = false;
+    
+    if (type === 'habit') {
+      input = habitInput;
+      category = habitCategory;
+      isRegular = true;
+    } else if (type === 'goal') {
+      input = goalInput;
+      category = goalCategory;
+      isGoal = true;
+    }
     
     if (!input.trim()) return;
     
@@ -115,7 +153,9 @@ export default function Home() {
       text: input,
       category: category,
       priority: 'medium',
-      isRegular: isRegular
+      isRegular: isRegular,
+      isGoal: isGoal,
+      linkedGoalId: type === 'focus' && focusLinkedGoal ? focusLinkedGoal : null
     };
 
     try {
@@ -127,11 +167,15 @@ export default function Home() {
       if (res.ok) {
         const createdTask = await res.json();
         setTasks([createdTask, ...tasks]);
-        if (isRegular) {
+        if (type === 'habit') {
           setHabitInput('');
           setShowAddHabit(false);
+        } else if (type === 'goal') {
+          setGoalInput('');
+          setShowAddGoal(false);
         } else {
           setFocusInput('');
+          setFocusLinkedGoal('');
           setShowAddFocus(false);
         }
       }
@@ -144,7 +188,9 @@ export default function Home() {
     setProcessingTasks(prev => new Set(prev).add(task._id));
     const isNowCompleted = !task.completed;
     
-    const updatedSubtasks = (task.subtasks || []).map(st => ({ ...st, completed: isNowCompleted }));
+    const updatedSubtasks = task.isGoal 
+      ? task.subtasks 
+      : (task.subtasks || []).map(st => ({ ...st, completed: isNowCompleted }));
     
     const updated = { 
       ...task, 
@@ -193,12 +239,14 @@ export default function Home() {
     const updated = { ...task, ...updates };
     
     if (updates.subtasks && updates.subtasks.length > 0) {
-      const allCompleted = updates.subtasks.every(st => st.completed);
-      updated.completed = allCompleted;
-      if (allCompleted && !task.completed) {
-        updated.completedAt = new Date().toISOString();
-      } else if (!allCompleted) {
-        updated.completedAt = null;
+      if (!task.isGoal) {
+        const allCompleted = updates.subtasks.every(st => st.completed);
+        updated.completed = allCompleted;
+        if (allCompleted && !task.completed) {
+          updated.completedAt = new Date().toISOString();
+        } else if (!allCompleted) {
+          updated.completedAt = null;
+        }
       }
     }
 
@@ -220,8 +268,70 @@ export default function Home() {
     }
   };
 
+  const handleDragStart = (e, task) => {
+    setDraggedTaskId(task._id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e, targetTask) => {
+    e.preventDefault();
+    if (!draggedTaskId || draggedTaskId === targetTask._id) return;
+    
+    const taskToMove = tasks.find(t => t._id === draggedTaskId);
+    if (!taskToMove) return;
+
+    const isSameContext = (taskToMove.isRegular === targetTask.isRegular) && (taskToMove.isGoal === targetTask.isGoal);
+    if (!isSameContext) return; 
+    
+    let contextTasks = oneOffTasks;
+    if (taskToMove.isRegular) contextTasks = dailyTasks;
+    else if (taskToMove.isGoal) contextTasks = goalTasks;
+    
+    const targetIndex = contextTasks.findIndex(t => t._id === targetTask._id);
+    if (targetIndex === -1) return;
+    
+    const nowTime = new Date().getTime();
+    let newOrder;
+    if (targetIndex === 0) {
+      newOrder = (contextTasks[0]?.order || nowTime) - 1000;
+    } else {
+      const prevTask = contextTasks[targetIndex - 1];
+      newOrder = ((prevTask.order || nowTime) + (targetTask.order || nowTime)) / 2;
+    }
+    
+    const updated = { ...taskToMove, order: newOrder };
+    
+    const newTasks = tasks.map(t => t._id === taskToMove._id ? updated : t)
+      .sort((a, b) => {
+        const orderA = a.order || nowTime;
+        const orderB = b.order || nowTime;
+        if (orderA !== orderB) return orderA - orderB;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+    setTasks(newTasks);
+    setDraggedTaskId(null);
+
+    try {
+      await fetch('/api/tasks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+    } catch(err) {
+      console.error(err);
+    }
+  };
+
   const moveTask = async (taskToMove, direction) => {
-    const contextTasks = taskToMove.isRegular ? dailyTasks : oneOffTasks;
+    let contextTasks = oneOffTasks;
+    if (taskToMove.isRegular) contextTasks = dailyTasks;
+    else if (taskToMove.isGoal) contextTasks = goalTasks;
+    
     const currentIndex = contextTasks.findIndex(t => t._id === taskToMove._id);
     if (currentIndex === -1) return;
 
@@ -284,7 +394,8 @@ export default function Home() {
   };
 
   const dailyTasks = tasks.filter(t => t.isRegular && !t.completed);
-  const oneOffTasks = tasks.filter(t => !t.isRegular && !t.completed);
+  const oneOffTasks = tasks.filter(t => !t.isRegular && !t.isGoal && !t.completed);
+  const goalTasks = tasks.filter(t => t.isGoal && !t.completed);
   const completedTasks = tasks.filter(t => t.completed);
   const tasksCompleted = completedTasks.length;
 
@@ -321,7 +432,7 @@ export default function Home() {
             </div>
             
             {showAddHabit && (
-              <form onSubmit={(e) => addTask(e, true)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+              <form onSubmit={(e) => addTask(e, 'habit')} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
                 <input 
                   className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
                   placeholder="New habit..." 
@@ -347,7 +458,7 @@ export default function Home() {
               </form>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-4">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : dailyTasks.length === 0 ? (
@@ -362,14 +473,17 @@ export default function Home() {
                     onUpdate={updateTask}
                     onMove={moveTask}
                     isLoading={processingTasks.has(task._id)}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
                   />
                 ))
               )}
             </div>
           </section>
 
-          {/* One-off Tasks (Focus Tasks - Larger Area) */}
-          <section className="lg:col-span-2 flex flex-col">
+          {/* One-off Tasks (Focus Tasks) */}
+          <section className="lg:col-span-1 flex flex-col">
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
                 <span className="material-symbols-outlined">checklist</span> Focus Tasks
@@ -384,7 +498,7 @@ export default function Home() {
             </div>
 
             {showAddFocus && (
-              <form onSubmit={(e) => addTask(e, false)} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+              <form onSubmit={(e) => addTask(e, 'focus')} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
                 <input 
                   className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
                   placeholder="New focus task..." 
@@ -393,16 +507,31 @@ export default function Home() {
                   value={focusInput}
                   onChange={(e) => setFocusInput(e.target.value)}
                 />
-                <div className="flex justify-between items-center">
-                  <select 
-                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
-                    value={focusCategory}
-                    onChange={(e) => setFocusCategory(e.target.value)}
-                  >
-                    <option value="Work">Work</option>
-                    <option value="Personal">Personal</option>
-                    <option value="General">General</option>
-                  </select>
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <div className="flex gap-2">
+                    <select 
+                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                      value={focusCategory}
+                      onChange={(e) => setFocusCategory(e.target.value)}
+                    >
+                      <option value="Work">Work</option>
+                      <option value="Personal">Personal</option>
+                      <option value="General">General</option>
+                      <option value="Health">Health</option>
+                      <option value="Wealth">Wealth</option>
+                      <option value="Knowledge">Knowledge</option>
+                    </select>
+                    <select
+                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all max-w-[120px] truncate"
+                      value={focusLinkedGoal}
+                      onChange={(e) => setFocusLinkedGoal(e.target.value)}
+                    >
+                      <option value="">No Goal</option>
+                      {goalTasks.map(g => (
+                        <option key={g._id} value={g._id}>{g.text}</option>
+                      ))}
+                    </select>
+                  </div>
                   <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
                     Add Task
                   </button>
@@ -410,7 +539,7 @@ export default function Home() {
               </form>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-4">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : oneOffTasks.length === 0 ? (
@@ -425,6 +554,77 @@ export default function Home() {
                     onUpdate={updateTask}
                     onMove={moveTask}
                     isLoading={processingTasks.has(task._id)}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  />
+                ))
+              )}
+            </div>
+          </section>
+
+          {/* Long Term Goals */}
+          <section className="lg:col-span-1 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <span className="material-symbols-outlined">flag</span> Long Term Goals
+              </h3>
+              <button 
+                onClick={() => setShowAddGoal(!showAddGoal)}
+                className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">{showAddGoal ? 'close' : 'add'}</span> 
+                {showAddGoal ? 'Cancel' : 'Add Goal'}
+              </button>
+            </div>
+
+            {showAddGoal && (
+              <form onSubmit={(e) => addTask(e, 'goal')} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+                <input 
+                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
+                  placeholder="New long term goal..." 
+                  type="text"
+                  autoFocus
+                  value={goalInput}
+                  onChange={(e) => setGoalInput(e.target.value)}
+                />
+                <div className="flex justify-between items-center">
+                  <select 
+                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                    value={goalCategory}
+                    onChange={(e) => setGoalCategory(e.target.value)}
+                  >
+                    <option value="Personal">Personal</option>
+                    <option value="Work">Work</option>
+                    <option value="Health">Health</option>
+                    <option value="Wealth">Wealth</option>
+                    <option value="Knowledge">Knowledge</option>
+                  </select>
+                  <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                    Add Goal
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="flex flex-col gap-4">
+              {isLoadingTasks ? (
+                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
+              ) : goalTasks.length === 0 ? (
+                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No goals yet.</p>
+              ) : (
+                goalTasks.map(task => (
+                  <TaskCard 
+                    key={task._id} 
+                    task={task} 
+                    onToggle={toggleTask} 
+                    onDelete={deleteTask} 
+                    onUpdate={updateTask}
+                    onMove={moveTask}
+                    isLoading={processingTasks.has(task._id)}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
                   />
                 ))
               )}

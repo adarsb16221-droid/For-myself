@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Spinner from '@/components/Spinner';
 
-export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, isLoading }) {
+export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, isLoading, onDragStart, onDragOver, onDrop }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editInput, setEditInput] = useState(task.text);
   const [showMoveMenu, setShowMoveMenu] = useState(false);
@@ -58,7 +58,13 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
   if (task.category === 'Knowledge') badgeClass = 'bg-blue-500/20 text-blue-500 border border-blue-500/10';
 
   return (
-    <div className={`glass-card rounded-xl p-4 flex flex-col gap-2 task-item cursor-pointer ${isCompleted ? 'opacity-60' : ''}`}>
+    <div 
+      className={`glass-card rounded-xl p-4 flex flex-col gap-2 task-item cursor-pointer ${isCompleted ? 'opacity-60' : ''}`}
+      draggable={!isLoading}
+      onDragStart={(e) => onDragStart && onDragStart(e, task)}
+      onDragOver={(e) => onDragOver && onDragOver(e)}
+      onDrop={(e) => onDrop && onDrop(e, task)}
+    >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 mt-1 w-full overflow-hidden">
           {isLoading ? (
@@ -104,10 +110,15 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                 <span className="flex items-center gap-1 text-secondary"><span className="material-symbols-outlined text-[14px]">local_fire_department</span> {task.history?.length || 0} Days</span>
               </div>
             )}
-            {!task.isRegular && task.priority === 'high' && (
+            {!task.isRegular && task.priority === 'high' && !task.isGoal && (
               <span className="font-body-sm text-[12px] text-error mt-1 flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]">priority_high</span> High Priority
               </span>
+            )}
+            {task.isGoal && (
+              <div className="font-body-sm text-[12px] text-on-surface-variant mt-1 flex items-center gap-3">
+                <span className="flex items-center gap-1 text-primary"><span className="material-symbols-outlined text-[14px]">flag</span> Long Term Goal</span>
+              </div>
             )}
 
             {/* Subtasks Section */}
@@ -140,7 +151,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                     <input 
                       type="text"
                       className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[13px]"
-                      placeholder="Subtask..."
+                      placeholder={task.isGoal ? "New daily habit..." : "Subtask..."}
                       value={subtaskInput}
                       onChange={e => setSubtaskInput(e.target.value)}
                       autoFocus
@@ -166,9 +177,11 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
             onClick={(e) => { e.stopPropagation(); setShowAddSubtask(true); }}
             className="text-outline-variant hover:text-primary transition-colors p-0.5 sm:p-1"
             disabled={isLoading}
-            title="Add Subtask"
+            title={task.isGoal ? "Add Daily Habit" : "Add Subtask"}
           >
-            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">add_task</span>
+            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">
+              {task.isGoal ? "track_changes" : "add_task"}
+            </span>
           </button>
           {!isEditing && (
             <button 
@@ -205,10 +218,15 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
           </button>
         </div>
       </div>
-      <div className="ml-8 flex gap-2 mt-1">
+      <div className="ml-8 flex flex-wrap gap-2 mt-1">
         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}>
           {task.category}
         </span>
+        {task.linkedGoalId && (
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
+             <span className="material-symbols-outlined text-[12px]">flag</span> Linked Goal
+          </span>
+        )}
       </div>
     </div>
   );
