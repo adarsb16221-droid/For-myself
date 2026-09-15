@@ -59,20 +59,20 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
 
   return (
     <div 
-      className={`glass-card rounded-xl p-4 flex flex-col gap-2 task-item cursor-pointer ${isCompleted ? 'opacity-60' : ''}`}
+      className={`glass-card rounded-xl p-3 flex flex-col gap-1.5 task-item cursor-pointer ${isCompleted ? 'opacity-60' : ''}`}
       draggable={!isLoading}
       onDragStart={(e) => onDragStart && onDragStart(e, task)}
       onDragOver={(e) => onDragOver && onDragOver(e)}
       onDrop={(e) => onDrop && onDrop(e, task)}
     >
       <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3 mt-1 w-full overflow-hidden">
+        <div className="flex items-start gap-2.5 mt-0.5 w-full overflow-hidden">
           {isLoading ? (
-            <Spinner size="sm" className="mt-0.5 shrink-0" />
+            <Spinner size="sm" className="shrink-0" />
           ) : (
             <input 
               type="checkbox" 
-              className="checkbox-custom mt-0.5 shrink-0" 
+              className="checkbox-custom shrink-0 mt-0.5 w-4 h-4" 
               checked={isCompleted}
               onChange={() => onToggle(task)}
               disabled={isLoading}
@@ -83,7 +83,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
               <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                 <input 
                   type="text"
-                  className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[15px]"
+                  className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[13px]"
                   value={editInput}
                   onChange={e => setEditInput(e.target.value)}
                   autoFocus
@@ -93,31 +93,31 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                   }}
                 />
                 <button onClick={handleSave} className="text-primary hover:text-primary-fixed-dim">
-                  <span className="material-symbols-outlined text-[18px]">check</span>
+                  <span className="material-symbols-outlined text-[16px]">check</span>
                 </button>
                 <button onClick={() => setIsEditing(false)} className="text-error hover:text-error/80">
-                  <span className="material-symbols-outlined text-[18px]">close</span>
+                  <span className="material-symbols-outlined text-[16px]">close</span>
                 </button>
               </div>
             ) : (
-              <span className={`font-body-lg text-[16px] text-on-surface font-medium block break-words ${isCompleted ? 'line-through text-on-surface-variant' : ''}`}>
+              <span className={`font-body-md text-[14px] text-on-surface font-medium block break-words leading-snug ${isCompleted ? 'line-through text-on-surface-variant' : ''}`}>
                 {task.text}
               </span>
             )}
             {task.isRegular && (
-              <div className="font-body-sm text-[12px] text-on-surface-variant mt-1 flex items-center gap-3">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">routine</span> Daily</span>
-                <span className="flex items-center gap-1 text-secondary"><span className="material-symbols-outlined text-[14px]">local_fire_department</span> {task.history?.length || 0} Days</span>
+              <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
+                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">routine</span> Daily</span>
+                <span className="flex items-center gap-1 text-secondary"><span className="material-symbols-outlined text-[12px]">local_fire_department</span> {task.history?.length || 0} Days</span>
               </div>
             )}
             {!task.isRegular && task.priority === 'high' && !task.isGoal && (
-              <span className="font-body-sm text-[12px] text-error mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">priority_high</span> High Priority
+              <span className="font-body-sm text-[11px] text-error mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">priority_high</span> High Priority
               </span>
             )}
             {task.isGoal && (
-              <div className="font-body-sm text-[12px] text-on-surface-variant mt-1 flex items-center gap-3">
-                <span className="flex items-center gap-1 text-primary"><span className="material-symbols-outlined text-[14px]">flag</span> Long Term Goal</span>
+              <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
+                <span className="flex items-center gap-1 text-primary"><span className="material-symbols-outlined text-[12px]">flag</span> Long Term Goal</span>
               </div>
             )}
 
@@ -179,7 +179,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
             disabled={isLoading}
             title={task.isGoal ? "Add Daily Habit" : "Add Subtask"}
           >
-            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">
+            <span className="material-symbols-outlined text-[15px] sm:text-[16px]">
               {task.isGoal ? "track_changes" : "add_task"}
             </span>
           </button>
@@ -189,7 +189,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
               className="text-outline-variant hover:text-primary transition-colors p-0.5 sm:p-1"
               disabled={isLoading}
             >
-              <span className="material-symbols-outlined text-[16px] sm:text-[18px]">edit</span>
+              <span className="material-symbols-outlined text-[15px] sm:text-[16px]">edit</span>
             </button>
           )}
           <div className="relative">
@@ -198,7 +198,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
               className="text-outline-variant hover:text-on-surface transition-colors p-0.5 sm:p-1"
               disabled={isLoading}
             >
-              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">swap_vert</span>
+              <span className="material-symbols-outlined text-[16px] sm:text-[18px]">swap_vert</span>
             </button>
             {showMoveMenu && (
               <div className="absolute right-0 top-full mt-1 bg-surface-container-high border border-on-surface/10 rounded-md shadow-lg z-10 flex flex-col min-w-[140px] py-1 animate-in fade-in zoom-in-95">
@@ -214,7 +214,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
             className="text-outline-variant hover:text-error transition-colors p-0.5 sm:p-1"
             disabled={isLoading}
           >
-            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">delete</span>
+            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">delete</span>
           </button>
         </div>
       </div>

@@ -19,6 +19,7 @@ const TaskSchema = new mongoose.Schema({
   completed: { type: Boolean, default: false },
   completedAt: { type: String, default: null },
   history: { type: [String], default: [] },
+  lastPenaltyDate: { type: String, default: null },
   subtasksResetAt: { type: String, default: null },
   linkedGoalId: { type: String, default: null },
   subtasks: {

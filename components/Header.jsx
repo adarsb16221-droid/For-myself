@@ -3,10 +3,13 @@ import { useState, useEffect } from 'react';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
+import NotificationsModal from './NotificationsModal';
 
 export default function Header({ title, subtitle, showDate = true, tasksCompleted = 0, currentScheduleBlock = null, actionButton = null }) {
   const [dateStr, setDateStr] = useState('');
   const [greeting, setGreeting] = useState('Morning');
+  const [hasUnread, setHasUnread] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
 
@@ -18,6 +21,21 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
     if (hour < 12) setGreeting('Morning');
     else if (hour < 17) setGreeting('Afternoon');
     else setGreeting('Evening');
+
+    // Listen for SSE notifications
+    const eventSource = new EventSource('/api/notifications/stream');
+    eventSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        const alertTypes = ['friend_request', 'friend_accepted', 'challenge_received', 'challenge_accepted', 'task_completed'];
+        if (alertTypes.includes(data.type)) {
+          setHasUnread(true);
+        }
+      } catch (err) {}
+    };
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   const formatTime = (time24) => {
@@ -38,8 +56,20 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
         <div className="flex items-center gap-3">
           {actionButton}
           <button 
+            onClick={() => {
+              setIsModalOpen(true);
+              setHasUnread(false);
+            }}
+            className="relative w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
+          >
+            <span className="material-symbols-outlined text-primary-fixed-dim">notifications</span>
+            {hasUnread && (
+              <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+            )}
+          </button>
+          <button 
             onClick={toggleTheme}
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/5 transition-colors border border-on-surface/10"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
           >
             <span className="material-symbols-outlined text-primary-fixed-dim">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
           </button>
@@ -83,6 +113,7 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
           )}
         </div>
       )}
+      <NotificationsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </header>
   );
 }

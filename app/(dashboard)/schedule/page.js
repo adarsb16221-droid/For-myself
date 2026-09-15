@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 import Spinner from '@/components/Spinner';
 import TimelineBlock from '@/components/TimelineBlock';
+import { useAuth } from '@/hooks/useAuth';
 
 // Helper to format 24h time to 12h time
 const formatTime12h = (time24) => {
@@ -87,19 +88,64 @@ export default function SchedulePage() {
   const [isLoading, setIsLoading] = useState(true);
   const timelineRef = useRef(null);
 
+  const { user } = useAuth();
+  
   useEffect(() => {
     Promise.all([
       fetch('/api/schedule', { cache: 'no-store' }).then(res => res.json()),
-      fetch('/api/tasks', { cache: 'no-store' }).then(res => res.json())
-    ]).then(([schedData, taskData]) => {
+      fetch('/api/tasks', { cache: 'no-store' }).then(res => res.json()),
+      fetch('/api/challenges', { cache: 'no-store' }).then(res => res.json())
+    ]).then(([schedData, taskData, challengesData]) => {
       setSchedule(Array.isArray(schedData) ? schedData : []);
-      setTasks(Array.isArray(taskData) ? taskData.filter(t => !t.completed) : []);
+      
+      const normalTasks = Array.isArray(taskData) ? taskData.filter(t => !t.completed) : [];
+      
+      const challengeTasks = [];
+      if (Array.isArray(challengesData)) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const activeChallenges = challengesData.filter(c => c.status === 'accepted');
+        
+        activeChallenges.forEach(c => {
+          const isCreator = c.creator._id === user?.userId;
+          const isSelf = c.creator._id === c.recipient._id;
+          const isMutual = c.type === 'mutual';
+
+          c.tasks.forEach(t => {
+            let isCompleted = false;
+            if (isMutual && !isSelf) {
+              if (t.isDaily) {
+                isCompleted = isCreator ? t.creatorHistory?.includes(todayStr) : t.recipientHistory?.includes(todayStr);
+              } else {
+                isCompleted = isCreator ? t.creatorCompleted : t.recipientCompleted;
+              }
+            } else {
+              if (!isMutual && isCreator && !isSelf) return;
+              if (t.isDaily) {
+                isCompleted = t.recipientHistory?.includes(todayStr);
+              } else {
+                isCompleted = t.recipientCompleted;
+              }
+            }
+
+            if (!isCompleted) {
+              challengeTasks.push({
+                _id: t._id,
+                text: t.title,
+                category: 'Challenge',
+                isRegular: !!t.isDaily
+              });
+            }
+          });
+        });
+      }
+      
+      setTasks([...normalTasks, ...challengeTasks]);
       setIsLoading(false);
     }).catch(e => {
       console.error(e);
       setIsLoading(false);
     });
-  }, []);
+  }, [user]);
 
   const updateScheduleBlock = async (id, updates) => {
     // Optimistic update

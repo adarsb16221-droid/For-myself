@@ -5,9 +5,12 @@ import Header from '@/components/Header';
 import TaskCard from '@/components/TaskCard';
 import Pomodoro from '@/components/Pomodoro';
 import Spinner from '@/components/Spinner';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Home() {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
+  const [challenges, setChallenges] = useState([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
   const [processingTasks, setProcessingTasks] = useState(new Set());
   
@@ -64,8 +67,21 @@ export default function Home() {
       }
     }
 
+    async function fetchChallenges() {
+      try {
+        const res = await fetch('/api/challenges', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          setChallenges(data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch challenges', e);
+      }
+    }
+
     fetchTasks();
     fetchSchedule();
+    fetchChallenges();
   }, []);
 
   useEffect(() => {
@@ -397,6 +413,46 @@ export default function Home() {
   const oneOffTasks = tasks.filter(t => !t.isRegular && !t.isGoal && !t.completed);
   const goalTasks = tasks.filter(t => t.isGoal && !t.completed);
   const completedTasks = tasks.filter(t => t.completed);
+  
+  const activeChallenges = challenges.filter(c => c.status === 'accepted');
+  const challengeTasks = [];
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  activeChallenges.forEach(c => {
+    const isCreator = c.creator._id === user?.userId;
+    const isSelf = c.creator._id === c.recipient._id;
+    const isMutual = c.type === 'mutual';
+
+    c.tasks.forEach(t => {
+      let isCompleted = false;
+      if (isMutual && !isSelf) {
+        if (t.isDaily) {
+          isCompleted = isCreator ? t.creatorHistory?.includes(todayStr) : t.recipientHistory?.includes(todayStr);
+        } else {
+          isCompleted = isCreator ? t.creatorCompleted : t.recipientCompleted;
+        }
+      } else {
+        if (!isMutual && isCreator && !isSelf) return; // sent solo to someone else
+        if (t.isDaily) {
+          isCompleted = t.recipientHistory?.includes(todayStr);
+        } else {
+          isCompleted = t.recipientCompleted;
+        }
+      }
+
+      if (!isCompleted) {
+        challengeTasks.push({
+          _id: t._id, // use task id
+          challengeId: c._id, // save challenge id
+          text: t.title,
+          category: 'Challenge',
+          isRegular: !!t.isDaily,
+          challengeName: isSelf ? 'My Challenge' : (isMutual ? `Mutual Challenge` : 'Solo Challenge'),
+        });
+      }
+    });
+  });
+
   const tasksCompleted = completedTasks.length;
 
   const actionButton = (
@@ -413,28 +469,63 @@ export default function Home() {
     <>
       <Header title="Orbit" subtitle="Greeting" tasksCompleted={tasksCompleted} currentScheduleBlock={currentBlock} actionButton={actionButton} />
       
-      <main className="px-4 py-6 flex flex-col gap-6 max-w-7xl mx-auto w-full flex-1">
+      <main className="px-4 py-6 flex flex-col gap-6 max-w-[1200px] mx-auto w-full flex-1">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Daily Habits (Smaller Area) */}
-          <section className="lg:col-span-1 flex flex-col">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Challenge Tasks */}
+          <section className="col-span-1 flex flex-col">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                <span className="material-symbols-outlined">routine</span> Daily Habits
+              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <span className="material-symbols-outlined text-[18px]">social_leaderboard</span> Challenge Tasks
+              </h3>
+            </div>
+
+            <div className="flex flex-col gap-3 mt-[10px]">
+              {isLoadingTasks ? (
+                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
+              ) : challengeTasks.length === 0 ? (
+                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No pending challenge tasks.</p>
+              ) : (
+                challengeTasks.map(task => (
+                  <TaskCard 
+                    key={task._id} 
+                    task={task} 
+                    onToggle={() => {
+                      // Redirect to challenges page for checking off
+                      window.location.href = '/challenges';
+                    }} 
+                    onDelete={() => {}} 
+                    onUpdate={() => {}}
+                    onMove={() => {}}
+                    isLoading={false}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  />
+                ))
+              )}
+            </div>
+          </section>
+
+          {/* Daily Habits (Smaller Area) */}
+          <section className="col-span-1 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <span className="material-symbols-outlined text-[18px]">routine</span> Daily Habits
               </h3>
               <button 
                 onClick={() => setShowAddHabit(!showAddHabit)}
-                className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+                className="text-primary text-xs font-medium hover:underline flex items-center gap-1 transition-all"
               >
-                <span className="material-symbols-outlined text-[18px]">{showAddHabit ? 'close' : 'add'}</span> 
-                {showAddHabit ? 'Cancel' : 'Add Tasks'}
+                <span className="material-symbols-outlined text-[16px]">{showAddHabit ? 'close' : 'add'}</span> 
+                {showAddHabit ? 'Cancel' : 'Add'}
               </button>
             </div>
             
             {showAddHabit && (
-              <form onSubmit={(e) => addTask(e, 'habit')} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+              <form onSubmit={(e) => addTask(e, 'habit')} className="mb-3 glass-panel p-2.5 rounded-lg flex flex-col gap-2 shadow-md animate-in slide-in-from-top-2">
                 <input 
-                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
+                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-xs transition-all" 
                   placeholder="New habit..." 
                   type="text"
                   autoFocus
@@ -443,7 +534,7 @@ export default function Home() {
                 />
                 <div className="flex justify-between items-center">
                   <select 
-                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all"
                     value={habitCategory}
                     onChange={(e) => setHabitCategory(e.target.value)}
                   >
@@ -451,14 +542,14 @@ export default function Home() {
                     <option value="Wealth">Wealth</option>
                     <option value="Knowledge">Knowledge</option>
                   </select>
-                  <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
-                    Add Habit
+                  <button type="submit" className="bg-primary text-on-primary px-3 py-1 rounded-lg text-xs font-semibold hover:scale-105 transition-transform">
+                    Add
                   </button>
                 </div>
               </form>
             )}
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : dailyTasks.length === 0 ? (
@@ -483,24 +574,24 @@ export default function Home() {
           </section>
 
           {/* One-off Tasks (Focus Tasks) */}
-          <section className="lg:col-span-1 flex flex-col">
+          <section className="col-span-1 flex flex-col">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                <span className="material-symbols-outlined">checklist</span> Focus Tasks
+              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <span className="material-symbols-outlined text-[18px]">checklist</span> Focus Tasks
               </h3>
               <button 
                 onClick={() => setShowAddFocus(!showAddFocus)}
-                className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+                className="text-primary text-xs font-medium hover:underline flex items-center gap-1 transition-all"
               >
-                <span className="material-symbols-outlined text-[18px]">{showAddFocus ? 'close' : 'add'}</span> 
-                {showAddFocus ? 'Cancel' : 'Add Tasks'}
+                <span className="material-symbols-outlined text-[16px]">{showAddFocus ? 'close' : 'add'}</span> 
+                {showAddFocus ? 'Cancel' : 'Add'}
               </button>
             </div>
 
             {showAddFocus && (
-              <form onSubmit={(e) => addTask(e, 'focus')} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+              <form onSubmit={(e) => addTask(e, 'focus')} className="mb-3 glass-panel p-2.5 rounded-lg flex flex-col gap-2 shadow-md animate-in slide-in-from-top-2">
                 <input 
-                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
+                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-xs transition-all" 
                   placeholder="New focus task..." 
                   type="text"
                   autoFocus
@@ -510,7 +601,7 @@ export default function Home() {
                 <div className="flex justify-between items-center flex-wrap gap-2">
                   <div className="flex gap-2">
                     <select 
-                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all"
                       value={focusCategory}
                       onChange={(e) => setFocusCategory(e.target.value)}
                     >
@@ -522,7 +613,7 @@ export default function Home() {
                       <option value="Knowledge">Knowledge</option>
                     </select>
                     <select
-                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all max-w-[120px] truncate"
+                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all max-w-[90px] truncate"
                       value={focusLinkedGoal}
                       onChange={(e) => setFocusLinkedGoal(e.target.value)}
                     >
@@ -532,14 +623,14 @@ export default function Home() {
                       ))}
                     </select>
                   </div>
-                  <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
-                    Add Task
+                  <button type="submit" className="bg-primary text-on-primary px-3 py-1 rounded-lg text-xs font-semibold hover:scale-105 transition-transform">
+                    Add
                   </button>
                 </div>
               </form>
             )}
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : oneOffTasks.length === 0 ? (
@@ -564,25 +655,25 @@ export default function Home() {
           </section>
 
           {/* Long Term Goals */}
-          <section className="lg:col-span-1 flex flex-col">
+          <section className="col-span-1 flex flex-col">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-title-sm text-[18px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                <span className="material-symbols-outlined">flag</span> Long Term Goals
+              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
+                <span className="material-symbols-outlined text-[18px]">flag</span> Long Term Goals
               </h3>
               <button 
                 onClick={() => setShowAddGoal(!showAddGoal)}
-                className="text-primary text-sm font-medium hover:underline flex items-center gap-1 transition-all"
+                className="text-primary text-xs font-medium hover:underline flex items-center gap-1 transition-all"
               >
-                <span className="material-symbols-outlined text-[18px]">{showAddGoal ? 'close' : 'add'}</span> 
-                {showAddGoal ? 'Cancel' : 'Add Goal'}
+                <span className="material-symbols-outlined text-[16px]">{showAddGoal ? 'close' : 'add'}</span> 
+                {showAddGoal ? 'Cancel' : 'Add'}
               </button>
             </div>
 
             {showAddGoal && (
-              <form onSubmit={(e) => addTask(e, 'goal')} className="mb-4 glass-panel p-3 rounded-lg flex flex-col gap-3 shadow-md animate-in slide-in-from-top-2">
+              <form onSubmit={(e) => addTask(e, 'goal')} className="mb-3 glass-panel p-2.5 rounded-lg flex flex-col gap-2 shadow-md animate-in slide-in-from-top-2">
                 <input 
-                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-3 py-2 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-sm transition-all" 
-                  placeholder="New long term goal..." 
+                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-xs transition-all" 
+                  placeholder="New goal..." 
                   type="text"
                   autoFocus
                   value={goalInput}
@@ -590,7 +681,7 @@ export default function Home() {
                 />
                 <div className="flex justify-between items-center">
                   <select 
-                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-2 py-1 text-on-surface text-xs focus:outline-none focus:border-primary cursor-pointer transition-all"
+                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all"
                     value={goalCategory}
                     onChange={(e) => setGoalCategory(e.target.value)}
                   >
@@ -600,14 +691,14 @@ export default function Home() {
                     <option value="Wealth">Wealth</option>
                     <option value="Knowledge">Knowledge</option>
                   </select>
-                  <button type="submit" className="bg-primary text-on-primary px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
-                    Add Goal
+                  <button type="submit" className="bg-primary text-on-primary px-3 py-1 rounded-lg text-xs font-semibold hover:scale-105 transition-transform">
+                    Add
                   </button>
                 </div>
               </form>
             )}
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : goalTasks.length === 0 ? (

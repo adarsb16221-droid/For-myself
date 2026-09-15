@@ -7,12 +7,15 @@ export default function BottomNav() {
 
   const navItems = [
     { name: 'Home', href: '/', icon: 'home' },
+    { name: 'Profile', href: '/profile', icon: 'person' },
     { name: 'AI', href: '/chat', icon: 'psychiatry' },
     { name: 'Plan', href: '/schedule', icon: 'event' },
     { name: 'Log', href: '/journal', icon: 'list_alt' },
     { name: 'Links', href: '/links', icon: 'link' },
     { name: 'Focus', href: '/focus', icon: 'timer' },
     { name: 'Data', href: '/analytics', icon: 'insights' },
+    { name: 'Social', href: '/community', icon: 'group' },
+    { name: 'Vs', href: '/challenges', icon: 'flag' },
   ];
 
   return (

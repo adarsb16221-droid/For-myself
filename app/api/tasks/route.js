@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Task from '@/models/Task';
+import User from '@/models/User';
 import { getSession } from '@/lib/auth';
 
 export async function GET(req) {
@@ -14,13 +15,30 @@ export async function GET(req) {
 
     let hasUpdates = false;
     for (let task of tasks) {
-      if (task.isRegular && task.completed && task.completedAt) {
-        const completedDateStr = task.completedAt.split('T')[0];
-        if (completedDateStr !== todayDateStr) {
-          task.completed = false;
-          task.completedAt = null;
-          await task.save();
-          hasUpdates = true;
+      if (task.isRegular) {
+        if (task.completed && task.completedAt) {
+          const completedDateStr = task.completedAt.split('T')[0];
+          if (completedDateStr !== todayDateStr) {
+            task.completed = false;
+            task.completedAt = null;
+            await task.save();
+            hasUpdates = true;
+          }
+        }
+
+        // Check if missed yesterday
+        const yesterdayDate = new Date();
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+        const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+        const taskCreatedDate = new Date(task.createdAt).toISOString().split('T')[0];
+        
+        if (taskCreatedDate <= yesterdayStr) {
+          if (!task.history.includes(yesterdayStr) && task.lastPenaltyDate !== yesterdayStr) {
+            task.lastPenaltyDate = yesterdayStr;
+            await task.save();
+            await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: -1 } });
+            hasUpdates = true;
+          }
         }
       }
       
@@ -90,6 +108,12 @@ export async function PUT(req) {
       { new: true }
     );
     if (!task) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    // Points logic
+    if (restUpdateData.completed !== undefined && restUpdateData.completed !== existingTask.completed) {
+      const pointChange = restUpdateData.completed ? 1 : -1;
+      await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: pointChange } });
+    }
 
     return NextResponse.json(task);
   } catch (error) {

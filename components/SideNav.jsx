@@ -11,11 +11,14 @@ export default function SideNav() {
 
   const navItems = [
     { name: 'Dashboard', href: '/', icon: 'dashboard' },
+    { name: 'Profile', href: '/profile', icon: 'person' },
+    { name: 'friends', href: '/community', icon: 'group' },
+    { name: 'Challenges', href: '/challenges', icon: 'flag' },
     { name: 'Orbit AI', href: '/chat', icon: 'psychiatry' },
-    { name: 'Journal', href: '/journal', icon: 'auto_stories' },
-    { name: 'Quick Links', href: '/links', icon: 'link' },
-    { name: 'Schedule', href: '/schedule', icon: 'calendar_month' },
     { name: 'Focus', href: '/focus', icon: 'timer' },
+    { name: 'Journal', href: '/journal', icon: 'auto_stories' },
+    { name: 'Schedule', href: '/schedule', icon: 'calendar_month' },
+    { name: 'Quick Links', href: '/links', icon: 'link' },
     { name: 'Analytics', href: '/analytics', icon: 'insights' },
   ];
 
