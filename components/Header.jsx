@@ -60,18 +60,18 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
               setIsModalOpen(true);
               setHasUnread(false);
             }}
-            className="relative w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
+            className="relative w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
           >
-            <span className="material-symbols-outlined text-primary-fixed-dim">notifications</span>
+            <span className="material-symbols-outlined text-[20px] md:text-[24px] text-primary-fixed-dim">notifications</span>
             {hasUnread && (
-              <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+              <span className="absolute top-1.5 right-1.5 md:top-2 md:right-2 w-2 h-2 md:w-2.5 md:h-2.5 bg-error rounded-full border-2 border-surface"></span>
             )}
           </button>
           <button 
             onClick={toggleTheme}
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
+            className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
           >
-            <span className="material-symbols-outlined text-primary-fixed-dim">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            <span className="material-symbols-outlined text-[20px] md:text-[24px] text-primary-fixed-dim">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
           </button>
         </div>
       </div>
@@ -79,20 +79,20 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
       {(subtitle || showDate) && (
         <div className="mt-2 flex justify-between items-end flex-wrap gap-4">
           <div>
-            {showDate && <p className="font-body-sm text-[14px] text-on-surface-variant">{dateStr}</p>}
+            {showDate && <p className="font-body-sm text-[12px] md:text-[14px] text-on-surface-variant">{dateStr}</p>}
             {subtitle ? (
               typeof subtitle === 'string' && subtitle.includes('Greeting') ? (
-                <h2 className="font-display-lg-mobile text-[32px] font-bold leading-tight mt-1">
+                <h2 className="font-display-lg-mobile text-[24px] md:text-[32px] font-bold leading-tight mt-1">
                   Good <span className="gradient-text">{greeting}</span>{user ? `, ${user.name.split(' ')[0]}` : ''}
                 </h2>
               ) : (
-                <h2 className="font-display-lg-mobile text-[32px] font-bold leading-tight mt-1">{subtitle}</h2>
+                <h2 className="font-display-lg-mobile text-[24px] md:text-[32px] font-bold leading-tight mt-1">{subtitle}</h2>
               )
             ) : null}
             {tasksCompleted > 0 && (
               <div className="flex gap-2 mt-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-secondary/10 text-secondary border border-secondary/20">
-                  <span className="material-symbols-outlined text-[14px] mr-1">check_circle</span>
+                <span className="inline-flex items-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-semibold bg-secondary/10 text-secondary border border-secondary/20">
+                  <span className="material-symbols-outlined text-[12px] md:text-[14px] mr-1">check_circle</span>
                   {tasksCompleted} Tasks Completed
                 </span>
               </div>

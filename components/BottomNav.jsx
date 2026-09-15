@@ -28,17 +28,17 @@ export default function BottomNav() {
             href={item.href}
             className={`flex flex-col items-center justify-center transition-all duration-150 active:scale-90 ${
               isActive 
-                ? 'text-primary scale-110' 
-                : 'text-outline-variant opacity-60 hover:opacity-100'
+                ? 'text-black scale-110 font-extrabold' 
+                : 'text-black opacity-60 hover:opacity-100'
             }`}
           >
             <span 
-              className="material-symbols-outlined text-[20px]" 
+              className="material-symbols-outlined text-[18px]" 
               style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
             >
               {item.icon}
             </span>
-            <span className="font-label-caps text-[9px] mt-0.5 font-bold uppercase">{item.name}</span>
+            <span className="font-label-caps text-[8px] mt-0.5 font-bold uppercase">{item.name}</span>
           </Link>
         );
       })}
