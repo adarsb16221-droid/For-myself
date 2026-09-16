@@ -59,7 +59,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <p className="text-sm font-label-md text-on-surface-variant uppercase tracking-wider font-bold mb-0.5">Orbit Points</p>
-                      <p className="text-3xl font-bold text-on-surface leading-none">{profile.user.orbitPoints || 0}</p>
+                      <p className="text-3xl font-bold text-on-surface leading-none">{Math.max(0, profile.user.orbitPoints || 0)}</p>
                     </div>
                   </div>
                 </div>

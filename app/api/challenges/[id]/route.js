@@ -140,10 +140,13 @@ export async function PATCH(req, { params }) {
 
     if (isNowCompleted) {
       if (challenge.type === 'mutual') {
-        await User.findByIdAndUpdate(challenge.creator._id, { $inc: { orbitPoints: 2 } });
-        await User.findByIdAndUpdate(challenge.recipient._id, { $inc: { orbitPoints: 2 } });
+        const creator = await User.findById(challenge.creator._id);
+        const recipient = await User.findById(challenge.recipient._id);
+        if (creator) await User.findByIdAndUpdate(challenge.creator._id, { orbitPoints: Math.max(0, creator.orbitPoints || 0) + 2 });
+        if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
       } else {
-        await User.findByIdAndUpdate(challenge.recipient._id, { $inc: { orbitPoints: 2 } });
+        const recipient = await User.findById(challenge.recipient._id);
+        if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
       }
     }
 

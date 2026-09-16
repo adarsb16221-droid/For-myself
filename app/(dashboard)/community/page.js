@@ -207,7 +207,7 @@ export default function CommunityPage() {
                         <h3 className="font-title-md font-bold text-on-surface truncate">{user.name}</h3>
                         <div className="flex items-center gap-1 text-on-surface-variant text-sm mt-0.5">
                           <span className="material-symbols-outlined text-[16px] text-tertiary">stars</span>
-                          <span className="font-medium text-tertiary">{user.orbitPoints || 0} pts</span>
+                          <span className="font-medium text-tertiary">{Math.max(0, user.orbitPoints || 0)} pts</span>
                         </div>
                       </div>
                     </div>

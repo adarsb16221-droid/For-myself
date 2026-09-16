@@ -36,7 +36,8 @@ export async function GET(req) {
           if (!task.history.includes(yesterdayStr) && task.lastPenaltyDate !== yesterdayStr) {
             task.lastPenaltyDate = yesterdayStr;
             await task.save();
-            await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: -1 } });
+            // Point deduction removed as per request
+            // await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: -1 } });
             hasUpdates = true;
           }
         }
@@ -111,8 +112,13 @@ export async function PUT(req) {
 
     // Points logic
     if (restUpdateData.completed !== undefined && restUpdateData.completed !== existingTask.completed) {
-      const pointChange = restUpdateData.completed ? 1 : -1;
-      await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: pointChange } });
+      if (restUpdateData.completed) {
+        const user = await User.findById(session.userId);
+        if (user) {
+          const currentPoints = Math.max(0, user.orbitPoints || 0);
+          await User.findByIdAndUpdate(session.userId, { orbitPoints: currentPoints + 1 });
+        }
+      }
     }
 
     return NextResponse.json(task);
