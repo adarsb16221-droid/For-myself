@@ -159,7 +159,7 @@ export default function JournalPage() {
 
   return (
     <>
-      <Header title="Orbit" subtitle="Journal & Plan" showDate={false} />
+      <Header title="Journal" subtitle="Journal & Plan" showDate={false} />
       
       <main className="px-2 py-4 sm:py-6 flex flex-col gap-4 sm:gap-6 max-w-6xl mx-auto w-full flex-1 overflow-x-hidden sm:overflow-visible">
         

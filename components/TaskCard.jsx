@@ -69,6 +69,58 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
       onMouseLeave={() => { if (!isEditing && !showMoveMenu && !showAddSubtask) setIsExpanded(false); }}
       onClick={() => { if (!isEditing) setIsExpanded(!isExpanded); }}
     >
+      <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} onClick={e => e.stopPropagation()}>
+        <div className="overflow-hidden flex flex-col w-full">
+          <div className="flex flex-row items-center justify-end gap-1 sm:gap-2 w-full pb-1 mb-1 border-b border-on-surface/10">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowAddSubtask(true); }}
+              className="flex items-center justify-center text-outline-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-variant/30"
+              disabled={isLoading}
+              title={task.isGoal ? "Add Habit" : "Add Subtask"}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                {task.isGoal ? "track_changes" : "add_task"}
+              </span>
+            </button>
+            {!isEditing && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+                className="flex items-center justify-center text-outline-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-variant/30"
+                disabled={isLoading}
+                title="Edit"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit</span>
+              </button>
+            )}
+            <div className="relative">
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
+                className="flex items-center justify-center text-outline-variant hover:text-on-surface transition-colors p-1 rounded hover:bg-surface-variant/30"
+                disabled={isLoading}
+                title="Move"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>swap_vert</span>
+              </button>
+              {showMoveMenu && (
+                <div className="absolute right-0 top-full mt-1 bg-surface-container-high border border-on-surface/10 rounded-md shadow-lg z-50 flex flex-col min-w-[140px] py-1 animate-in fade-in zoom-in-95">
+                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'first'); setShowMoveMenu(false); }}>Move to First</button>
+                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'up'); setShowMoveMenu(false); }}>Move Up</button>
+                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'down'); setShowMoveMenu(false); }}>Move Down</button>
+                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'last'); setShowMoveMenu(false); }}>Move to Last</button>
+                </div>
+              )}
+            </div>
+            <button 
+              onClick={(e) => { e.stopPropagation(); onDelete(task._id); }}
+              className="flex items-center justify-center text-outline-variant hover:text-error transition-colors p-1 rounded hover:bg-error/10"
+              disabled={isLoading}
+              title="Delete"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
       <div className="flex items-start justify-between w-full">
         <div className="flex items-start gap-2.5 mt-0.5 w-full min-w-0">
           {isLoading ? (
@@ -98,10 +150,10 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                   }}
                 />
                 <button onClick={handleSave} className="text-primary hover:text-primary-fixed-dim">
-                  <span className="material-symbols-outlined text-[16px]">check</span>
+                  <span className="material-symbols-outlined text-[13px]">check</span>
                 </button>
                 <button onClick={() => setIsEditing(false)} className="text-error hover:text-error/80">
-                  <span className="material-symbols-outlined text-[16px]">close</span>
+                  <span className="material-symbols-outlined text-[13px]">close</span>
                 </button>
               </div>
             ) : (
@@ -109,22 +161,20 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                 <span className={`font-body-md text-[14px] text-on-surface font-medium block leading-snug ${isCompleted ? 'line-through text-on-surface-variant' : ''} ${!isExpanded ? 'truncate' : 'break-words'}`}>
                   {task.text}
                 </span>
-                {!isExpanded && (
-                  <div className="flex flex-wrap gap-1.5 mt-1.5">
-                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
-                      {task.category}
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                    {task.category}
+                  </span>
+                  {task.linkedGoalId && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[9px]">flag</span> Linked
                     </span>
-                    {task.linkedGoalId && (
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[10px]">flag</span> Linked
-                      </span>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
             
-            <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+            <div className={`grid transition-all duration-500 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
               <div className="overflow-hidden flex flex-col w-full">
             {task.isRegular && (
               <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
@@ -163,7 +213,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                       className="opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all p-0.5 shrink-0"
                       disabled={isLoading}
                     >
-                      <span className="material-symbols-outlined text-[14px]">close</span>
+                      <span className="material-symbols-outlined text-[9px]">close</span>
                     </button>
                   </div>
                 ))}
@@ -182,79 +232,22 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                       }}
                     />
                     <button type="submit" className="text-primary hover:text-primary-fixed-dim p-1 shrink-0">
-                      <span className="material-symbols-outlined text-[16px]">check</span>
+                      <span className="material-symbols-outlined text-[13px]">check</span>
                     </button>
                     <button type="button" onClick={() => setShowAddSubtask(false)} className="text-error hover:text-error/80 p-1 shrink-0">
-                      <span className="material-symbols-outlined text-[16px]">close</span>
+                      <span className="material-symbols-outlined text-[13px]">close</span>
                     </button>
                   </form>
                 )}
               </div>
             )}
 
-            <div className="flex flex-wrap gap-2 mt-3">
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}>
-                {task.category}
-              </span>
-              {task.linkedGoalId && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[12px]">flag</span> Linked Goal
-                </span>
-              )}
-            </div>
+
 
             </div>
           </div>
         </div>
       </div>
-      
-      {isExpanded && (
-        <div className="flex flex-col items-center gap-1 sm:gap-1.5 shrink-0 ml-2 animate-in fade-in" onClick={e => e.stopPropagation()}>
-          <button 
-            onClick={(e) => { e.stopPropagation(); setShowAddSubtask(true); }}
-            className="text-outline-variant hover:text-primary transition-colors p-0.5 sm:p-1"
-            disabled={isLoading}
-            title={task.isGoal ? "Add Daily Habit" : "Add Subtask"}
-          >
-            <span className="material-symbols-outlined text-[15px] sm:text-[16px]">
-              {task.isGoal ? "track_changes" : "add_task"}
-            </span>
-          </button>
-          {!isEditing && (
-            <button 
-              onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-              className="text-outline-variant hover:text-primary transition-colors p-0.5 sm:p-1"
-              disabled={isLoading}
-            >
-              <span className="material-symbols-outlined text-[15px] sm:text-[16px]">edit</span>
-            </button>
-          )}
-          <div className="relative">
-            <button 
-              onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
-              className="text-outline-variant hover:text-on-surface transition-colors p-0.5 sm:p-1"
-              disabled={isLoading}
-            >
-              <span className="material-symbols-outlined text-[16px] sm:text-[18px]">swap_vert</span>
-            </button>
-            {showMoveMenu && (
-              <div className="absolute right-0 top-full mt-1 bg-surface-container-high border border-on-surface/10 rounded-md shadow-lg z-10 flex flex-col min-w-[140px] py-1 animate-in fade-in zoom-in-95">
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'first'); setShowMoveMenu(false); }}>Move to First</button>
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'up'); setShowMoveMenu(false); }}>Move Up</button>
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'down'); setShowMoveMenu(false); }}>Move Down</button>
-                 <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'last'); setShowMoveMenu(false); }}>Move to Last</button>
-              </div>
-            )}
-          </div>
-          <button 
-            onClick={(e) => { e.stopPropagation(); onDelete(task._id); }}
-            className="text-outline-variant hover:text-error transition-colors p-0.5 sm:p-1"
-            disabled={isLoading}
-          >
-            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">delete</span>
-          </button>
-        </div>
-      )}
     </div>
   </div>
   );

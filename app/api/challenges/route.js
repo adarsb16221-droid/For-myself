@@ -124,7 +124,7 @@ export async function POST(req) {
     const challenge = new Challenge({
       creator: session.userId,
       recipient: recipientId,
-      type,
+      type: isSelfChallenge ? 'challenge' : type,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       tasks: tasks.map(t => ({ title: t.title, isDaily: !!t.isDaily })),

@@ -497,7 +497,7 @@ export default function Home() {
 
   return (
     <>
-      <Header title="Orbit" subtitle="Greeting" tasksCompleted={tasksCompleted} currentScheduleBlock={currentBlock} actionButton={actionButton} />
+      <Header title="Dashboard" subtitle="Greeting" tasksCompleted={tasksCompleted} currentScheduleBlock={currentBlock} actionButton={actionButton} />
       
       <main className="px-4 py-6 flex flex-col gap-6 max-w-[1200px] mx-auto w-full flex-1">
 

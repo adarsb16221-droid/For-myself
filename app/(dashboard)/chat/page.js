@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import FaceAvatar from '@/components/FaceAvatar';
 import CryptoJS from 'crypto-js';
@@ -81,39 +82,12 @@ export default function ChatPage() {
     }
   }, [selectedVoice]);
 
+  // Initialize with empty chat by default
   useEffect(() => {
-    const savedData = localStorage.getItem('orbit_chat_history');
-    if (savedData) {
-      try {
-        const bytes = CryptoJS.AES.decrypt(savedData, CHAT_SECRET_KEY);
-        const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
-        if (decryptedString) {
-          setMessages(JSON.parse(decryptedString));
-        } else {
-          setMessages(JSON.parse(savedData)); // Fallback for legacy unencrypted
-        }
-      } catch (e) {
-        try {
-          setMessages(JSON.parse(savedData)); // Fallback for legacy unencrypted
-        } catch (e2) {
-          console.error("Could not load chat history");
-        }
-      }
-    } else {
-      setMessages([
-        {
-          role: 'assistant',
-          content: "Hello! I'm Orbit, your personal coach. I'm here to help you accelerate your growth in Health, Wealth, and Knowledge. How can we level up today?"
-        }
-      ]);
-    }
+    setMessages([]);
   }, []);
 
   useEffect(() => {
-    if (messages.length > 0) {
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(messages), CHAT_SECRET_KEY).toString();
-      localStorage.setItem('orbit_chat_history', encrypted);
-    }
     if (showLog) {
       logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -201,13 +175,8 @@ export default function ChatPage() {
 
   const clearChat = () => {
     if (confirm('Are you sure you want to clear your conversation with Orbit?')) {
-      const resetState = [{
-        role: 'assistant',
-        content: "Hello! I'm Orbit, your personal coach. I'm here to help you accelerate your growth in Health, Wealth, and Knowledge. How can we level up today?"
-      }];
-      setMessages(resetState);
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(resetState), CHAT_SECRET_KEY).toString();
-      localStorage.setItem('orbit_chat_history', encrypted);
+      setMessages([]);
+      localStorage.removeItem('orbit_chat_history');
       setShowLog(false);
     }
   };
@@ -218,7 +187,7 @@ export default function ChatPage() {
   return (
     <>
       <main className="relative flex flex-col w-full h-full min-h-[calc(100vh-80px)] flex-1 overflow-hidden bg-background text-on-background">
-        <Header title="Chat with Orbit" />
+        <Header title="AI Chat & Focus" />
         
         {/* 1. Global Background Image (Adapts to light/dark mode) */}
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -249,6 +218,13 @@ export default function ChatPage() {
             
             {/* Top Controls */}
             <div className="flex justify-end gap-3 mb-auto flex-shrink-0 items-center">
+              <Link 
+                href="/focus" 
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 hover:bg-primary/30 text-primary transition-all backdrop-blur-md shadow-lg border border-primary/30 text-xs font-medium mr-auto"
+              >
+                <span className="material-symbols-outlined text-[16px]">center_focus_strong</span>
+                Focus Mode
+              </Link>
               {isVoiceEnabled && voices.length > 0 && (
                 <select 
                   value={selectedVoice} 

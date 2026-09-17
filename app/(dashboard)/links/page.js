@@ -56,7 +56,7 @@ export default function LinksPage() {
 
   return (
     <>
-      <Header title="Orbit" subtitle="Quick Links" showDate={false} />
+      <Header title="Quick Links" subtitle="Your Shortcuts" showDate={false} />
       
       <main className="px-4 py-6 flex flex-col gap-6 max-w-2xl mx-auto w-full flex-1">
         <section className="glass-panel p-6 rounded-xl flex flex-col gap-4 shadow-md">

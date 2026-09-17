@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <Header title="Orbit" subtitle="Analytics" showDate={false} />
+      <Header title="Analytics" subtitle="Performance Overview" showDate={false} />
       
       <main className="px-4 py-6 flex flex-col gap-6 max-w-7xl mx-auto w-full flex-1">
         <div className="flex justify-between items-center">

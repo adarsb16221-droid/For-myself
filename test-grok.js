@@ -2,7 +2,7 @@ const GROK_API_KEY = "YOUR_API_KEY";
 
 async function test() {
   const payload = {
-    model: 'llama-3.3-70b-versatile',
+    model: 'qwen/qwen3.8-27b',
     messages: [{ role: 'user', content: 'Hello' }]
   };
 

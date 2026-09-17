@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Header from '@/components/Header';
 import Spinner from '@/components/Spinner';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,13 +11,8 @@ export default function ChallengesPage() {
   const [expandedChallenges, setExpandedChallenges] = useState({});
   const { user } = useAuth();
 
-  useEffect(() => {
-    fetchChallenges();
-  }, []);
-
-  const fetchChallenges = async () => {
+  const fetchChallenges = useCallback(async () => {
     try {
-      setLoading(true);
       const res = await fetch('/api/challenges');
       if (res.ok) {
         setChallenges(await res.json());
@@ -27,7 +22,12 @@ export default function ChallengesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchChallenges();
+  }, [fetchChallenges]);
 
   useEffect(() => {
     // SSE: Listen for real-time challenge updates
@@ -42,7 +42,7 @@ export default function ChallengesPage() {
       } catch (err) {}
     };
     return () => eventSource.close();
-  }, []);
+  }, [fetchChallenges]);
 
   const toggleTask = async (challengeId, taskId, completed) => {
     try {
@@ -51,12 +51,23 @@ export default function ChallengesPage() {
         if (c._id === challengeId) {
           const newTasks = c.tasks.map(t => {
             if (t._id === taskId) {
-              const isCreator = c.creator._id === user?.userId;
-              const isSelf = c.creator._id === c.recipient._id;
+              const isCreator = c.creator?._id === user?.userId;
+              const isSelf = c.creator?._id === c.recipient?._id;
               
               if (t.isDaily) {
-                // Ignore optimistic update for daily tasks for simplicity, 
-                // it will just re-render when fetchChallenges completes.
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (isSelf || !isCreator) {
+                  let newHistory = t.recipientHistory || [];
+                  if (completed && !newHistory.includes(todayStr)) newHistory = [...newHistory, todayStr];
+                  if (!completed) newHistory = newHistory.filter(d => d !== todayStr);
+                  return { ...t, recipientHistory: newHistory };
+                }
+                if (isCreator && c.type === 'mutual') {
+                  let newHistory = t.creatorHistory || [];
+                  if (completed && !newHistory.includes(todayStr)) newHistory = [...newHistory, todayStr];
+                  if (!completed) newHistory = newHistory.filter(d => d !== todayStr);
+                  return { ...t, creatorHistory: newHistory };
+                }
                 return t;
               } else {
                 if (isSelf || !isCreator) return { ...t, recipientCompleted: completed };
@@ -75,8 +86,14 @@ export default function ChallengesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ taskId, completed })
       });
-      if (!res.ok) fetchChallenges();
+      if (!res.ok) {
+        console.error('API Error:', await res.text());
+        fetchChallenges();
+      } else {
+        fetchChallenges(); // Always fetch to ensure UI is consistent
+      }
     } catch (err) {
+      console.error(err);
       fetchChallenges();
     }
   };
@@ -241,7 +258,7 @@ export default function ChallengesPage() {
             <div className="bg-surface-container rounded-2xl p-8 text-center border border-outline-variant/30 flex flex-col items-center">
               <span className="material-symbols-outlined text-[48px] text-on-surface-variant mb-4">flag</span>
               <h3 className="font-title-lg font-bold text-on-surface mb-2">No Active Challenges</h3>
-              <p className="text-on-surface-variant mb-6">You don't have any ongoing challenges right now.</p>
+              <p className="text-on-surface-variant mb-6">You don&apos;t have any ongoing challenges right now.</p>
               <Link 
                 href="/community" 
                 className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-label-lg font-bold hover:bg-primary/90 transition-colors shadow-sm"
@@ -253,8 +270,8 @@ export default function ChallengesPage() {
           ) : (
             <div className="space-y-4">
               {activeChallenges.map(c => {
-                const isSelf = c.creator._id === c.recipient._id;
-                const isCreator = c.creator._id === user?.userId;
+                const isSelf = c.creator?._id === c.recipient?._id;
+                const isCreator = c.creator?._id === user?.userId;
                 const otherUser = isSelf ? c.creator : (isCreator ? c.recipient : c.creator);
                 
                 const isMutual = c.type === 'mutual';
@@ -292,7 +309,7 @@ export default function ChallengesPage() {
                           </span>
                         </div>
                         <h3 className="font-title-lg font-bold text-on-surface">
-                          {isSelf ? 'My Challenge' : (isCreator ? `Sent to ${otherUser.name}` : `Received from ${otherUser.name}`)}
+                          {isSelf ? 'My Challenge' : (isCreator ? `Sent to ${otherUser?.name}` : `Received from ${otherUser?.name}`)}
                         </h3>
                         <p className="font-body-sm text-on-surface-variant">
                           {new Date(c.startDate).toLocaleDateString()} - {new Date(c.endDate).toLocaleDateString()}
@@ -308,7 +325,7 @@ export default function ChallengesPage() {
                         >
                           <div className="flex-1 mr-4">
                             <div className="flex justify-between items-center mb-1 text-sm font-medium">
-                              <span className="text-on-surface">Today's Progress</span>
+                              <span className="text-on-surface">Today&apos;s Progress</span>
                               <span className="text-primary">{completedTasks} / {totalTasks} Tasks</span>
                             </div>
                             <div className="h-2 w-full bg-outline-variant/30 rounded-full overflow-hidden">

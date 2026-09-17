@@ -92,19 +92,11 @@ export async function PATCH(req, { params }) {
 
     const todayStr = new Date().toISOString().split('T')[0];
 
-    if (isCreator && challenge.type === 'mutual') {
+    const isSelf = isCreator && isRecipient;
+
+    if (isSelf || (!isCreator && isRecipient)) {
       if (task.isDaily) {
-        if (completed) {
-          if (!task.creatorHistory.includes(todayStr)) task.creatorHistory.push(todayStr);
-        } else {
-          task.creatorHistory = task.creatorHistory.filter(d => d !== todayStr);
-        }
-      } else {
-        task.creatorCompleted = completed;
-      }
-      targetUserId = challenge.recipient._id.toString();
-    } else if (isRecipient) {
-      if (task.isDaily) {
+        if (!task.recipientHistory) task.recipientHistory = [];
         if (completed) {
           if (!task.recipientHistory.includes(todayStr)) task.recipientHistory.push(todayStr);
         } else {
@@ -114,6 +106,18 @@ export async function PATCH(req, { params }) {
         task.recipientCompleted = completed;
       }
       targetUserId = challenge.creator._id.toString();
+    } else if (isCreator && challenge.type === 'mutual') {
+      if (task.isDaily) {
+        if (!task.creatorHistory) task.creatorHistory = [];
+        if (completed) {
+          if (!task.creatorHistory.includes(todayStr)) task.creatorHistory.push(todayStr);
+        } else {
+          task.creatorHistory = task.creatorHistory.filter(d => d !== todayStr);
+        }
+      } else {
+        task.creatorCompleted = completed;
+      }
+      targetUserId = challenge.recipient._id.toString();
     } else {
       return NextResponse.json({ error: 'Invalid operation' }, { status: 400 });
     }
@@ -140,6 +144,7 @@ export async function PATCH(req, { params }) {
 
     const isNowCompleted = challenge.status === 'completed' && !wasCompleted;
 
+    challenge.markModified('tasks');
     await challenge.save();
 
         if (isNowCompleted) {

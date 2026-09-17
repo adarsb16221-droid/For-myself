@@ -12,16 +12,6 @@ export default function MainApp() {
   const [theme, setTheme] = useState('dark');
   const [tasks, setTasks] = useState([]);
   
-  useEffect(() => {
-    // Load theme from localStorage if possible
-    const savedTheme = localStorage.getItem('orbit_theme') || 'dark';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    // Fetch initial tasks from MongoDB
-    fetchTasks();
-  }, []);
-
   const fetchTasks = async () => {
     try {
       const res = await fetch('/api/tasks');
@@ -29,10 +19,21 @@ export default function MainApp() {
         const data = await res.json();
         setTasks(data);
       }
-    } catch (e) {
-      console.error('Failed to fetch tasks', e);
+    } catch (err) {
+      console.error(err);
     }
   };
+
+  useEffect(() => {
+    // Load theme from localStorage if possible
+    const savedTheme = localStorage.getItem('orbit_theme') || 'dark';
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    // Fetch initial tasks from MongoDB
+    fetchTasks();
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';

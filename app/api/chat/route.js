@@ -111,9 +111,10 @@ export async function POST(req) {
 
     while (!finished) {
       const payload = {
-        model: 'llama-3.3-70b-versatile',
+        model: 'qwen/qwen3.8-27b',
         messages: currentMessages,
         temperature: 0.7,
+        max_tokens: 300,
         tools: tools,
         tool_choice: "auto"
       };

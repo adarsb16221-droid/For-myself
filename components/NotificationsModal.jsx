@@ -7,12 +7,6 @@ export default function NotificationsModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchNotifications();
-    }
-  }, [isOpen]);
-
   const fetchNotifications = async () => {
     try {
       setLoading(true);
@@ -70,6 +64,13 @@ export default function NotificationsModal({ isOpen, onClose }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      fetchNotifications();
+    }
+  }, [isOpen]);
 
   const handleAction = async (notif, action) => {
     try {

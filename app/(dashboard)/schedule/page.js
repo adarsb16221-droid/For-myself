@@ -261,7 +261,7 @@ export default function SchedulePage() {
 
   return (
     <>
-      <Header title="Orbit" subtitle="Schedule Builder" showDate={false} />
+      <Header title="Schedule" subtitle="Schedule Builder" showDate={false} />
       
       <main className="px-4 py-6 flex flex-col md:flex-row gap-6 max-w-7xl mx-auto w-full flex-1 h-[calc(100vh-100px)] overflow-hidden">
         
