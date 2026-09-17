@@ -8,6 +8,10 @@ export async function middleware(request) {
   const sessionCookie = request.cookies.get('session')?.value;
   const { pathname } = request.nextUrl;
 
+  if (request.method === 'OPTIONS') {
+    return NextResponse.next();
+  }
+
   const publicRoutes = ['/login', '/signup', '/forgot-password', '/api/auth/login', '/api/auth/signup', '/api/auth/forgot-password', '/api/auth/reset-password', '/api/auth/google', '/api/auth/google/callback'];
   const isPublicRoute = publicRoutes.includes(pathname);
 
