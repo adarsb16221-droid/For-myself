@@ -23,9 +23,13 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    await login(user);
+    const session = await login(user);
 
-    return NextResponse.json({ message: 'Logged in successfully', user: { id: user._id, name: user.name, email: user.email } }, { status: 200 });
+    return NextResponse.json({ 
+      message: 'Logged in successfully', 
+      user: { id: user._id, name: user.name, email: user.email },
+      token: session
+    }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

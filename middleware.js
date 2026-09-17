@@ -5,7 +5,12 @@ const secretKey = process.env.JWT_SECRET || 'fallback-secret-key-for-dev-only-ch
 const key = new TextEncoder().encode(secretKey);
 
 export async function middleware(request) {
-  const sessionCookie = request.cookies.get('session')?.value;
+  let sessionCookie = request.cookies.get('session')?.value;
+  const authHeader = request.headers.get('authorization');
+  if (!sessionCookie && authHeader && authHeader.startsWith('Bearer ')) {
+    sessionCookie = authHeader.substring(7);
+  }
+  
   const { pathname } = request.nextUrl;
 
   if (request.method === 'OPTIONS') {

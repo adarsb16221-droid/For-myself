@@ -27,9 +27,13 @@ export async function POST(req) {
       password: hashedPassword,
     });
 
-    await login(user);
+    const session = await login(user);
 
-    return NextResponse.json({ message: 'User created successfully', user: { id: user._id, name: user.name, email: user.email } }, { status: 201 });
+    return NextResponse.json({ 
+      message: 'User created successfully', 
+      user: { id: user._id, name: user.name, email: user.email },
+      token: session 
+    }, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
