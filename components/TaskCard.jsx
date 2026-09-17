@@ -7,6 +7,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
   const [isEditing, setIsEditing] = useState(false);
   const [editInput, setEditInput] = useState(task.text);
   const [showMoveMenu, setShowMoveMenu] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   
   const [showAddSubtask, setShowAddSubtask] = useState(false);
   const [subtaskInput, setSubtaskInput] = useState('');
@@ -59,14 +60,17 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
 
   return (
     <div 
-      className={`glass-card rounded-xl p-3 flex flex-col gap-1.5 task-item cursor-pointer ${isCompleted ? 'opacity-60' : ''}`}
+      className={`glass-card rounded-xl p-3 flex flex-col gap-1.5 task-item cursor-pointer transition-all duration-300 ${isExpanded ? 'bg-surface/80 shadow-md ring-1 ring-white/10' : 'hover:bg-surface/40'} ${isCompleted ? 'opacity-60' : ''}`}
       draggable={!isLoading}
       onDragStart={(e) => onDragStart && onDragStart(e, task)}
       onDragOver={(e) => onDragOver && onDragOver(e)}
       onDrop={(e) => onDrop && onDrop(e, task)}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => { if (!isEditing && !showMoveMenu && !showAddSubtask) setIsExpanded(false); }}
+      onClick={() => { if (!isEditing) setIsExpanded(!isExpanded); }}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-2.5 mt-0.5 w-full overflow-hidden">
+      <div className="flex items-start justify-between w-full">
+        <div className="flex items-start gap-2.5 mt-0.5 w-full min-w-0">
           {isLoading ? (
             <Spinner size="sm" className="shrink-0" />
           ) : (
@@ -76,6 +80,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
               checked={isCompleted}
               onChange={() => onToggle(task)}
               disabled={isLoading}
+              onClick={(e) => e.stopPropagation()}
             />
           )}
           <div className="flex-1 w-full min-w-0">
@@ -100,10 +105,27 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                 </button>
               </div>
             ) : (
-              <span className={`font-body-md text-[14px] text-on-surface font-medium block break-words leading-snug ${isCompleted ? 'line-through text-on-surface-variant' : ''}`}>
-                {task.text}
-              </span>
+              <div className="flex flex-col">
+                <span className={`font-body-md text-[14px] text-on-surface font-medium block leading-snug ${isCompleted ? 'line-through text-on-surface-variant' : ''} ${!isExpanded ? 'truncate' : 'break-words'}`}>
+                  {task.text}
+                </span>
+                {!isExpanded && (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                      {task.category}
+                    </span>
+                    {task.linkedGoalId && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[10px]">flag</span> Linked
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
+            
+            <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div className="overflow-hidden flex flex-col w-full">
             {task.isRegular && (
               <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
                 <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">routine</span> Daily</span>
@@ -169,10 +191,25 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                 )}
               </div>
             )}
+
+            <div className="flex flex-wrap gap-2 mt-3">
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                {task.category}
+              </span>
+              {task.linkedGoalId && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[12px]">flag</span> Linked Goal
+                </span>
+              )}
+            </div>
+
+            </div>
           </div>
         </div>
-        
-        <div className="flex flex-col items-center gap-1 sm:gap-1.5 shrink-0 ml-2 -mt-1 sm:-mt-0.5">
+      </div>
+      
+      {isExpanded && (
+        <div className="flex flex-col items-center gap-1 sm:gap-1.5 shrink-0 ml-2 animate-in fade-in" onClick={e => e.stopPropagation()}>
           <button 
             onClick={(e) => { e.stopPropagation(); setShowAddSubtask(true); }}
             className="text-outline-variant hover:text-primary transition-colors p-0.5 sm:p-1"
@@ -217,17 +254,8 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
             <span className="material-symbols-outlined text-[16px] sm:text-[18px]">delete</span>
           </button>
         </div>
-      </div>
-      <div className="ml-8 flex flex-wrap gap-2 mt-1">
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}>
-          {task.category}
-        </span>
-        {task.linkedGoalId && (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
-             <span className="material-symbols-outlined text-[12px]">flag</span> Linked Goal
-          </span>
-        )}
-      </div>
+      )}
     </div>
+  </div>
   );
 }

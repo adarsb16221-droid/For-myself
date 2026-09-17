@@ -48,10 +48,10 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
   };
 
   return (
-    <header className="relative z-40 glass-panel px-6 py-4 flex flex-col gap-2 rounded-b-xl shadow-lg border-b border-on-surface/10">
+    <header className="relative z-40 glass-panel px-4 py-2 md:px-6 md:py-3 flex flex-col gap-1 rounded-b-xl shadow-lg border-b border-on-surface/10">
       <div className="flex justify-between items-center w-full">
         <div>
-          <h1 className="font-headline-md text-[24px] font-bold tracking-tight text-primary">{title}</h1>
+          <h1 className="font-headline-md text-[18px] md:text-[20px] font-bold tracking-tight text-primary">{title}</h1>
         </div>
         <div className="flex items-center gap-3">
           {actionButton}
@@ -77,16 +77,16 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
       </div>
 
       {(subtitle || showDate) && (
-        <div className="mt-2 flex justify-between items-end flex-wrap gap-4">
+        <div className="flex justify-between items-end flex-wrap gap-2 md:gap-4">
           <div>
             {showDate && <p className="font-body-sm text-[12px] md:text-[14px] text-on-surface-variant">{dateStr}</p>}
             {subtitle ? (
               typeof subtitle === 'string' && subtitle.includes('Greeting') ? (
-                <h2 className="font-display-lg-mobile text-[24px] md:text-[32px] font-bold leading-tight mt-1">
+                <h2 className="font-display-lg-mobile text-[20px] md:text-[24px] font-bold leading-tight mt-0">
                   Good <span className="gradient-text">{greeting}</span>{user ? `, ${user.name.split(' ')[0]}` : ''}
                 </h2>
               ) : (
-                <h2 className="font-display-lg-mobile text-[24px] md:text-[32px] font-bold leading-tight mt-1">{subtitle}</h2>
+                <h2 className="font-display-lg-mobile text-[20px] md:text-[24px] font-bold leading-tight mt-0">{subtitle}</h2>
               )
             ) : null}
             {tasksCompleted > 0 && (

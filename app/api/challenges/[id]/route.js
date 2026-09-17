@@ -65,6 +65,10 @@ export async function PATCH(req, { params }) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    let retries = 3;
+    while (retries > 0) {
+      try {
+
     const challenge = await Challenge.findById(id).populate('creator').populate('recipient');
     if (!challenge) return NextResponse.json({ error: 'Challenge not found' }, { status: 404 });
 
@@ -138,37 +142,47 @@ export async function PATCH(req, { params }) {
 
     await challenge.save();
 
-    if (isNowCompleted) {
-      if (challenge.type === 'mutual') {
-        const creator = await User.findById(challenge.creator._id);
-        const recipient = await User.findById(challenge.recipient._id);
-        if (creator) await User.findByIdAndUpdate(challenge.creator._id, { orbitPoints: Math.max(0, creator.orbitPoints || 0) + 2 });
-        if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
-      } else {
-        const recipient = await User.findById(challenge.recipient._id);
-        if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
+        if (isNowCompleted) {
+          if (challenge.type === 'mutual') {
+            const creator = await User.findById(challenge.creator._id);
+            const recipient = await User.findById(challenge.recipient._id);
+            if (creator) await User.findByIdAndUpdate(challenge.creator._id, { orbitPoints: Math.max(0, creator.orbitPoints || 0) + 2 });
+            if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
+          } else {
+            const recipient = await User.findById(challenge.recipient._id);
+            if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
+          }
+        }
+
+        if (targetUserId && targetUserId !== session.userId) {
+          notifyUser(targetUserId, {
+            type: 'task_completed',
+            from: currentUser.name,
+            task: task.title,
+            completed,
+          });
+
+          if (completed) {
+            await Notification.create({
+              recipient: targetUserId,
+              type: 'task_completed',
+              title: 'Task Completed!',
+              message: `${currentUser.name} completed the task: ${task.title}`
+            });
+          }
+        }
+
+        return NextResponse.json({ success: true, challenge });
+      } catch (err) {
+        if (err.name === 'VersionError' && retries > 1) {
+          retries--;
+          // Short delay before retrying
+          await new Promise(res => setTimeout(res, 100));
+          continue;
+        }
+        throw err;
       }
     }
-
-    if (targetUserId && targetUserId !== session.userId) {
-      notifyUser(targetUserId, {
-        type: 'task_completed',
-        from: currentUser.name,
-        task: task.title,
-        completed,
-      });
-
-      if (completed) {
-        await Notification.create({
-          recipient: targetUserId,
-          type: 'task_completed',
-          title: 'Task Completed!',
-          message: `${currentUser.name} completed the task: ${task.title}`
-        });
-      }
-    }
-
-    return NextResponse.json({ success: true, challenge });
   } catch (error) {
     console.error('UPDATE TASK ERROR:', error);
     return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });

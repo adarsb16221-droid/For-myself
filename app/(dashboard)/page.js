@@ -82,6 +82,19 @@ export default function Home() {
     fetchTasks();
     fetchSchedule();
     fetchChallenges();
+
+    // SSE: Listen for real-time challenge updates
+    const eventSource = new EventSource('/api/notifications/stream');
+    eventSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        const challengeEvents = ['challenge_accepted', 'challenge_received', 'task_completed'];
+        if (challengeEvents.includes(data.type)) {
+          fetchChallenges();
+        }
+      } catch (err) {}
+    };
+    return () => eventSource.close();
   }, []);
 
   useEffect(() => {
@@ -442,8 +455,8 @@ export default function Home() {
 
       if (!isCompleted) {
         challengeTasks.push({
-          _id: t._id, // use task id
-          challengeId: c._id, // save challenge id
+          _id: t._id,
+          challengeId: c._id,
           text: t.title,
           category: 'Challenge',
           isRegular: !!t.isDaily,
@@ -452,6 +465,23 @@ export default function Home() {
       }
     });
   });
+
+  const toggleChallengeTask = async (task) => {
+    try {
+      const res = await fetch(`/api/challenges/${task.challengeId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId: task._id, completed: true })
+      });
+      if (res.ok) {
+        // Refetch challenges to sync state
+        const cRes = await fetch('/api/challenges', { cache: 'no-store' });
+        if (cRes.ok) setChallenges(await cRes.json());
+      }
+    } catch (e) {
+      console.error('Failed to toggle challenge task', e);
+    }
+  };
 
   const tasksCompleted = completedTasks.length;
 
@@ -480,7 +510,7 @@ export default function Home() {
               </h3>
             </div>
 
-            <div className="flex flex-col gap-3 mt-[10px]">
+            <div className="flex flex-col gap-2 mt-[10px]">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : challengeTasks.length === 0 ? (
@@ -490,10 +520,7 @@ export default function Home() {
                   <TaskCard 
                     key={task._id} 
                     task={task} 
-                    onToggle={() => {
-                      // Redirect to challenges page for checking off
-                      window.location.href = '/challenges';
-                    }} 
+                    onToggle={() => toggleChallengeTask(task)} 
                     onDelete={() => {}} 
                     onUpdate={() => {}}
                     onMove={() => {}}
@@ -549,7 +576,7 @@ export default function Home() {
               </form>
             )}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 mt-[10px]">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : dailyTasks.length === 0 ? (
@@ -630,7 +657,7 @@ export default function Home() {
               </form>
             )}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 mt-[10px]">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : oneOffTasks.length === 0 ? (
@@ -698,7 +725,7 @@ export default function Home() {
               </form>
             )}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 mt-[10px]">
               {isLoadingTasks ? (
                 <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
               ) : goalTasks.length === 0 ? (

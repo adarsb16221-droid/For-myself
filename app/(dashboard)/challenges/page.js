@@ -29,6 +29,21 @@ export default function ChallengesPage() {
     }
   };
 
+  useEffect(() => {
+    // SSE: Listen for real-time challenge updates
+    const eventSource = new EventSource('/api/notifications/stream');
+    eventSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        const challengeEvents = ['challenge_accepted', 'challenge_received', 'task_completed'];
+        if (challengeEvents.includes(data.type)) {
+          fetchChallenges();
+        }
+      } catch (err) {}
+    };
+    return () => eventSource.close();
+  }, []);
+
   const toggleTask = async (challengeId, taskId, completed) => {
     try {
       // Optimistic
@@ -194,9 +209,7 @@ export default function ChallengesPage() {
 
   return (
     <div className="flex flex-col h-full bg-surface relative">
-      <div className="sticky top-0 z-40 bg-surface/80 backdrop-blur-md">
-        <Header title="Challenges" />
-      </div>
+      <Header title="Challenges" />
 
       <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
         <div className="max-w-4xl mx-auto">
