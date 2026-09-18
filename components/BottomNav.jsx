@@ -14,6 +14,7 @@ export default function BottomNav() {
     { name: 'Links', href: '/links', icon: 'link' },
     { name: 'Focus', href: '/focus', icon: 'timer' },
     { name: 'Data', href: '/analytics', icon: 'insights' },
+    { name: 'Money', href: '/expenses', icon: 'account_balance_wallet' },
     { name: 'Social', href: '/community', icon: 'group' },
     { name: 'Vs', href: '/challenges', icon: 'flag' },
   ];
