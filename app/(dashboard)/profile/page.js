@@ -43,9 +43,7 @@ function buildWeeks(activityMap) {
       const dd = String(current.getDate()).padStart(2, '0');
       const dateStr = `${yyyy}-${mm}-${dd}`;
       
-      // We also check the UTC date string in case the server saved it that way
-      const utcDateStr = current.toISOString().split('T')[0];
-      const count = (activityMap[dateStr] || 0) + (activityMap[utcDateStr] || 0);
+      const count = (activityMap[dateStr] || 0);
 
       week.push({
         date: new Date(current),
@@ -91,7 +89,7 @@ function ActivityHeatmap({ activityMap, streak }) {
             <span className="material-symbols-outlined text-orange-500 text-[16px]">local_fire_department</span>
             <span className="font-bold text-on-surface">{streak}</span> day streak
           </span>
-          <span className="hidden sm:inline">{totalActivity} activities this year</span>
+          <span className="hidden sm:inline">{totalActivity} activities the last year</span>
         </div>
       </div>
 
