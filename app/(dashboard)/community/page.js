@@ -18,6 +18,7 @@ export default function CommunityPage() {
   const [endDate, setEndDate] = useState('');
   const [tasks, setTasks] = useState([{ title: '' }]);
   const [submittingChallenge, setSubmittingChallenge] = useState(false);
+  const [challengeNote, setChallengeNote] = useState('');
 
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -101,7 +102,8 @@ export default function CommunityPage() {
           type: challengeType,
           startDate,
           endDate,
-          tasks: tasks.filter(t => t.title.trim() !== '')
+          tasks: tasks.filter(t => t.title.trim() !== ''),
+          note: challengeNote,
         })
       });
       if (!res.ok) throw new Error('Failed to create challenge');
@@ -198,8 +200,17 @@ export default function CommunityPage() {
               {displayList.map(user => {
                 const btnProps = getButtonProps(user);
                 return (
-                  <div key={user._id} className="bg-surface-container rounded-2xl p-5 border border-outline-variant/30 flex flex-col gap-4 shadow-sm">
-                    <div className="flex items-center gap-4">
+                  <div key={user._id} className="bg-surface-container rounded-2xl p-5 border border-outline-variant/30 flex flex-col gap-4 shadow-sm relative">
+                    {user.isFriend && (
+                      <button
+                        onClick={() => handleAction(user._id, user)}
+                        className="absolute top-3 left-3 w-8 h-8 flex items-center justify-center rounded-full bg-error/10 text-error hover:bg-error/20 transition-colors"
+                        title="Remove Friend"
+                      >
+                        <span className="material-symbols-outlined text-[18px]" style={{fontVariationSettings: "'FILL' 1"}}>person_remove</span>
+                      </button>
+                    )}
+                    <div className={`flex items-center gap-4 ${user.isFriend ? 'ml-8' : ''}`}>
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl uppercase border border-primary/20">
                         {user.name.charAt(0)}
                       </div>
@@ -222,6 +233,7 @@ export default function CommunityPage() {
                             const tmr = new Date();
                             tmr.setDate(tmr.getDate() + 7);
                             setEndDate(tmr.toISOString().split('T')[0]);
+                            setChallengeNote('');
                           }}
                           className="w-full py-2.5 rounded-xl font-label-lg font-bold flex items-center justify-center gap-2 transition-colors bg-secondary text-on-secondary hover:bg-secondary/90 shadow-sm"
                         >
@@ -229,15 +241,17 @@ export default function CommunityPage() {
                           Give Challenge
                         </button>
                       )}
-                      <button
-                        onClick={() => handleAction(user._id, user)}
-                        className={`w-full py-2.5 rounded-xl font-label-lg font-bold flex items-center justify-center gap-2 transition-colors ${btnProps.className}`}
-                      >
-                        <span className="material-symbols-outlined text-[20px]" style={user.isFriend ? {fontVariationSettings: "'FILL' 1"} : {}}>
-                          {btnProps.icon}
-                        </span>
-                        {btnProps.text}
-                      </button>
+                      {!user.isFriend && (
+                        <button
+                          onClick={() => handleAction(user._id, user)}
+                          className={`w-full py-2.5 rounded-xl font-label-lg font-bold flex items-center justify-center gap-2 transition-colors ${btnProps.className}`}
+                        >
+                          <span className="material-symbols-outlined text-[20px]" style={user.isFriend ? {fontVariationSettings: "'FILL' 1"} : {}}>
+                            {btnProps.icon}
+                          </span>
+                          {btnProps.text}
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -268,6 +282,10 @@ export default function CommunityPage() {
                     <option value="mutual">Mutual (Both complete tasks)</option>
                     <option value="challenge">Solo Challenge (Only they complete tasks)</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block font-label-lg font-bold text-on-surface mb-1">Note to Friend</label>
+                  <textarea value={challengeNote} onChange={(e) => setChallengeNote(e.target.value)} placeholder="Add an encouraging note..." className="w-full bg-surface-container border border-outline/30 rounded-lg px-3 py-2 text-on-surface font-body-md focus:outline-none focus:border-primary min-h-[80px]"></textarea>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1">

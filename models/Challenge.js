@@ -57,6 +57,10 @@ const ChallengeSchema = new mongoose.Schema({
     enum: ['pending', 'accepted', 'rejected', 'completed', 'failed'],
     default: 'pending',
   },
+  note: {
+    type: String,
+    default: '',
+  }
 }, { timestamps: true });
 
 delete mongoose.models.Challenge;

@@ -40,7 +40,8 @@ export default function NotificationsModal({ isOpen, onClose }) {
           challengeId: c._id,
           senderName: c.creator.name,
           title: 'Challenge Received',
-          message: `Sent you a ${c.type === 'mutual' ? 'mutual' : 'solo'} challenge`
+          message: `Sent you a ${c.type === 'mutual' ? 'mutual' : 'solo'} challenge`,
+          note: c.note
         }));
         notifs = [...notifs, ...cNotifs];
       }
@@ -138,9 +139,14 @@ export default function NotificationsModal({ isOpen, onClose }) {
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg uppercase">
                       {notif.senderName.charAt(0)}
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-title-md font-bold text-on-surface leading-tight">{notif.senderName}</p>
                       <p className="font-body-sm text-on-surface-variant">{notif.message}</p>
+                      {notif.note && (
+                        <div className="mt-2 bg-tertiary/10 p-2 rounded-lg border border-tertiary/20">
+                          <p className="font-body-sm italic text-tertiary">"{notif.note}"</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">

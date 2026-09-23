@@ -314,6 +314,13 @@ export default function ChallengesPage() {
                         <p className="font-body-sm text-on-surface-variant">
                           {new Date(c.startDate).toLocaleDateString()} - {new Date(c.endDate).toLocaleDateString()}
                         </p>
+                        {c.note && (
+                          <div className="mt-3 p-3 bg-tertiary/10 border border-tertiary/20 rounded-xl relative overflow-hidden">
+                            <span className="material-symbols-outlined absolute right-2 bottom-2 text-tertiary/20 text-[48px] pointer-events-none">format_quote</span>
+                            <p className="font-body-sm italic text-on-surface relative z-10">"{c.note}"</p>
+                            <p className="font-label-sm font-bold text-tertiary mt-1 relative z-10">— {c.creator?.name}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 

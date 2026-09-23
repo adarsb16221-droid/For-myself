@@ -101,35 +101,36 @@ export async function GET(req) {
   }
 }
 
-export async function POST(req) {
-  try {
-    const { recipientId, type, startDate, endDate, tasks } = await req.json();
-
-    if (!recipientId || !type || !startDate || !endDate || !tasks || tasks.length === 0) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    await connectToDatabase();
-    const session = await getSession();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const creator = await User.findById(session.userId);
-    if (!creator) return NextResponse.json({ error: 'Creator not found' }, { status: 404 });
-
-    const recipient = await User.findById(recipientId);
-    if (!recipient) return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
-
-    const isSelfChallenge = session.userId === recipientId;
-
-    const challenge = new Challenge({
-      creator: session.userId,
-      recipient: recipientId,
-      type: isSelfChallenge ? 'challenge' : type,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      tasks: tasks.map(t => ({ title: t.title, isDaily: !!t.isDaily })),
-      status: isSelfChallenge ? 'accepted' : 'pending',
-    });
+  export async function POST(req) {
+    try {
+      const { recipientId, type, startDate, endDate, tasks, note } = await req.json();
+  
+      if (!recipientId || !type || !startDate || !endDate || !tasks || tasks.length === 0) {
+        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      }
+  
+      await connectToDatabase();
+      const session = await getSession();
+      if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+      const creator = await User.findById(session.userId);
+      if (!creator) return NextResponse.json({ error: 'Creator not found' }, { status: 404 });
+  
+      const recipient = await User.findById(recipientId);
+      if (!recipient) return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
+  
+      const isSelfChallenge = session.userId === recipientId;
+  
+      const challenge = new Challenge({
+        creator: session.userId,
+        recipient: recipientId,
+        type: isSelfChallenge ? 'challenge' : type,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        tasks: tasks.map(t => ({ title: t.title, isDaily: !!t.isDaily })),
+        status: isSelfChallenge ? 'accepted' : 'pending',
+        note: note || '',
+      });
 
     await challenge.save();
 
