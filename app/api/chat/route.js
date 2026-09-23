@@ -4,7 +4,7 @@ import Task from '@/models/Task';
 import Schedule from '@/models/Schedule';
 import { getSession } from '@/lib/auth';
 
-const GROK_API_KEY = process.env.GROK_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const tools = [
   {
@@ -85,8 +85,8 @@ const tools = [
 ];
 
 export async function POST(req) {
-  if (!GROK_API_KEY) {
-    return NextResponse.json({ error: 'Grok API key is missing' }, { status: 500 });
+  if (!GEMINI_API_KEY) {
+    return NextResponse.json({ error: 'Gemini API key is missing' }, { status: 500 });
   }
 
   try {
@@ -100,38 +100,54 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid messages format' }, { status: 400 });
     }
 
+    // Sanitize history to prevent Gemini API errors with historical tool calls.
+    // The AI's conversational summary in 'assistant' text messages is enough context.
+    const cleanHistory = [];
+    for (const m of messages) {
+      if (m.role === 'tool') continue;
+      
+      const cleanMsg = { role: m.role, content: m.content || "" };
+      if (m.role === 'assistant') {
+        // If it was purely a tool call with no text in history, skip it
+        if (!m.content && m.tool_calls) continue;
+        // Strip historical tool_calls array so Gemini doesn't complain about missing tool responses
+        delete cleanMsg.tool_calls;
+      }
+      cleanHistory.push(cleanMsg);
+    }
+
     const systemPrompt = {
       role: 'system',
-      content: "You are Orbit, a personal coach and AI assistant. Your goal is to help the user grow in three key areas: Health, Wealth, and Knowledge. Keep responses engaging, concise, and structured. Avoid repetitive encouragement. Always stay in character as 'Orbit'.\n\nCRITICAL INSTRUCTIONS:\n1. If you need to use a tool to fetch or save data, you MUST output ONLY the tool call and NOTHING ELSE. Do NOT output any conversational text, explanation, or emotion tags when calling a tool, or the system will crash.\n2. If you are providing a conversational response to the user (and NOT calling a tool in this turn), you MUST start your response with exactly one of these emotion tags: [EMOTION: neutral], [EMOTION: happy], [EMOTION: angry], [EMOTION: worried], or [EMOTION: confused].\n3. NEVER output any code snippets, raw code, or markdown code blocks in your responses. You are a personal coach, not a software engineer. All replies must be strictly conversational."
+      content: `You are Orbit, a personal coach and AI assistant. Your goal is to help the user grow in three key areas: Health, Wealth, and Knowledge. Keep responses engaging, concise, and structured. Avoid repetitive encouragement. Always stay in character as 'Orbit'. The current date and time is ${new Date().toLocaleString()}.\n\nCRITICAL INSTRUCTIONS:\n1. You have access to several tools to fetch or save data. Use them naturally.\n2. When providing a conversational response to the user, you MUST start your text response with exactly one of these emotion tags: [EMOTION: neutral], [EMOTION: happy], [EMOTION: angry], [EMOTION: worried], or [EMOTION: confused].\n3. NEVER output any code snippets, raw code, or markdown code blocks in your responses. You are a personal coach, not a software engineer. All replies must be strictly conversational.`
     };
 
-    let currentMessages = [systemPrompt, ...messages];
+    let currentMessages = [systemPrompt, ...cleanHistory];
     let newMessages = [];
     let finished = false;
 
     while (!finished) {
       const payload = {
-        model: 'qwen/qwen3.8-27b',
+        model: 'gemini-3.5-flash',
         messages: currentMessages,
         temperature: 0.7,
-        max_tokens: 300,
+        max_tokens: 2048,
         tools: tools,
         tool_choice: "auto"
       };
 
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GROK_API_KEY}`
+          'Authorization': `Bearer ${GEMINI_API_KEY}`
         },
         body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
         const errorData = await res.text();
-        console.error('Grok API Error:', errorData);
-        return NextResponse.json({ error: 'Grok API Error: ' + errorData }, { status: res.status });
+        console.error('Gemini API Error:', errorData);
+        return NextResponse.json({ error: 'Gemini API Error: ' + errorData }, { status: res.status });
       }
 
       const data = await res.json();
@@ -183,6 +199,7 @@ export async function POST(req) {
           const toolMsg = {
             role: 'tool',
             tool_call_id: toolCall.id,
+            name: funcName,
             content: JSON.stringify(result)
           };
           newMessages.push(toolMsg);
