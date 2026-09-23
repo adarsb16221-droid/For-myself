@@ -22,7 +22,7 @@ export async function GET(req) {
     const completedTasks = await Task.find({
       userId: session.userId,
       completed: true
-    }).sort({ updatedAt: -1 }).limit(50);
+    }).sort({ updatedAt: -1 });
 
     // Fetch history from regular habits (history array has dates)
     const habitsHistory = await Task.find({
@@ -31,26 +31,6 @@ export async function GET(req) {
       history: { $not: { $size: 0 } }
     });
 
-    // Calculate daily streak (longest consecutive days where at least 1 habit was completed)
-    const allHistoryDates = new Set();
-    habitsHistory.forEach(h => {
-      h.history.forEach(d => allHistoryDates.add(d));
-    });
-
-    let streak = 0;
-    const today = new Date();
-    for (let i = 0; i < 365; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      if (allHistoryDates.has(dateStr)) {
-        streak++;
-      } else {
-        // Allow missing today (streak doesn't break if today not done yet)
-        if (i === 0) continue;
-        break;
-      }
-    }
 
     // Fetch completed challenges
     const completedChallenges = await Challenge.find({
@@ -59,8 +39,7 @@ export async function GET(req) {
     })
       .populate('creator', 'name')
       .populate('recipient', 'name')
-      .sort({ updatedAt: -1 })
-      .limit(20);
+      .sort({ updatedAt: -1 });
 
     // Combine history for timeline
     let timeline = [];
@@ -106,37 +85,69 @@ export async function GET(req) {
     // Sort timeline descending by date
     timeline.sort((a, b) => b.date - a.date);
 
-    // Build activity heatmap data from already-computed timeline + habit history
+    //build heatmap data 
+    // error i fixed not from antigravity but from the fact that i was not filtering the completed tasks and habits correctly for the heatmap
     const activityMap = {};
-    const cutoff = new Date();
-    cutoff.setFullYear(cutoff.getFullYear() - 1);
+    const cutoff= new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - 1); // 1 year ago 
+    const addActivity = (date) =>{
+      if(!date) return;
+      const d = new Date(date);
 
-    // Use the timeline as the source of truth (already has correct dates for challenges & tasks)
-    timeline.forEach(item => {
-      const d = new Date(item.date);
-      if (d >= cutoff) {
-        const dateStr = d.toISOString().split('T')[0];
-        activityMap[dateStr] = (activityMap[dateStr] || 0) + item.points;
+      if(isNaN(d) || d<cutoff) return; // ignore invalid n 1 yr old 
+      const dateStr = d.toISOString().split('T')[0]; 
+      activityMap[dateStr] = (activityMap[dateStr] || 0) +1;
+    };
+
+    completedTasks.forEach(t=>{
+      if(!t.isRegular){
+        addActivity( t.completedAt || t.updatedAt || t.createdAt);
       }
     });
 
-    // Also count habit history dates (habits reset daily so they may not be in completedTasks)
-    habitsHistory.forEach(h => {
-      h.history.forEach(dateStr => {
-        if (new Date(dateStr) >= cutoff) {
-          activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
-        }
-      });
+    habitsHistory.forEach(h=>{
+      h.history.forEach(dateStr=>{
+        addActivity(dateStr);
+      })
+    });
+    completedChallenges.forEach(c=>{
+      addActivity(c.completedAt || c.updatedAt);
     });
 
-    // Also count all completed tasks by updatedAt (handles tasks without completedAt)
-    completedTasks.forEach(t => {
-      const d = new Date(t.completedAt || t.updatedAt);
-      if (!isNaN(d) && d >= cutoff) {
-        const dateStr = d.toISOString().split('T')[0];
-        activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
+    // calc streak as last was creating some blunder maybe date issue was there
+    let streak = 0;
+    const today = new Date();
+    today.setHours(0,0,0,0); 
+    for(let i=0; i<365;i++){
+      const d = new Date(today);
+      d.setDate(d.getDate()-i);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      if(activityMap[dateStr] >0){
+        streak++;
+      }else{
+        if(i==0)continue; // we can check tmrw 
+        break;
       }
-    });
+    }
+    console.log('ACTIVITY MAP:', activityMap);
+    console.log('COMPLETED TASKS:', completedTasks.map(t => ({
+  id: t._id,
+  text: t.text,
+  isRegular: t.isRegular,
+  completedAt: t.completedAt,
+  updatedAt: t.updatedAt,
+  createdAt: t.createdAt
+})));
+
+console.log('CHALLENGES:', completedChallenges.map(c => ({
+  id: c._id,
+  updatedAt: c.updatedAt,
+  completedAt: c.completedAt
+})));
 
     return NextResponse.json({
       user,
