@@ -13,7 +13,7 @@ export async function GET(req) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const user = await User.findById(session.userId).select('name email orbitPoints createdAt friends');
+    const user = await User.findById(session.userId).select('name email hawkPoints createdAt friends');
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     const friendCount = (user.friends || []).length;

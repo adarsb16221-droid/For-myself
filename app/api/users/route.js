@@ -41,8 +41,8 @@ export async function GET(req) {
 
     const users = await User.find(
       query,
-      'name email orbitPoints friendRequests'
-    ).sort({ orbitPoints: -1 });
+      'name email hawkPoints friendRequests'
+    ).sort({ hawkPoints: -1 });
 
     const friendsList = currentUser.friends ? currentUser.friends.map(id => id.toString()) : [];
     const myRequests = currentUser.friendRequests ? currentUser.friendRequests.map(id => id.toString()) : [];
@@ -54,7 +54,7 @@ export async function GET(req) {
         _id: user._id,
         name: user.name,
         email: user.email,
-        orbitPoints: user.orbitPoints,
+        hawkPoints: user.hawkPoints,
         isFriend: friendsList.includes(user._id.toString()),
         hasRequested: theirRequests.includes(currentUser._id.toString()), // I sent them a request
         isRequesting: myRequests.includes(user._id.toString()), // They sent me a request

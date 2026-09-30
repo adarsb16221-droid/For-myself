@@ -13,7 +13,7 @@ export async function GET(req) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const currentUser = await User.findById(session.userId).populate('friendRequests', 'name email orbitPoints');
+    const currentUser = await User.findById(session.userId).populate('friendRequests', 'name email hawkPoints');
     if (!currentUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     return NextResponse.json(currentUser.friendRequests || []);

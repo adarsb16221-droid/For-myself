@@ -8,18 +8,18 @@ dotenv.config();
 const projectId = "17101142305923496740";
 
 const screensList = [
-    { name: "Orbit_Dashboard", id: "47d23207b7a541449cb32630092e6619" },
+    { name: "Hawk_Dashboard", id: "47d23207b7a541449cb32630092e6619" },
     { name: "Journal_Plan", id: "14d2d52d78a048a1864f5c5ffa616d2d" },
     { name: "Quick_Links", id: "b04c72075b844750b5c107de23843154" },
     { name: "Schedule", id: "97539f95bda747a58a416bda2fdac7c3" },
     { name: "Journal_Plan_Mobile", id: "380e5f17ec294b82b4932ffa5c6a9dcc" },
     { name: "Quick_Links_Mobile", id: "2edd86e488b14f1cb033373f49d3644a" },
     { name: "Schedule_Mobile", id: "230fcff04f9c4b06a9fda70b206e89d4" },
-    { name: "Orbit_Dashboard_Desktop", id: "aace4ea552bd407fbbcbc04e999f424c" },
-    { name: "Orbit_Dashboard_Light_Desktop", id: "56bb442f76254f0290e642377194cf18" },
+    { name: "Hawk_Dashboard_Desktop", id: "aace4ea552bd407fbbcbc04e999f424c" },
+    { name: "Hawk_Dashboard_Light_Desktop", id: "56bb442f76254f0290e642377194cf18" },
     { name: "Journal_Plan_Light_Mobile", id: "6c9f0c6ad17b444785112dbd706e5e3c" },
     { name: "Journal_Plan_Light_Desktop", id: "c1ece467c311499da6eec68752a0f9af" },
-    { name: "Orbit_Dashboard_Light_Mobile", id: "dd43095735864b69b35220a7dc11a1cf" },
+    { name: "Hawk_Dashboard_Light_Mobile", id: "dd43095735864b69b35220a7dc11a1cf" },
     { name: "Quick_Links_Light_Desktop", id: "8aa52b2a0f4a48988dc409dc0e0d1915" },
     { name: "Quick_Links_Light_Mobile", id: "3fcdf590a5fb47b19728bb50d1117dd2" },
     { name: "Schedule_Light_Desktop", id: "e70167fa6bc34bf8b5ff04f6dceb7ba3" },

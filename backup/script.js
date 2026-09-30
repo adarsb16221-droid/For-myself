@@ -2,7 +2,7 @@
 
 // --- State Management ---
 let tasks = [];
-let theme = localStorage.getItem('orbit_theme') || 'dark';
+let theme = localStorage.getItem('hawk_theme') || 'dark';
 
 // Variables for timer
 let timerInterval;
@@ -111,7 +111,7 @@ async function loadTasks() {
 }
 
 function checkDailyReset() {
-    const lastDate = localStorage.getItem('orbit_lastDate');
+    const lastDate = localStorage.getItem('hawk_lastDate');
     const today = new Date().toDateString();
     if (lastDate !== today) {
         let changed = false;
@@ -122,7 +122,7 @@ function checkDailyReset() {
                 changed = true;
             }
         });
-        localStorage.setItem('orbit_lastDate', today);
+        localStorage.setItem('hawk_lastDate', today);
         if (changed) saveTasks(); 
     }
 }
@@ -138,7 +138,7 @@ function applyTheme(newTheme) {
         icon.classList.remove('ph-moon');
         icon.classList.add('ph-sun');
     }
-    localStorage.setItem('orbit_theme', newTheme);
+    localStorage.setItem('hawk_theme', newTheme);
 }
 
 themeToggleBtn.addEventListener('click', () => {
@@ -690,7 +690,7 @@ function capitalize(str) {
 }
 
 // --- Quick Links Logic ---
-let quickLinks = JSON.parse(localStorage.getItem('orbit_quickLinks')) || [];
+let quickLinks = JSON.parse(localStorage.getItem('hawk_quickLinks')) || [];
 
 const quickLinkForm = document.getElementById('quickLinkForm');
 const linkNameInput = document.getElementById('linkNameInput');
@@ -741,7 +741,7 @@ function deleteQuickLink(id, element) {
     element.classList.add('fade-out');
     setTimeout(() => {
         quickLinks = quickLinks.filter(l => l.id !== id);
-        localStorage.setItem('orbit_quickLinks', JSON.stringify(quickLinks));
+        localStorage.setItem('hawk_quickLinks', JSON.stringify(quickLinks));
         renderQuickLinks();
     }, 300);
 }
@@ -759,7 +759,7 @@ if (quickLinkForm) {
             url
         };
         quickLinks.push(newLink);
-        localStorage.setItem('orbit_quickLinks', JSON.stringify(quickLinks));
+        localStorage.setItem('hawk_quickLinks', JSON.stringify(quickLinks));
         renderQuickLinks();
 
         linkNameInput.value = '';
@@ -768,7 +768,7 @@ if (quickLinkForm) {
 }
 
 // --- Daily Schedule Logic ---
-let dailySchedule = JSON.parse(localStorage.getItem('orbit_schedule')) || [];
+let dailySchedule = JSON.parse(localStorage.getItem('hawk_schedule')) || [];
 
 const scheduleForm = document.getElementById('scheduleForm');
 const scheduleStart = document.getElementById('scheduleStart');
@@ -856,7 +856,7 @@ function deleteScheduleItem(id, element) {
     element.classList.add('fade-out');
     setTimeout(() => {
         dailySchedule = dailySchedule.filter(i => i.id !== id);
-        localStorage.setItem('orbit_schedule', JSON.stringify(dailySchedule));
+        localStorage.setItem('hawk_schedule', JSON.stringify(dailySchedule));
         renderSchedule();
     }, 300);
 }
@@ -883,7 +883,7 @@ if (scheduleForm) {
         // Sort chronologically
         dailySchedule.sort((a, b) => a.start.localeCompare(b.start));
         
-        localStorage.setItem('orbit_schedule', JSON.stringify(dailySchedule));
+        localStorage.setItem('hawk_schedule', JSON.stringify(dailySchedule));
         renderSchedule();
 
         scheduleActivity.value = '';
@@ -892,7 +892,7 @@ if (scheduleForm) {
     clearScheduleBtn.addEventListener('click', () => {
         if (confirm('Are you sure you want to clear your entire schedule?')) {
             dailySchedule = [];
-            localStorage.setItem('orbit_schedule', JSON.stringify(dailySchedule));
+            localStorage.setItem('hawk_schedule', JSON.stringify(dailySchedule));
             renderSchedule();
         }
     });

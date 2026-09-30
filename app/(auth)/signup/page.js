@@ -43,7 +43,7 @@ export default function SignupPage() {
             <span className="material-symbols-outlined text-secondary text-[32px]">person_add</span>
           </div>
           <h1 className="font-display-lg-mobile text-[32px] font-bold text-primary mb-2">Create Account</h1>
-          <p className="text-on-surface-variant text-sm">Join Orbit for your Deep Work</p>
+          <p className="text-on-surface-variant text-sm">Join Hawk for your Deep Work</p>
         </div>
 
         {error && (

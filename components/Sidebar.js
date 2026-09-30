@@ -12,7 +12,7 @@ export default function Sidebar({ currentView, setCurrentView }) {
     <aside className="sidebar glass-panel">
       <div className="sidebar-logo">
         <i className="ph-fill ph-planet"></i>
-        <span>Orbit</span>
+        <span>Hawk</span>
       </div>
       <nav className="sidebar-nav">
         {navItems.map(item => (

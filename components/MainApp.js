@@ -26,7 +26,7 @@ export default function MainApp() {
 
   useEffect(() => {
     // Load theme from localStorage if possible
-    const savedTheme = localStorage.getItem('orbit_theme') || 'dark';
+    const savedTheme = localStorage.getItem('hawk_theme') || 'dark';
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -39,7 +39,7 @@ export default function MainApp() {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('orbit_theme', newTheme);
+    localStorage.setItem('hawk_theme', newTheme);
   };
 
   return (

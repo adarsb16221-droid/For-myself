@@ -7,7 +7,17 @@ import Link from 'next/link';
 import FaceAvatar from '@/components/FaceAvatar';
 import CryptoJS from 'crypto-js';
 
-const CHAT_SECRET_KEY = 'orbit_frontend_secure_chat_key_99';
+const CHAT_SECRET_KEY = 'hawk_frontend_secure_chat_key_99';
+
+// Clean markdown for TTS
+function cleanTextForSpeech(text) {
+  if (!text) return '';
+  return text
+    .replace(/\[EMOTION:\s*(angry|happy|neutral|worried|confused)\]/gi, '')
+    .replace(/```[\s\S]*?```/g, ' ') // Remove code blocks from speech
+    .replace(/[*#_~`]/g, '') // Remove markdown formatting characters
+    .trim();
+}
 
 // Typewriter Hook
 function useTypewriter(text, speed = 15) {
@@ -153,7 +163,7 @@ export default function ChatPage() {
           
           const cleanLastMsg = data.messages.slice().reverse().find(m => m.role === 'assistant' && m.content);
           if (cleanLastMsg && speechRef.current && isVoiceEnabled) {
-            speechRef.current.speak({ text: cleanLastMsg.content }).catch(e => console.error("An error occurred while speaking: ", e));
+            speechRef.current.speak({ text: cleanTextForSpeech(cleanLastMsg.content) }).catch(e => console.error("An error occurred while speaking: ", e));
           }
         }
         setMessages(prev => [...prev, ...data.messages]);
@@ -174,9 +184,9 @@ export default function ChatPage() {
   };
 
   const clearChat = () => {
-    if (confirm('Are you sure you want to clear your conversation with Orbit?')) {
+    if (confirm('Are you sure you want to clear your conversation with Hawk?')) {
       setMessages([]);
-      localStorage.removeItem('orbit_chat_history');
+      localStorage.removeItem('hawk_chat_history');
       setShowLog(false);
     }
   };
@@ -192,7 +202,7 @@ export default function ChatPage() {
         {/* 1. Global Background Image (Adapts to light/dark mode) */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <Image 
-            src="/orbit-bg.png" 
+            src="/hawk-bg.png" 
             alt="Background" 
             fill
             className="object-cover opacity-10 dark:opacity-30 blur-xl"
@@ -274,7 +284,7 @@ export default function ChatPage() {
               <div className="w-full min-h-[140px] flex flex-col p-6 sm:p-8 rounded-[2rem] border border-on-surface/10 shadow-2xl relative bg-surface-container-highest/90 backdrop-blur-2xl">
                 {/* Name Badge */}
                 <div className="absolute -top-4 left-6 sm:left-8 bg-primary text-on-primary px-6 py-1.5 rounded-full font-black shadow-lg text-xs sm:text-sm tracking-widest uppercase border border-surface-container-highest">
-                  Orbit
+                  Hawk
                 </div>
                 
                 <div className="text-[14px] sm:text-[16px] text-on-surface leading-relaxed overflow-y-auto pt-2 pr-2 custom-scrollbar flex-1">
@@ -298,7 +308,7 @@ export default function ChatPage() {
           <form onSubmit={sendMessage} className="relative flex items-end w-full max-w-5xl mx-auto">
             <textarea 
               className="w-full bg-surface-container/80 rounded-3xl pl-6 pr-16 py-4 sm:py-5 focus:ring-2 focus:ring-primary focus:outline-none text-on-surface font-medium shadow-inner border border-on-surface/20 placeholder:text-on-surface-variant/70 resize-none min-h-[56px] max-h-[150px] custom-scrollbar overflow-y-auto block"
-              placeholder="Type your response to Orbit... (Shift+Enter for new line)"
+              placeholder="Type your response to Hawk... (Shift+Enter for new line)"
               value={input}
               onChange={e => setInput(e.target.value)}
               onInput={(e) => {
@@ -367,14 +377,14 @@ export default function ChatPage() {
                     }`}>
                       <div className="flex justify-between items-center mb-1 gap-4">
                         <p className="text-xs opacity-70 font-bold tracking-wide uppercase">
-                          {msg.role === 'user' ? 'You' : 'Orbit'}
+                          {msg.role === 'user' ? 'You' : 'Hawk'}
                         </p>
                         {msg.role === 'assistant' && (
                           <button 
                             onClick={() => {
                               if (speechRef.current) {
                                 speechRef.current.speak({ 
-                                  text: msg.content.replace(/\[EMOTION:\s*(angry|happy|neutral|worried|confused)\]/gi, '').trim(),
+                                  text: cleanTextForSpeech(msg.content),
                                   voice: selectedVoice 
                                 }).catch(e => console.error(e));
                               }

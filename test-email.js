@@ -25,12 +25,12 @@ async function testEmail() {
     const info = await transporter.sendMail({
       from: `"Deep Work Space" <${process.env.SMTP_USER}>`,
       to: "adarsh16221@gmail.com",
-      subject: "Test Email from Orbit App",
-      text: "This is a test email sent from the Orbit app using your Gmail account!",
+      subject: "Test Email from Hawk App",
+      text: "This is a test email sent from the Hawk app using your Gmail account!",
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2 style="color: #4648D4;">Orbit App Test</h2>
-          <p>This is a test email sent from your Orbit app using your Gmail account!</p>
+          <h2 style="color: #4648D4;">Hawk App Test</h2>
+          <p>This is a test email sent from your Hawk app using your Gmail account!</p>
           <p>If you received this, your Nodemailer configuration is working perfectly.</p>
         </div>
       `,

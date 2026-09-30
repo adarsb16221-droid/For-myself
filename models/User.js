@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  orbitPoints: {
+  hawkPoints: {
     type: Number,
     default: 0,
   },
@@ -49,6 +49,10 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   }],
+  fcmToken: {
+    type: String,
+    default: null,
+  },
 }, { timestamps: true });
 
 delete mongoose.models.User;

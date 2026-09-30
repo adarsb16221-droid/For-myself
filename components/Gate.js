@@ -7,7 +7,7 @@ export default function Gate() {
   const [linkUrl, setLinkUrl] = useState('');
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('orbit_quickLinks')) || [];
+    const saved = JSON.parse(localStorage.getItem('hawk_quickLinks')) || [];
     setLinks(saved);
   }, []);
 
@@ -16,7 +16,7 @@ export default function Gate() {
     if (!linkName || !linkUrl) return;
     const newLinks = [...links, { id: Date.now().toString(), name: linkName, url: linkUrl }];
     setLinks(newLinks);
-    localStorage.setItem('orbit_quickLinks', JSON.stringify(newLinks));
+    localStorage.setItem('hawk_quickLinks', JSON.stringify(newLinks));
     setLinkName('');
     setLinkUrl('');
   };
@@ -24,7 +24,7 @@ export default function Gate() {
   const deleteLink = (id) => {
     const newLinks = links.filter(l => l.id !== id);
     setLinks(newLinks);
-    localStorage.setItem('orbit_quickLinks', JSON.stringify(newLinks));
+    localStorage.setItem('hawk_quickLinks', JSON.stringify(newLinks));
   };
 
   return (

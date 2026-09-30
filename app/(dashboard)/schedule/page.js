@@ -98,7 +98,7 @@ export default function SchedulePage() {
     ]).then(([schedData, taskData, challengesData]) => {
       setSchedule(Array.isArray(schedData) ? schedData : []);
       
-      const normalTasks = Array.isArray(taskData) ? taskData.filter(t => !t.completed) : [];
+      const normalTasks = Array.isArray(taskData) ? taskData.filter(t => !t.completed && !t.isGoal) : [];
       
       const challengeTasks = [];
       if (Array.isArray(challengesData)) {

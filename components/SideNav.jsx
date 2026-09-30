@@ -15,7 +15,7 @@ export default function SideNav() {
     { name: 'Profile', href: '/profile', icon: 'person' },
     { name: 'Friends', href: '/community', icon: 'group' },
     { name: 'Challenges', href: '/challenges', icon: 'flag' },
-    { name: 'Orbit AI & Focus', href: '/chat', icon: 'psychiatry' },
+    { name: 'Hawk AI & Focus', href: '/chat', icon: 'psychiatry' },
     { name: 'Journal', href: '/journal', icon: 'auto_stories' },
     { name: 'Schedule', href: '/schedule', icon: 'calendar_month' },
     { name: 'Quick Links', href: '/links', icon: 'link' },
@@ -32,7 +32,7 @@ export default function SideNav() {
             <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>account_circle</span>
           </div>
           <div className="min-w-0 overflow-hidden">
-            <h1 className="font-headline-md text-[20px] font-bold text-on-surface leading-tight truncate">Orbit</h1>
+            <h1 className="font-headline-md text-[20px] font-bold text-on-surface leading-tight truncate">Hawk</h1>
             <p className="font-body-sm text-[12px] text-on-surface-variant truncate">{user ? user.name : 'Deep Work Space'}</p>
           </div>
         </div>

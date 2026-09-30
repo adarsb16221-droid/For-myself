@@ -23,10 +23,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    user.orbitPoints = (user.orbitPoints || 0) + points;
+    user.hawkPoints = (user.hawkPoints || 0) + points;
     await user.save();
 
-    return NextResponse.json({ success: true, orbitPoints: user.orbitPoints });
+    return NextResponse.json({ success: true, hawkPoints: user.hawkPoints });
   } catch (error) {
     console.error('Error awarding points:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

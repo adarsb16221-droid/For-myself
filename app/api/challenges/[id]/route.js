@@ -151,11 +151,11 @@ export async function PATCH(req, { params }) {
           if (challenge.type === 'mutual') {
             const creator = await User.findById(challenge.creator._id);
             const recipient = await User.findById(challenge.recipient._id);
-            if (creator) await User.findByIdAndUpdate(challenge.creator._id, { orbitPoints: Math.max(0, creator.orbitPoints || 0) + 2 });
-            if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
+            if (creator) await User.findByIdAndUpdate(challenge.creator._id, { hawkPoints: Math.max(0, creator.hawkPoints || 0) + 2 });
+            if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { hawkPoints: Math.max(0, recipient.hawkPoints || 0) + 2 });
           } else {
             const recipient = await User.findById(challenge.recipient._id);
-            if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
+            if (recipient) await User.findByIdAndUpdate(challenge.recipient._id, { hawkPoints: Math.max(0, recipient.hawkPoints || 0) + 2 });
           }
         }
 

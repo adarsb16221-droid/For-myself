@@ -168,7 +168,7 @@ export default function FocusPage() {
         if (speechRef.current) {
           setIsSpeaking(true);
           setEmotion('happy');
-          speechRef.current.speak({ text: `Awesome job! You just earned ${pointsToAward} Orbit points for completing your focus session.` }).then(() => {
+          speechRef.current.speak({ text: `Awesome job! You just earned ${pointsToAward} Hawk points for completing your focus session.` }).then(() => {
             setIsSpeaking(false);
             setEmotion('neutral');
           });
@@ -191,7 +191,7 @@ export default function FocusPage() {
         {/* Global Background Image */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <Image 
-            src="/orbit-bg.png" 
+            src="/hawk-bg.png" 
             alt="Background" 
             fill
             className="object-cover opacity-10 dark:opacity-30 blur-xl"
@@ -216,7 +216,7 @@ export default function FocusPage() {
               <div className="mb-8 bg-secondary-container/50 border border-secondary/20 px-6 py-4 rounded-2xl flex flex-col items-center animate-[slideIn_0.3s_ease-out]">
                 <span className="material-symbols-outlined text-secondary text-[40px] mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
                 <p className="text-on-secondary-container font-bold text-lg text-center">Session Complete!</p>
-                <p className="text-on-secondary-container/80 text-sm">You earned +{earnedPoints} Orbit Points</p>
+                <p className="text-on-secondary-container/80 text-sm">You earned +{earnedPoints} Hawk Points</p>
               </div>
             )}
 

@@ -223,12 +223,12 @@ export default function ProfilePage() {
 
                 {/* Stats pills — compact row */}
                 <div className="relative mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {/* Orbit Points */}
+                  {/* Hawk Points */}
                   <div className="flex items-center gap-2 bg-surface/70 rounded-xl px-3 py-2 border border-outline-variant/30">
                     <span className="material-symbols-outlined text-tertiary text-[18px]">stars</span>
                     <div>
                       <p className="text-[9px] uppercase tracking-wider text-on-surface-variant font-bold leading-none">Points</p>
-                      <p className="text-base font-bold text-on-surface leading-tight">{Math.max(0, profile.user.orbitPoints || 0)}</p>
+                      <p className="text-base font-bold text-on-surface leading-tight">{Math.max(0, profile.user.hawkPoints || 0)}</p>
                     </div>
                   </div>
 

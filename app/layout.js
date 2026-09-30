@@ -3,7 +3,7 @@ import AnimatedBackground from '@/components/AnimatedBackground'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 export const metadata = {
-  title: 'Orbit Dashboard',
+  title: 'Hawk Dashboard',
   description: 'Task dashboard and journal app',
 }
 
