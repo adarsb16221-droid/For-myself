@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  hawkPoints: {
+  orbitPoints: {
     type: Number,
     default: 0,
   },

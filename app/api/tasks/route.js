@@ -37,7 +37,7 @@ export async function GET(req) {
             task.lastPenaltyDate = yesterdayStr;
             await task.save();
             // Point deduction removed as per request
-            // await User.findByIdAndUpdate(session.userId, { $inc: { hawkPoints: -1 } });
+            // await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: -1 } });
             hasUpdates = true;
           }
         }
@@ -115,8 +115,8 @@ export async function PUT(req) {
       if (restUpdateData.completed) {
         const user = await User.findById(session.userId);
         if (user) {
-          const currentPoints = Math.max(0, user.hawkPoints || 0);
-          await User.findByIdAndUpdate(session.userId, { hawkPoints: currentPoints + 1 });
+          const currentPoints = Math.max(0, user.orbitPoints || 0);
+          await User.findByIdAndUpdate(session.userId, { orbitPoints: currentPoints + 1 });
         }
       }
     }

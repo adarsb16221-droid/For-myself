@@ -54,27 +54,27 @@ export async function GET(req) {
             c.status = 'completed';
             if (c.type === 'mutual') {
               const creator = await User.findById(c.creator._id);
-              if (creator) await User.findByIdAndUpdate(c.creator._id, { hawkPoints: Math.max(0, creator.hawkPoints || 0) + 2 });
+              if (creator) await User.findByIdAndUpdate(c.creator._id, { orbitPoints: Math.max(0, creator.orbitPoints || 0) + 2 });
               const recipient = await User.findById(c.recipient._id);
-              if (recipient) await User.findByIdAndUpdate(c.recipient._id, { hawkPoints: Math.max(0, recipient.hawkPoints || 0) + 2 });
+              if (recipient) await User.findByIdAndUpdate(c.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
             } else {
               const recipient = await User.findById(c.recipient._id);
-              if (recipient) await User.findByIdAndUpdate(c.recipient._id, { hawkPoints: Math.max(0, recipient.hawkPoints || 0) + 2 });
+              if (recipient) await User.findByIdAndUpdate(c.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
             }
           } else {
             c.status = 'failed';
             if (creatorFailed) {
-              // await User.findByIdAndUpdate(c.creator._id, { $inc: { hawkPoints: -2 } });
+              // await User.findByIdAndUpdate(c.creator._id, { $inc: { orbitPoints: -2 } });
             } else if (c.type === 'mutual') {
               const creator = await User.findById(c.creator._id);
-              if (creator) await User.findByIdAndUpdate(c.creator._id, { hawkPoints: Math.max(0, creator.hawkPoints || 0) + 2 });
+              if (creator) await User.findByIdAndUpdate(c.creator._id, { orbitPoints: Math.max(0, creator.orbitPoints || 0) + 2 });
             }
 
             if (recipientFailed) {
-              // await User.findByIdAndUpdate(c.recipient._id, { $inc: { hawkPoints: -2 } });
+              // await User.findByIdAndUpdate(c.recipient._id, { $inc: { orbitPoints: -2 } });
             } else {
               const recipient = await User.findById(c.recipient._id);
-              if (recipient) await User.findByIdAndUpdate(c.recipient._id, { hawkPoints: Math.max(0, recipient.hawkPoints || 0) + 2 });
+              if (recipient) await User.findByIdAndUpdate(c.recipient._id, { orbitPoints: Math.max(0, recipient.orbitPoints || 0) + 2 });
             }
           }
           
