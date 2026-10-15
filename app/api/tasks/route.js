@@ -26,6 +26,16 @@ export async function GET(req) {
           }
         }
 
+        if (task.subtasksResetAt !== todayDateStr) {
+          const completedToday = task.completed && task.completedAt?.split('T')[0] === todayDateStr;
+          if (!completedToday) {
+            task.subtasks.forEach(subtask => { subtask.completed = false; });
+          }
+          task.subtasksResetAt = todayDateStr;
+          await task.save();
+          hasUpdates = true;
+        }
+
         // Check if missed yesterday
         const yesterdayDate = new Date();
         yesterdayDate.setDate(yesterdayDate.getDate() - 1);
@@ -91,6 +101,19 @@ export async function PUT(req) {
     
     const existingTask = await Task.findOne({ _id, userId: session.userId });
     if (!existingTask) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    const subtasks = restUpdateData.subtasks ?? existingTask.subtasks;
+    if (!existingTask.isGoal && subtasks.length > 0) {
+      const allSubtasksCompleted = subtasks.every(subtask => subtask.completed);
+      restUpdateData.completed = allSubtasksCompleted;
+      restUpdateData.completedAt = allSubtasksCompleted
+        ? (existingTask.completed ? existingTask.completedAt : new Date().toISOString())
+        : null;
+    }
+
+    if (existingTask.isRegular && Array.isArray(restUpdateData.subtasks)) {
+      restUpdateData.subtasksResetAt = new Date().toISOString().split('T')[0];
+    }
 
     const updateOps = { $set: restUpdateData };
     

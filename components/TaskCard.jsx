@@ -14,6 +14,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
 
   const isCompleted = task.completed;
   const subtasks = task.subtasks || [];
+  const completionRequiresSubtasks = !task.isGoal && subtasks.length > 0;
 
   const handleSave = (e) => {
     e.stopPropagation();
@@ -131,7 +132,9 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
               className="checkbox-custom shrink-0 mt-0.5 w-4 h-4" 
               checked={isCompleted}
               onChange={() => onToggle(task)}
-              disabled={isLoading}
+              disabled={isLoading || completionRequiresSubtasks}
+              title={completionRequiresSubtasks ? 'Complete all subtasks to finish this task' : undefined}
+              aria-label={completionRequiresSubtasks ? 'Task completion is based on its subtasks' : `Mark ${task.text} ${isCompleted ? 'incomplete' : 'complete'}`}
               onClick={(e) => e.stopPropagation()}
             />
           )}

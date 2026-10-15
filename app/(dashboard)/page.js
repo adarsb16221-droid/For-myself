@@ -134,6 +134,15 @@ export default function Home() {
               updatedTask.completedAt = null;
             }
           }
+
+          if (task.isRegular && task.subtasksResetAt !== todayDateStr) {
+            const completedToday = updatedTask.completed && updatedTask.completedAt?.split('T')[0] === todayDateStr;
+            if (!completedToday) {
+              updatedTask.subtasks = (task.subtasks || []).map(st => ({ ...st, completed: false }));
+            }
+            updatedTask.subtasksResetAt = todayDateStr;
+            changed = true;
+          }
           
           if (task.isGoal && !task.completed) {
             if (task.subtasksResetAt !== todayDateStr) {
@@ -214,18 +223,15 @@ export default function Home() {
   };
 
   const toggleTask = async (task) => {
+    if (!task.isGoal && task.subtasks?.length > 0) return;
+
     setProcessingTasks(prev => new Set(prev).add(task._id));
     const isNowCompleted = !task.completed;
-    
-    const updatedSubtasks = task.isGoal 
-      ? task.subtasks 
-      : (task.subtasks || []).map(st => ({ ...st, completed: isNowCompleted }));
     
     const updated = { 
       ...task, 
       completed: isNowCompleted, 
-      completedAt: isNowCompleted ? new Date().toISOString() : null,
-      subtasks: updatedSubtasks
+      completedAt: isNowCompleted ? new Date().toISOString() : null
     };
     
     try {
