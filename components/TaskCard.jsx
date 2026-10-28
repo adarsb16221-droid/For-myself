@@ -15,12 +15,36 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
   const isCompleted = task.completed;
   const subtasks = task.subtasks || [];
   const completionRequiresSubtasks = !task.isGoal && subtasks.length > 0;
+  const isChallenge = task.category === 'Challenge';
+
+  const handleStartEdit = (e) => {
+    e.stopPropagation();
+    setEditInput(task.text);
+    setShowMoveMenu(false);
+    setShowAddSubtask(false);
+    setIsEditing(true);
+  };
 
   const handleSave = (e) => {
-    e.stopPropagation();
-    if (editInput.trim() && editInput !== task.text) {
-      onUpdate(task, { text: editInput });
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
+    const trimmed = editInput.trim();
+    if (trimmed && trimmed !== task.text) {
+      onUpdate(task, { text: trimmed });
+    } else {
+      setEditInput(task.text);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setEditInput(task.text);
     setIsEditing(false);
   };
 
@@ -61,8 +85,8 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
 
   return (
     <div 
-      className={`glass-card rounded-xl p-3 flex flex-col gap-1.5 task-item cursor-pointer transition-all duration-300 ${isExpanded ? 'bg-surface/80 shadow-md ring-1 ring-white/10' : 'hover:bg-surface/40'} ${isCompleted ? 'opacity-60' : ''}`}
-      draggable={!isLoading}
+      className={`glass-card rounded-xl p-3 flex flex-col gap-1.5 task-item cursor-pointer transition-all duration-300 ${isExpanded ? 'bg-surface/80 shadow-md ring-1 ring-white/10' : 'hover:bg-surface/40'} ${isCompleted ? 'opacity-60' : ''} ${showMoveMenu ? 'relative z-30' : isExpanded ? 'relative z-10' : 'relative z-0'}`}
+      draggable={!isLoading && !isEditing}
       onDragStart={(e) => onDragStart && onDragStart(e, task)}
       onDragOver={(e) => onDragOver && onDragOver(e)}
       onDrop={(e) => onDrop && onDrop(e, task)}
@@ -70,96 +94,173 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
       onMouseLeave={() => { if (!isEditing && !showMoveMenu && !showAddSubtask) setIsExpanded(false); }}
       onClick={() => { if (!isEditing) setIsExpanded(!isExpanded); }}
     >
+      {/* Top Action Bar when expanded */}
       <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} onClick={e => e.stopPropagation()}>
-        <div className="overflow-hidden flex flex-col w-full">
-          <div className="flex flex-row items-center justify-end gap-1 sm:gap-2 w-full pb-1 mb-1 border-b border-on-surface/10">
-            <button 
-              onClick={(e) => { e.stopPropagation(); setShowAddSubtask(true); }}
-              className="flex items-center justify-center text-outline-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-variant/30"
-              disabled={isLoading}
-              title={task.isGoal ? "Add Habit" : "Add Subtask"}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
-                {task.isGoal ? "track_changes" : "add_task"}
+        <div className={`${isExpanded ? 'overflow-visible' : 'overflow-hidden'} flex flex-col w-full`}>
+          {isEditing ? (
+            <div className="flex flex-row items-center justify-between w-full pb-1 mb-1 border-b border-on-surface/10">
+              <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[16px]">edit</span>
+                Editing Task
               </span>
-            </button>
-            {!isEditing && (
               <button 
-                onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-                className="flex items-center justify-center text-outline-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-variant/30"
-                disabled={isLoading}
-                title="Edit"
+                onClick={handleCancelEdit}
+                className="flex items-center justify-center text-outline-variant hover:text-error transition-colors p-1 rounded hover:bg-error/10"
+                title="Cancel edit"
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit</span>
+                <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
-            )}
-            <div className="relative">
-              <button 
-                onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
-                className="flex items-center justify-center text-outline-variant hover:text-on-surface transition-colors p-1 rounded hover:bg-surface-variant/30"
-                disabled={isLoading}
-                title="Move"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>swap_vert</span>
-              </button>
-              {showMoveMenu && (
-                <div className="absolute right-0 top-full mt-1 bg-surface-container-high border border-on-surface/10 rounded-md shadow-lg z-50 flex flex-col min-w-[140px] py-1 animate-in fade-in zoom-in-95">
-                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'first'); setShowMoveMenu(false); }}>Move to First</button>
-                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'up'); setShowMoveMenu(false); }}>Move Up</button>
-                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'down'); setShowMoveMenu(false); }}>Move Down</button>
-                   <button className="px-3 py-1.5 text-left text-sm hover:bg-on-surface/5 text-on-surface" onClick={(e) => { e.stopPropagation(); onMove(task, 'last'); setShowMoveMenu(false); }}>Move to Last</button>
+            </div>
+          ) : (
+            <div className="flex flex-row items-center justify-end gap-1 sm:gap-2 w-full pb-1 mb-1 border-b border-on-surface/10">
+              {!isChallenge && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setShowAddSubtask(true); }}
+                  className="flex items-center justify-center text-outline-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-variant/30"
+                  disabled={isLoading}
+                  title={task.isGoal ? "Add Habit" : "Add Subtask"}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                    {task.isGoal ? "track_changes" : "add_task"}
+                  </span>
+                </button>
+              )}
+              {!isChallenge && (
+                <button 
+                  onClick={handleStartEdit}
+                  className="flex items-center justify-center text-outline-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-variant/30"
+                  disabled={isLoading}
+                  title="Edit"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit</span>
+                </button>
+              )}
+              {!isChallenge && (
+                <div className="relative">
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
+                    className={`flex items-center justify-center text-outline-variant hover:text-on-surface transition-colors p-1 rounded ${showMoveMenu ? 'bg-surface-variant/50 text-on-surface' : 'hover:bg-surface-variant/30'}`}
+                    disabled={isLoading}
+                    title="Move"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>swap_vert</span>
+                  </button>
+                  {showMoveMenu && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={(e) => { e.stopPropagation(); setShowMoveMenu(false); }} 
+                      />
+                      <div className="absolute right-0 top-full mt-1.5 bg-surface-container-high/95 dark:bg-surface-container-highest/95 backdrop-blur-md border border-on-surface/15 rounded-lg shadow-xl z-50 flex flex-col min-w-[145px] py-1 animate-in fade-in zoom-in-95">
+                        <button 
+                          className="px-3 py-1.5 text-left text-xs hover:bg-on-surface/10 text-on-surface flex items-center gap-2 transition-colors" 
+                          onClick={(e) => { e.stopPropagation(); onMove(task, 'first'); setShowMoveMenu(false); }}
+                        >
+                          <span className="material-symbols-outlined text-[16px] text-outline-variant">vertical_align_top</span>
+                          Move to First
+                        </button>
+                        <button 
+                          className="px-3 py-1.5 text-left text-xs hover:bg-on-surface/10 text-on-surface flex items-center gap-2 transition-colors" 
+                          onClick={(e) => { e.stopPropagation(); onMove(task, 'up'); setShowMoveMenu(false); }}
+                        >
+                          <span className="material-symbols-outlined text-[16px] text-outline-variant">arrow_upward</span>
+                          Move Up
+                        </button>
+                        <button 
+                          className="px-3 py-1.5 text-left text-xs hover:bg-on-surface/10 text-on-surface flex items-center gap-2 transition-colors" 
+                          onClick={(e) => { e.stopPropagation(); onMove(task, 'down'); setShowMoveMenu(false); }}
+                        >
+                          <span className="material-symbols-outlined text-[16px] text-outline-variant">arrow_downward</span>
+                          Move Down
+                        </button>
+                        <button 
+                          className="px-3 py-1.5 text-left text-xs hover:bg-on-surface/10 text-on-surface flex items-center gap-2 transition-colors" 
+                          onClick={(e) => { e.stopPropagation(); onMove(task, 'last'); setShowMoveMenu(false); }}
+                        >
+                          <span className="material-symbols-outlined text-[16px] text-outline-variant">vertical_align_bottom</span>
+                          Move to Last
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
+              {!isChallenge && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onDelete(task._id); }}
+                  className="flex items-center justify-center text-outline-variant hover:text-error transition-colors p-1 rounded hover:bg-error/10"
+                  disabled={isLoading}
+                  title="Delete"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>delete</span>
+                </button>
+              )}
             </div>
-            <button 
-              onClick={(e) => { e.stopPropagation(); onDelete(task._id); }}
-              className="flex items-center justify-center text-outline-variant hover:text-error transition-colors p-1 rounded hover:bg-error/10"
-              disabled={isLoading}
-              title="Delete"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>delete</span>
-            </button>
-          </div>
+          )}
         </div>
       </div>
+
+      {/* Main Task Content */}
       <div className="flex items-start justify-between w-full">
-        <div className="flex items-start gap-2.5 mt-0.5 w-full min-w-0">
-          {isLoading ? (
-            <Spinner size="sm" className="shrink-0" />
-          ) : (
+        {isEditing ? (
+          <form onSubmit={handleSave} className="flex flex-col gap-2.5 w-full min-w-0" onClick={e => e.stopPropagation()}>
             <input 
-              type="checkbox" 
-              className="checkbox-custom shrink-0 mt-0.5 w-4 h-4" 
-              checked={isCompleted}
-              onChange={() => onToggle(task)}
-              disabled={isLoading || completionRequiresSubtasks}
-              title={completionRequiresSubtasks ? 'Complete all subtasks to finish this task' : undefined}
-              aria-label={completionRequiresSubtasks ? 'Task completion is based on its subtasks' : `Mark ${task.text} ${isCompleted ? 'incomplete' : 'complete'}`}
-              onClick={(e) => e.stopPropagation()}
+              type="text"
+              className="w-full bg-surface-container-high/60 border border-primary/40 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-2.5 py-1.5 text-on-surface text-[13px] outline-none transition-all placeholder:text-on-surface-variant/50"
+              placeholder="Task description..."
+              value={editInput}
+              onChange={e => setEditInput(e.target.value)}
+              autoFocus
+              onKeyDown={e => {
+                if (e.key === 'Escape') handleCancelEdit(e);
+              }}
             />
-          )}
-          <div className="flex-1 w-full min-w-0">
-            {isEditing ? (
-              <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                <input 
-                  type="text"
-                  className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[13px]"
-                  value={editInput}
-                  onChange={e => setEditInput(e.target.value)}
-                  autoFocus
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') handleSave(e);
-                    if (e.key === 'Escape') setIsEditing(false);
-                  }}
-                />
-                <button onClick={handleSave} className="text-primary hover:text-primary-fixed-dim">
-                  <span className="material-symbols-outlined text-[13px]">check</span>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex flex-wrap gap-1.5">
+                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                  {task.category}
+                </span>
+                {task.linkedGoalId && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant border border-on-surface/10 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[9px]">flag</span> Linked
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <button 
+                  type="button" 
+                  onClick={handleCancelEdit}
+                  className="px-2.5 py-1 rounded-md text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/40 transition-colors"
+                >
+                  Cancel
                 </button>
-                <button onClick={() => setIsEditing(false)} className="text-error hover:text-error/80">
-                  <span className="material-symbols-outlined text-[13px]">close</span>
+                <button 
+                  type="submit" 
+                  className="px-3 py-1 rounded-md bg-primary text-on-primary text-xs font-semibold hover:bg-primary/90 transition-all flex items-center gap-1 shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[14px]">check</span>
+                  Save
                 </button>
               </div>
+            </div>
+          </form>
+        ) : (
+          <div className="flex items-start gap-2.5 mt-0.5 w-full min-w-0">
+            {isLoading ? (
+              <Spinner size="sm" className="shrink-0" />
             ) : (
+              <input 
+                type="checkbox" 
+                className="checkbox-custom shrink-0 mt-0.5 w-4 h-4" 
+                checked={isCompleted}
+                onChange={() => onToggle(task)}
+                disabled={isLoading || completionRequiresSubtasks}
+                title={completionRequiresSubtasks ? 'Complete all subtasks to finish this task' : undefined}
+                aria-label={completionRequiresSubtasks ? 'Task completion is based on its subtasks' : `Mark ${task.text} ${isCompleted ? 'incomplete' : 'complete'}`}
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+            <div className="flex-1 w-full min-w-0">
               <div className="flex flex-col">
                 <span className={`font-body-md text-[14px] text-on-surface font-medium block leading-snug ${isCompleted ? 'line-through text-on-surface-variant' : ''} ${!isExpanded ? 'truncate' : 'break-words'}`}>
                   {task.text}
@@ -175,83 +276,81 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                   )}
                 </div>
               </div>
-            )}
-            
-            <div className={`grid transition-all duration-500 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-              <div className="overflow-hidden flex flex-col w-full">
-            {task.isRegular && (
-              <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">routine</span> Daily</span>
-                <span className="flex items-center gap-1 text-secondary"><span className="material-symbols-outlined text-[12px]">local_fire_department</span> {task.history?.length || 0} Days</span>
-              </div>
-            )}
-            {!task.isRegular && task.priority === 'high' && !task.isGoal && (
-              <span className="font-body-sm text-[11px] text-error mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px]">priority_high</span> High Priority
-              </span>
-            )}
-            {task.isGoal && (
-              <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
-                <span className="flex items-center gap-1 text-primary"><span className="material-symbols-outlined text-[12px]">flag</span> Long Term Goal</span>
-              </div>
-            )}
-
-            {/* Subtasks Section */}
-            {(subtasks.length > 0 || showAddSubtask) && (
-              <div className="mt-3 flex flex-col gap-2 w-full" onClick={e => e.stopPropagation()}>
-                {subtasks.map(st => (
-                  <div key={st.id} className="flex items-start gap-2 bg-on-surface/10 rounded p-1.5 border border-on-surface/5 group">
-                    <input 
-                      type="checkbox" 
-                      className="checkbox-custom mt-0.5 w-3.5 h-3.5 shrink-0" 
-                      checked={st.completed}
-                      onChange={(e) => handleToggleSubtask(e, st.id)}
-                      disabled={isLoading}
-                    />
-                    <span className={`flex-1 text-[13px] font-medium break-words ${st.completed ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>
-                      {st.text}
+              
+              <div className={`grid transition-all duration-500 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                <div className="overflow-hidden flex flex-col w-full">
+                  {task.isRegular && (
+                    <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
+                      <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">routine</span> Daily</span>
+                      <span className="flex items-center gap-1 text-secondary"><span className="material-symbols-outlined text-[12px]">local_fire_department</span> {task.history?.length || 0} Days</span>
+                    </div>
+                  )}
+                  {!task.isRegular && task.priority === 'high' && !task.isGoal && (
+                    <span className="font-body-sm text-[11px] text-error mt-1 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[12px]">priority_high</span> High Priority
                     </span>
-                    <button 
-                      onClick={(e) => handleDeleteSubtask(e, st.id)}
-                      className="opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all p-0.5 shrink-0"
-                      disabled={isLoading}
-                    >
-                      <span className="material-symbols-outlined text-[9px]">close</span>
-                    </button>
-                  </div>
-                ))}
-                
-                {showAddSubtask && (
-                  <form onSubmit={handleAddSubtask} className="flex items-center gap-2 mt-1">
-                    <input 
-                      type="text"
-                      className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2 py-1 text-on-surface focus:outline-none focus:border-primary text-[13px]"
-                      placeholder={task.isGoal ? "New daily habit..." : "Subtask..."}
-                      value={subtaskInput}
-                      onChange={e => setSubtaskInput(e.target.value)}
-                      autoFocus
-                      onKeyDown={e => {
-                        if (e.key === 'Escape') setShowAddSubtask(false);
-                      }}
-                    />
-                    <button type="submit" className="text-primary hover:text-primary-fixed-dim p-1 shrink-0">
-                      <span className="material-symbols-outlined text-[13px]">check</span>
-                    </button>
-                    <button type="button" onClick={() => setShowAddSubtask(false)} className="text-error hover:text-error/80 p-1 shrink-0">
-                      <span className="material-symbols-outlined text-[13px]">close</span>
-                    </button>
-                  </form>
-                )}
+                  )}
+                  {task.isGoal && (
+                    <div className="font-body-sm text-[11px] text-on-surface-variant mt-1 flex items-center gap-3">
+                      <span className="flex items-center gap-1 text-primary"><span className="material-symbols-outlined text-[12px]">flag</span> Long Term Goal</span>
+                    </div>
+                  )}
+
+                  {/* Subtasks Section */}
+                  {(subtasks.length > 0 || showAddSubtask) && (
+                    <div className="mt-3 flex flex-col gap-2 w-full" onClick={e => e.stopPropagation()}>
+                      {subtasks.map(st => (
+                        <div key={st.id} className="flex items-start gap-2 bg-on-surface/10 rounded p-1.5 border border-on-surface/5 group">
+                          <input 
+                            type="checkbox" 
+                            className="checkbox-custom mt-0.5 w-3.5 h-3.5 shrink-0" 
+                            checked={st.completed}
+                            onChange={(e) => handleToggleSubtask(e, st.id)}
+                            disabled={isLoading}
+                          />
+                          <span className={`flex-1 text-[13px] font-medium break-words ${st.completed ? 'line-through text-on-surface-variant' : 'text-on-surface'}`}>
+                            {st.text}
+                          </span>
+                          <button 
+                            onClick={(e) => handleDeleteSubtask(e, st.id)}
+                            className="opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all p-0.5 shrink-0"
+                            disabled={isLoading}
+                            title="Delete subtask"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">close</span>
+                          </button>
+                        </div>
+                      ))}
+                      
+                      {showAddSubtask && (
+                        <form onSubmit={handleAddSubtask} className="flex items-center gap-2 mt-1">
+                          <input 
+                            type="text"
+                            className="flex-1 bg-surface-container-high/50 border border-on-surface/20 rounded px-2.5 py-1 text-on-surface focus:outline-none focus:border-primary text-[13px]"
+                            placeholder={task.isGoal ? "New daily habit..." : "Subtask..."}
+                            value={subtaskInput}
+                            onChange={e => setSubtaskInput(e.target.value)}
+                            autoFocus
+                            onKeyDown={e => {
+                              if (e.key === 'Escape') setShowAddSubtask(false);
+                            }}
+                          />
+                          <button type="submit" className="text-primary hover:text-primary-fixed-dim p-1 shrink-0 rounded hover:bg-primary/10 transition-colors" title="Add">
+                            <span className="material-symbols-outlined text-[16px]">check</span>
+                          </button>
+                          <button type="button" onClick={() => setShowAddSubtask(false)} className="text-error hover:text-error/80 p-1 shrink-0 rounded hover:bg-error/10 transition-colors" title="Cancel">
+                            <span className="material-symbols-outlined text-[16px]">close</span>
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-
-
-
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
-  </div>
   );
 }

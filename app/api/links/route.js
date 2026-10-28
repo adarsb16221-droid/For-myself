@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Link from '@/models/Link';
 import { getSession } from '@/lib/auth';
+import { isSafePublicUrl } from '@/lib/urlValidator';
 
 export async function GET(req) {
   try {
@@ -23,7 +24,26 @@ export async function POST(req) {
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const data = await req.json();
-    const newLink = await Link.create({ ...data, userId: session.userId });
+    const { name, url, trackChanges, aiInstruction } = data;
+
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return NextResponse.json({ error: 'Link name is required' }, { status: 400 });
+    }
+
+    if (!isSafePublicUrl(url)) {
+      return NextResponse.json({ 
+        error: 'Please enter a valid, public HTTP/HTTPS URL (internal/local addresses are disallowed).' 
+      }, { status: 400 });
+    }
+
+    const newLink = await Link.create({
+      name: name.trim().slice(0, 100),
+      url: url.trim(),
+      trackChanges: Boolean(trackChanges),
+      aiInstruction: typeof aiInstruction === 'string' ? aiInstruction.trim().slice(0, 500) : '',
+      userId: session.userId
+    });
+
     return NextResponse.json(newLink, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create link' }, { status: 500 });

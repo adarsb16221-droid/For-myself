@@ -12,20 +12,58 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Please provide all fields' }, { status: 400 });
     }
 
-    const user = await User.findOne({ email });
-    if (!user) {
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = otp.toString().trim();
+
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user || !user.resetOtp) {
       return NextResponse.json({ error: 'Invalid or expired OTP' }, { status: 400 });
     }
 
     // Check expiration
     if (!user.resetOtpExpires || user.resetOtpExpires < new Date()) {
-      return NextResponse.json({ error: 'OTP has expired' }, { status: 400 });
+      user.resetOtp = undefined;
+      user.resetOtpExpires = undefined;
+      user.resetOtpAttempts = 0;
+      await user.save();
+      return NextResponse.json({ error: 'OTP has expired. Please request a new one.' }, { status: 400 });
+    }
+
+    // Brute-force protection: Max 5 attempts
+    if ((user.resetOtpAttempts || 0) >= 5) {
+      user.resetOtp = undefined;
+      user.resetOtpExpires = undefined;
+      user.resetOtpAttempts = 0;
+      await user.save();
+      return NextResponse.json({ 
+        error: 'Too many incorrect attempts. This OTP has been invalidated for security. Please request a new OTP.' 
+      }, { status: 429 });
     }
 
     // Verify OTP
-    const isMatch = await bcrypt.compare(otp, user.resetOtp);
+    const isMatch = await bcrypt.compare(cleanOtp, user.resetOtp);
     if (!isMatch) {
-      return NextResponse.json({ error: 'Invalid OTP' }, { status: 400 });
+      user.resetOtpAttempts = (user.resetOtpAttempts || 0) + 1;
+      const remainingAttempts = Math.max(0, 5 - user.resetOtpAttempts);
+      
+      if (remainingAttempts === 0) {
+        user.resetOtp = undefined;
+        user.resetOtpExpires = undefined;
+        user.resetOtpAttempts = 0;
+        await user.save();
+        return NextResponse.json({ 
+          error: 'Too many incorrect attempts. This OTP has been invalidated. Please request a new code.' 
+        }, { status: 429 });
+      }
+
+      await user.save();
+      return NextResponse.json({ 
+        error: `Invalid OTP. ${remainingAttempts} attempt(s) remaining.` 
+      }, { status: 400 });
     }
 
     // Hash new password
@@ -36,6 +74,7 @@ export async function POST(req) {
     user.password = hashedPassword;
     user.resetOtp = undefined;
     user.resetOtpExpires = undefined;
+    user.resetOtpAttempts = 0;
     await user.save();
 
     return NextResponse.json({ message: 'Password reset successfully' }, { status: 200 });

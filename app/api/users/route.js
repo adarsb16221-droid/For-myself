@@ -23,26 +23,31 @@ export async function GET(req) {
       ]
     };
 
-    if (search) {
-      // If searching, return friends AND matching users
+    if (search && typeof search === 'string' && search.trim()) {
+      // Sanitize search input to prevent ReDoS (Regular Expression Denial of Service)
+      const cleanSearch = search.trim().slice(0, 50).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
       query = {
         $and: [
           { _id: { $ne: session.userId } },
           {
             $or: [
               { _id: { $in: currentUser.friends || [] } },
-              { name: { $regex: search, $options: 'i' } },
-              { email: { $regex: search, $options: 'i' } }
+              { name: { $regex: cleanSearch, $options: 'i' } },
+              { email: { $regex: cleanSearch, $options: 'i' } }
             ]
           }
         ]
       };
     }
 
+    // Always enforce pagination limit to protect MongoDB memory at scale
     const users = await User.find(
       query,
       'name email orbitPoints friendRequests'
-    ).sort({ orbitPoints: -1 });
+    )
+      .sort({ orbitPoints: -1 })
+      .limit(30);
 
     const friendsList = currentUser.friends ? currentUser.friends.map(id => id.toString()) : [];
     const myRequests = currentUser.friendRequests ? currentUser.friendRequests.map(id => id.toString()) : [];

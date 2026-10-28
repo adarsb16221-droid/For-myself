@@ -4,36 +4,54 @@ import Link from '@/models/Link';
 import User from '@/models/User';
 import * as cheerio from 'cheerio';
 import { sendEmail } from '@/lib/email';
+import { isSafePublicUrl } from '@/lib/urlValidator';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 export async function GET(req) {
   try {
-    // Basic protection - usually cron jobs should have an auth header/secret
     const { searchParams } = new URL(req.url);
-    if (searchParams.get('secret') !== 'hawk-cron-secret' && process.env.NODE_ENV === 'production') {
-       // Enable this if needed for security
-       // return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const cronSecret = process.env.CRON_SECRET || 'hawk-cron-secret';
+    const authHeader = req.headers.get('authorization');
+    const secretParam = searchParams.get('secret');
+    const isAuthorized = (authHeader === `Bearer ${cronSecret}`) || (secretParam === cronSecret);
+
+    if (!isAuthorized && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Unauthorized. Invalid cron secret.' }, { status: 401 });
+    }
+
+    if (!GEMINI_API_KEY) {
+      return NextResponse.json({ error: 'Gemini API key is not configured.' }, { status: 500 });
     }
 
     await connectToDatabase();
     
-    // Find links that have trackChanges enabled
-    const links = await Link.find({ trackChanges: true }).populate('userId', 'email name');
+    // Find links that have trackChanges enabled (limit to 50 links per batch for scalability)
+    const links = await Link.find({ trackChanges: true })
+      .populate('userId', 'email name')
+      .limit(50);
     
     const results = [];
 
     for (let link of links) {
-      if (!link.userId) continue;
+      if (!link.userId || !link.url) continue;
+
+      if (!isSafePublicUrl(link.url)) {
+        console.warn(`Skipping unsafe URL: ${link.url}`);
+        results.push({ id: link._id, status: 'skipped_unsafe_url' });
+        continue;
+      }
 
       try {
         const response = await fetch(link.url, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+          headers: { 
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' 
+          },
+          signal: AbortSignal.timeout(8000) // 8-second timeout
         });
         
         if (!response.ok) {
-           console.log(`Failed to fetch ${link.url}`);
-           results.push({ id: link._id, status: 'error', message: 'Fetch failed' });
+           results.push({ id: link._id, status: 'error', message: `Fetch failed (${response.status})` });
            continue;
         }
 
@@ -47,7 +65,6 @@ export async function GET(req) {
         let prompt = '';
         
         if (!link.lastSummary) {
-           // First time scraping
            prompt = `You are an AI tracking a website. 
 Website content:
 ${textContent}
@@ -80,14 +97,19 @@ If there is NO significant change, respond EXACTLY with "NO_CHANGE".`;
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 500,
             temperature: 0.1
-          })
+          }),
+          signal: AbortSignal.timeout(15000)
         });
+
+        if (!geminiRes.ok) {
+          results.push({ id: link._id, status: 'gemini_error' });
+          continue;
+        }
 
         const geminiData = await geminiRes.json();
         const aiResponse = geminiData.choices?.[0]?.message?.content?.trim() || '';
 
         if (!link.lastSummary) {
-            // Save initial summary
             link.lastSummary = aiResponse;
             link.lastCheckedAt = new Date();
             await link.save();
@@ -110,7 +132,6 @@ If there is NO significant change, respond EXACTLY with "NO_CHANGE".`;
                     `
                 });
 
-                // Update summary so we don't alert on the same thing again
                 link.lastSummary = `Previous findings: ${changeDetails}.`;
                 link.lastCheckedAt = new Date();
                 await link.save();
@@ -123,7 +144,7 @@ If there is NO significant change, respond EXACTLY with "NO_CHANGE".`;
         }
 
       } catch (err) {
-        console.error(`Error processing link ${link.url}`, err);
+        console.error(`Error processing link ${link.url}:`, err.message);
         results.push({ id: link._id, status: 'error', error: err.message });
       }
     }

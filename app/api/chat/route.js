@@ -100,17 +100,18 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid messages format' }, { status: 400 });
     }
 
-    // Sanitize history to prevent Gemini API errors with historical tool calls.
-    // The AI's conversational summary in 'assistant' text messages is enough context.
+    // Limit conversation history to the last 15 messages to prevent context-overflow and billing exhaustion
+    const recentMessages = messages.slice(-15);
     const cleanHistory = [];
-    for (const m of messages) {
+
+    for (const m of recentMessages) {
       if (m.role === 'tool') continue;
       
-      const cleanMsg = { role: m.role, content: m.content || "" };
+      const content = typeof m.content === 'string' ? m.content.slice(0, 2000) : "";
+      const cleanMsg = { role: m.role, content };
+
       if (m.role === 'assistant') {
-        // If it was purely a tool call with no text in history, skip it
         if (!m.content && m.tool_calls) continue;
-        // Strip historical tool_calls array so Gemini doesn't complain about missing tool responses
         delete cleanMsg.tool_calls;
       }
       cleanHistory.push(cleanMsg);
@@ -124,8 +125,12 @@ export async function POST(req) {
     let currentMessages = [systemPrompt, ...cleanHistory];
     let newMessages = [];
     let finished = false;
+    let loopCount = 0;
+    const MAX_TOOL_LOOPS = 4; // Safety iteration cap against infinite tool loops
 
-    while (!finished) {
+    while (!finished && loopCount < MAX_TOOL_LOOPS) {
+      loopCount++;
+
       const payload = {
         model: 'gemini-3.5-flash',
         messages: currentMessages,
@@ -141,7 +146,8 @@ export async function POST(req) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${GEMINI_API_KEY}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000)
       });
 
       if (!res.ok) {
@@ -164,12 +170,17 @@ export async function POST(req) {
       if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
         for (const toolCall of assistantMsg.tool_calls) {
           const funcName = toolCall.function.name;
-          const args = JSON.parse(toolCall.function.arguments || '{}');
+          let args = {};
+          try {
+            args = JSON.parse(toolCall.function.arguments || '{}');
+          } catch (e) {
+            args = {};
+          }
           
           let result = {};
           try {
             if (funcName === 'get_tasks') {
-              const tasks = await Task.find({ userId: session.userId }).sort({ order: 1, createdAt: -1 });
+              const tasks = await Task.find({ userId: session.userId }).sort({ order: 1, createdAt: -1 }).limit(50);
               const minimalTasks = tasks.map(t => ({ text: t.text, category: t.category, isRegular: t.isRegular, completed: t.completed }));
               result = { tasks: minimalTasks };
             } else if (funcName === 'get_stats') {
@@ -181,14 +192,35 @@ export async function POST(req) {
                 oneOffTasks: { total: tasks.filter(t => !t.isRegular).length, completed: tasks.filter(t => !t.isRegular && t.completed).length }
               };
             } else if (funcName === 'add_task') {
-              const newTask = await Task.create({ ...args, userId: session.userId });
-              result = { success: true, task: newTask };
+              const taskText = typeof args.text === 'string' ? args.text.trim().slice(0, 200) : '';
+              if (!taskText) {
+                result = { error: "Task text is required" };
+              } else {
+                const newTask = await Task.create({ 
+                  text: taskText,
+                  category: args.category || 'General',
+                  priority: args.priority || 'medium',
+                  isRegular: Boolean(args.isRegular),
+                  userId: session.userId 
+                });
+                result = { success: true, task: newTask };
+              }
             } else if (funcName === 'get_schedule') {
               const schedule = await Schedule.find({ userId: session.userId }).sort({ startTime: 1 });
               result = { schedule };
             } else if (funcName === 'add_schedule_block') {
-              const newBlock = await Schedule.create({ ...args, userId: session.userId });
-              result = { success: true, block: newBlock };
+              const blockTitle = typeof args.title === 'string' ? args.title.trim().slice(0, 100) : '';
+              if (!blockTitle || !args.startTime || !args.endTime) {
+                result = { error: "Schedule title, startTime, and endTime are required" };
+              } else {
+                const newBlock = await Schedule.create({ 
+                  title: blockTitle,
+                  startTime: args.startTime,
+                  endTime: args.endTime,
+                  userId: session.userId 
+                });
+                result = { success: true, block: newBlock };
+              }
             } else {
               result = { error: "Unknown tool" };
             }

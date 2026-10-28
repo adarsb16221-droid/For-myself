@@ -20,6 +20,7 @@ const TaskSchema = new mongoose.Schema({
   completedAt: { type: String, default: null },
   history: { type: [String], default: [] },
   lastPenaltyDate: { type: String, default: null },
+  lastPointsAwardedDate: { type: String, default: null },
   subtasksResetAt: { type: String, default: null },
   linkedGoalId: { type: String, default: null },
   subtasks: {
@@ -36,6 +37,8 @@ const TaskSchema = new mongoose.Schema({
   toJSON: { getters: true },
   toObject: { getters: true }
 });
+
+TaskSchema.index({ userId: 1, order: 1, createdAt: -1 });
 
 delete mongoose.models.Task;
 export default mongoose.model('Task', TaskSchema);

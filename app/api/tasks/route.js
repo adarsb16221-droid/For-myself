@@ -46,8 +46,6 @@ export async function GET(req) {
           if (!task.history.includes(yesterdayStr) && task.lastPenaltyDate !== yesterdayStr) {
             task.lastPenaltyDate = yesterdayStr;
             await task.save();
-            // Point deduction removed as per request
-            // await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: -1 } });
             hasUpdates = true;
           }
         }
@@ -116,9 +114,9 @@ export async function PUT(req) {
     }
 
     const updateOps = { $set: restUpdateData };
+    const todayDateStr = new Date().toISOString().split('T')[0];
     
     if (existingTask.isRegular) {
-      const todayDateStr = new Date().toISOString().split('T')[0];
       if (restUpdateData.completed === true && !existingTask.completed) {
         updateOps.$addToSet = { history: todayDateStr };
       } else if (restUpdateData.completed === false && existingTask.completed) {
@@ -126,23 +124,20 @@ export async function PUT(req) {
       }
     }
     
+    // Anti-farming points logic: award +1 point only if not already awarded today for this task
+    if (restUpdateData.completed === true && !existingTask.completed) {
+      if (existingTask.lastPointsAwardedDate !== todayDateStr) {
+        updateOps.$set.lastPointsAwardedDate = todayDateStr;
+        await User.findByIdAndUpdate(session.userId, { $inc: { orbitPoints: 1 } });
+      }
+    }
+
     const task = await Task.findOneAndUpdate(
       { _id, userId: session.userId },
       updateOps,
       { new: true }
     );
     if (!task) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-
-    // Points logic
-    if (restUpdateData.completed !== undefined && restUpdateData.completed !== existingTask.completed) {
-      if (restUpdateData.completed) {
-        const user = await User.findById(session.userId);
-        if (user) {
-          const currentPoints = Math.max(0, user.orbitPoints || 0);
-          await User.findByIdAndUpdate(session.userId, { orbitPoints: currentPoints + 1 });
-        }
-      }
-    }
 
     return NextResponse.json(task);
   } catch (error) {

@@ -37,9 +37,21 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  resetOtpAttempts: {
+    type: Number,
+    default: 0,
+  },
+  lastOtpSentAt: {
+    type: Date,
+    default: null,
+  },
   orbitPoints: {
     type: Number,
     default: 0,
+  },
+  lastFocusPointsAwardedAt: {
+    type: Date,
+    default: null,
   },
   friends: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -54,6 +66,10 @@ const UserSchema = new mongoose.Schema({
     default: null,
   },
 }, { timestamps: true });
+
+UserSchema.index({ name: 1 });
+UserSchema.index({ email: 1 });
+UserSchema.index({ orbitPoints: -1 });
 
 delete mongoose.models.User;
 export default mongoose.model('User', UserSchema);

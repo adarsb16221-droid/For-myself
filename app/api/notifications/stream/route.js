@@ -12,36 +12,46 @@ export async function GET(req) {
   }
 
   const userId = session.userId.toString();
-
   let controllerRef = null;
+  let isCleanedUp = false;
+
+  const cleanup = (intervalId) => {
+    if (isCleanedUp) return;
+    isCleanedUp = true;
+    if (intervalId) clearInterval(intervalId);
+    if (controllerRef) {
+      removeClient(userId, controllerRef);
+    }
+  };
 
   const stream = new ReadableStream({
     start(controller) {
       controllerRef = controller;
       addClient(userId, controller);
       
-      // Send an initial heartbeat
       const encoder = new TextEncoder();
-      controller.enqueue(encoder.encode(`data: {"type": "connected"}\n\n`));
+      try {
+        controller.enqueue(encoder.encode(`data: {"type": "connected"}\n\n`));
+      } catch (e) {
+        cleanup();
+        return;
+      }
 
       // Keep connection alive with a heartbeat every 30 seconds
       const heartbeatInterval = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(`data: {"type": "heartbeat"}\n\n`));
         } catch (e) {
-          clearInterval(heartbeatInterval);
+          cleanup(heartbeatInterval);
         }
       }, 30000);
 
       req.signal.addEventListener('abort', () => {
-        clearInterval(heartbeatInterval);
-        removeClient(userId, controller);
+        cleanup(heartbeatInterval);
       });
     },
     cancel() {
-      if (controllerRef) {
-        removeClient(userId, controllerRef);
-      }
+      cleanup();
     }
   });
 

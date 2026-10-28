@@ -5,8 +5,19 @@ import Journal from '@/models/Journal';
 import fs from 'fs';
 import path from 'path';
 
-export async function GET() {
+export async function GET(req) {
   try {
+    const { searchParams } = new URL(req.url);
+    const secret = searchParams.get('secret') || req.headers.get('x-migration-secret');
+    const validSecret = process.env.MIGRATION_SECRET;
+
+    // Strictly protect migration route: cannot run without configured secret
+    if (!validSecret || secret !== validSecret) {
+      return NextResponse.json({ 
+        error: 'Forbidden. Migration is disabled or unauthorized.' 
+      }, { status: 403 });
+    }
+
     await connectToDatabase();
     
     const backupDir = path.join(process.cwd(), 'backup');
@@ -19,9 +30,9 @@ export async function GET() {
     if (fs.existsSync(tasksFile)) {
         const tasksData = JSON.parse(fs.readFileSync(tasksFile, 'utf-8'));
         if (Array.isArray(tasksData) && tasksData.length > 0) {
-            await Task.deleteMany({}); // clear existing
+            // Note: deleteMany is only permitted when explicitly authenticated with MIGRATION_SECRET
+            await Task.deleteMany({}); 
             
-            // Map old fields to new schema
             const mappedTasks = tasksData.map(t => ({
                 text: t.text,
                 category: t.category,
@@ -60,7 +71,7 @@ export async function GET() {
         journalsMigrated 
     });
   } catch (error) {
-    console.error(error);
+    console.error('Migration error:', error);
     return NextResponse.json({ error: 'Migration failed', details: error.message }, { status: 500 });
   }
 }

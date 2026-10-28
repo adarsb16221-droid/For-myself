@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const secretKey = process.env.JWT_SECRET || 'fallback-secret-key-for-dev-only-change-it';
+const secretKey = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' 
+  ? (() => { throw new Error('SECURITY FATAL: JWT_SECRET environment variable is missing in production!'); })() 
+  : 'fallback-secret-key-for-dev-only-change-it');
+
 const key = new TextEncoder().encode(secretKey);
 
 export async function middleware(request) {
