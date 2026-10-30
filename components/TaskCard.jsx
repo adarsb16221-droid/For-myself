@@ -76,16 +76,16 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
   };
 
   // Determine colors based on category/priority
-  let badgeClass = 'bg-surface-variant text-on-surface-variant border border-on-surface/10';
-  if (task.category === 'Work') badgeClass = 'bg-primary/20 text-primary border border-primary/10';
-  if (task.category === 'Health') badgeClass = 'bg-secondary-container/20 text-secondary border border-secondary/10';
-  if (task.category === 'Personal') badgeClass = 'bg-tertiary/20 text-tertiary border border-tertiary/10';
-  if (task.category === 'Wealth') badgeClass = 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/10';
-  if (task.category === 'Knowledge') badgeClass = 'bg-blue-500/20 text-blue-500 border border-blue-500/10';
+  let badgeClass = 'bg-on-surface/5 text-on-surface-variant';
+  if (task.category === 'Work') badgeClass = 'bg-primary/10 text-primary';
+  if (task.category === 'Health') badgeClass = 'bg-secondary/10 text-secondary';
+  if (task.category === 'Personal') badgeClass = 'bg-tertiary/10 text-tertiary';
+  if (task.category === 'Wealth') badgeClass = 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400';
+  if (task.category === 'Knowledge') badgeClass = 'bg-sky-500/10 text-sky-700 dark:text-sky-400';
 
   return (
     <div 
-      className={`glass-card rounded-xl p-3 flex flex-col gap-1.5 task-item cursor-pointer transition-all duration-300 ${isExpanded ? 'bg-surface/80 shadow-md ring-1 ring-white/10' : 'hover:bg-surface/40'} ${isCompleted ? 'opacity-60' : ''} ${showMoveMenu ? 'relative z-30' : isExpanded ? 'relative z-10' : 'relative z-0'}`}
+      className={`glass-card rounded-xl p-3 flex flex-col gap-1.5 task-item cursor-pointer transition-all duration-300 ${isExpanded ? 'border-outline' : ''} ${isCompleted ? 'opacity-60' : ''} ${showMoveMenu ? 'relative z-30' : isExpanded ? 'relative z-10' : 'relative z-0'}`}
       draggable={!isLoading && !isEditing}
       onDragStart={(e) => onDragStart && onDragStart(e, task)}
       onDragOver={(e) => onDragOver && onDragOver(e)}
@@ -151,7 +151,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                         className="fixed inset-0 z-40" 
                         onClick={(e) => { e.stopPropagation(); setShowMoveMenu(false); }} 
                       />
-                      <div className="absolute right-0 top-full mt-1.5 bg-surface-container-high/95 dark:bg-surface-container-highest/95 backdrop-blur-md border border-on-surface/15 rounded-lg shadow-xl z-50 flex flex-col min-w-[145px] py-1 animate-in fade-in zoom-in-95">
+                      <div className="absolute right-0 top-full mt-1.5 bg-surface-container-lowest dark:bg-surface-container-high border border-outline-variant rounded-lg shadow-lg z-50 flex flex-col min-w-[145px] py-1 animate-in fade-in zoom-in-95">
                         <button 
                           className="px-3 py-1.5 text-left text-xs hover:bg-on-surface/10 text-on-surface flex items-center gap-2 transition-colors" 
                           onClick={(e) => { e.stopPropagation(); onMove(task, 'first'); setShowMoveMenu(false); }}
@@ -217,7 +217,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
             />
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex flex-wrap gap-1.5">
-                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-medium ${badgeClass}`}>
                   {task.category}
                 </span>
                 {task.linkedGoalId && (
@@ -266,7 +266,7 @@ export default function TaskCard({ task, onToggle, onDelete, onUpdate, onMove, i
                   {task.text}
                 </span>
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                  <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-medium ${badgeClass}`}>
                     {task.category}
                   </span>
                   {task.linkedGoalId && (

@@ -5,7 +5,8 @@ const JournalSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   date: { type: String, required: true }, // Format: YYYY-MM-DD
   content: { type: String, default: '', get: decrypt, set: encrypt },
-}, { 
+  mood: { type: String, enum: ['great', 'good', 'okay', 'low', 'rough', null], default: null },
+}, {
   timestamps: true,
   toJSON: { getters: true },
   toObject: { getters: true }

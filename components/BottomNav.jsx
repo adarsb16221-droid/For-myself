@@ -20,17 +20,17 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-2 h-16 bg-on-surface/5 dark:bg-surface-container-lowest/40 backdrop-blur-2xl border-t border-on-surface/10 rounded-t-xl shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-2 h-16 bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         return (
           <Link 
             key={item.name} 
             href={item.href}
-            className={`flex flex-col items-center justify-center transition-all duration-150 active:scale-90 ${
+            className={`flex flex-col items-center justify-center transition-colors ${
               isActive 
-                ? 'text-black scale-110 font-extrabold' 
-                : 'text-black opacity-60 hover:opacity-100'
+                ? 'text-primary' 
+                : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <span 
@@ -39,7 +39,7 @@ export default function BottomNav() {
             >
               {item.icon}
             </span>
-            <span className="font-label-caps text-[8px] mt-0.5 font-bold uppercase">{item.name}</span>
+            <span className="text-[9px] mt-0.5 font-medium">{item.name}</span>
           </Link>
         );
       })}

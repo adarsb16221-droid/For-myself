@@ -3,9 +3,15 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import TaskCard from '@/components/TaskCard';
+import TaskSection from '@/components/TaskSection';
 import Pomodoro from '@/components/Pomodoro';
-import Spinner from '@/components/Spinner';
+import Button from '@/components/ui/Button';
+import Modal from '@/components/ui/Modal';
 import { useAuth } from '@/hooks/useAuth';
+
+const HABIT_CATEGORIES = ['Health', 'Wealth', 'Knowledge'];
+const FOCUS_CATEGORIES = ['Work', 'Personal', 'General', 'Health', 'Wealth', 'Knowledge'];
+const GOAL_CATEGORIES = ['Personal', 'Work', 'Health', 'Wealth', 'Knowledge'];
 
 export default function Home() {
   const { user } = useAuth();
@@ -16,22 +22,6 @@ export default function Home() {
   
   const [schedule, setSchedule] = useState([]);
   
-  // Habit Add State
-  const [showAddHabit, setShowAddHabit] = useState(false);
-  const [habitInput, setHabitInput] = useState('');
-  const [habitCategory, setHabitCategory] = useState('Health');
-
-  // Focus Task Add State
-  const [showAddFocus, setShowAddFocus] = useState(false);
-  const [focusInput, setFocusInput] = useState('');
-  const [focusCategory, setFocusCategory] = useState('Work');
-  const [focusLinkedGoal, setFocusLinkedGoal] = useState('');
-
-  // Goal Add State
-  const [showAddGoal, setShowAddGoal] = useState(false);
-  const [goalInput, setGoalInput] = useState('');
-  const [goalCategory, setGoalCategory] = useState('Personal');
-
   const [currentBlock, setCurrentBlock] = useState(null);
   
   // Done Tasks Modal State
@@ -168,32 +158,14 @@ export default function Home() {
 
 
 
-  const addTask = async (e, type) => {
-    e.preventDefault();
-    let input = focusInput;
-    let category = focusCategory;
-    let isRegular = false;
-    let isGoal = false;
-    
-    if (type === 'habit') {
-      input = habitInput;
-      category = habitCategory;
-      isRegular = true;
-    } else if (type === 'goal') {
-      input = goalInput;
-      category = goalCategory;
-      isGoal = true;
-    }
-    
-    if (!input.trim()) return;
-    
+  const addTask = async (type, { text, category, linkedGoalId }) => {
     const newTask = {
-      text: input,
-      category: category,
+      text,
+      category,
       priority: 'medium',
-      isRegular: isRegular,
-      isGoal: isGoal,
-      linkedGoalId: type === 'focus' && focusLinkedGoal ? focusLinkedGoal : null
+      isRegular: type === 'habit',
+      isGoal: type === 'goal',
+      linkedGoalId: type === 'focus' ? linkedGoalId : null
     };
 
     try {
@@ -204,22 +176,13 @@ export default function Home() {
       });
       if (res.ok) {
         const createdTask = await res.json();
-        setTasks([createdTask, ...tasks]);
-        if (type === 'habit') {
-          setHabitInput('');
-          setShowAddHabit(false);
-        } else if (type === 'goal') {
-          setGoalInput('');
-          setShowAddGoal(false);
-        } else {
-          setFocusInput('');
-          setFocusLinkedGoal('');
-          setShowAddFocus(false);
-        }
+        setTasks(prevTasks => [createdTask, ...prevTasks]);
+        return true;
       }
     } catch(e) {
       console.error(e);
     }
+    return false;
   };
 
   const toggleTask = async (task) => {
@@ -235,14 +198,17 @@ export default function Home() {
     };
     
     try {
-      await fetch('/api/tasks', {
+      const res = await fetch('/api/tasks', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated)
       });
-      setTasks(tasks.map(t => t._id === task._id ? updated : t));
+      if (!res.ok) return false;
+      setTasks(prevTasks => prevTasks.map(t => t._id === task._id ? updated : t));
+      return true;
     } catch(e) { 
       console.error(e); 
+      return false;
     } finally {
       setProcessingTasks(prev => {
         const next = new Set(prev);
@@ -484,320 +450,134 @@ export default function Home() {
         const cRes = await fetch('/api/challenges', { cache: 'no-store' });
         if (cRes.ok) setChallenges(await cRes.json());
       }
+      return res.ok;
     } catch (e) {
       console.error('Failed to toggle challenge task', e);
+      return false;
     }
   };
 
   const tasksCompleted = completedTasks.length;
+  const habitsTotal = tasks.filter(t => t.isRegular).length;
+  const habitsDone = habitsTotal - dailyTasks.length;
+
+  const renderTask = (task) => (
+    <TaskCard
+      key={task._id}
+      task={task}
+      onToggle={toggleTask}
+      onDelete={deleteTask}
+      onUpdate={updateTask}
+      onMove={moveTask}
+      isLoading={processingTasks.has(task._id)}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    />
+  );
+
+  const renderChallengeTask = (task) => (
+    <TaskCard
+      key={task._id}
+      task={task}
+      onToggle={() => toggleChallengeTask(task)}
+      onDelete={() => {}}
+      onUpdate={() => {}}
+      onMove={() => {}}
+      isLoading={false}
+    />
+  );
 
   const actionButton = (
-    <button 
-      onClick={() => setShowDoneTasks(true)}
-      className="px-4 py-2 rounded-full flex items-center justify-center bg-primary text-on-primary hover:bg-primary/90 transition-all text-xs font-semibold shadow-[0_0_15px_rgba(70,72,212,0.3)] hover:scale-105 gap-1.5"
-    >
-      <span className="material-symbols-outlined text-[16px]">task_alt</span>
-      Done Tasks
-    </button>
+    <Button variant="secondary" size="sm" onClick={() => setShowDoneTasks(true)}>
+      Done{tasksCompleted > 0 ? ` (${tasksCompleted})` : ''}
+    </Button>
   );
 
   return (
     <>
-      <Header title="Dashboard" subtitle="Greeting" tasksCompleted={tasksCompleted} currentScheduleBlock={currentBlock} actionButton={actionButton} />
-      
-      <main className="px-4 py-6 flex flex-col gap-6 max-w-[1200px] mx-auto w-full flex-1">
+      <Header title="Dashboard" subtitle="Greeting" currentScheduleBlock={currentBlock} actionButton={actionButton} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Challenge Tasks */}
-          <section className="col-span-1 flex flex-col">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                <span className="material-symbols-outlined text-[18px]">social_leaderboard</span> Challenge Tasks
-              </h3>
+      <main className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-8 px-4 py-6 md:px-6">
+
+        {!isLoadingTasks && habitsTotal > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-on-surface-variant">
+              {habitsDone === habitsTotal
+                ? `All ${habitsTotal} habits done today. Nice work.`
+                : `${habitsDone} of ${habitsTotal} habits done today`}
+            </p>
+            <div className="h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-surface-container-high">
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-500"
+                style={{ width: `${Math.round((habitsDone / habitsTotal) * 100)}%` }}
+              />
             </div>
+          </div>
+        )}
 
-            <div className="flex flex-col gap-2 mt-[10px]">
-              {isLoadingTasks ? (
-                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
-              ) : challengeTasks.length === 0 ? (
-                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No pending challenge tasks.</p>
-              ) : (
-                challengeTasks.map(task => (
-                  <TaskCard 
-                    key={task._id} 
-                    task={task} 
-                    onToggle={() => toggleChallengeTask(task)} 
-                    onDelete={() => {}} 
-                    onUpdate={() => {}}
-                    onMove={() => {}}
-                    isLoading={false}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                  />
-                ))
-              )}
-            </div>
-          </section>
-
-          {/* Daily Habits (Smaller Area) */}
-          <section className="col-span-1 flex flex-col">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                <span className="material-symbols-outlined text-[18px]">routine</span> Daily Habits
-              </h3>
-              <button 
-                onClick={() => setShowAddHabit(!showAddHabit)}
-                className="text-primary text-xs font-medium hover:underline flex items-center gap-1 transition-all"
-              >
-                <span className="material-symbols-outlined text-[16px]">{showAddHabit ? 'close' : 'add'}</span> 
-                {showAddHabit ? 'Cancel' : 'Add'}
-              </button>
-            </div>
-            
-            {showAddHabit && (
-              <form onSubmit={(e) => addTask(e, 'habit')} className="mb-3 glass-panel p-2.5 rounded-lg flex flex-col gap-2 shadow-md animate-in slide-in-from-top-2">
-                <input 
-                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-xs transition-all" 
-                  placeholder="New habit..." 
-                  type="text"
-                  autoFocus
-                  value={habitInput}
-                  onChange={(e) => setHabitInput(e.target.value)}
-                />
-                <div className="flex justify-between items-center">
-                  <select 
-                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all"
-                    value={habitCategory}
-                    onChange={(e) => setHabitCategory(e.target.value)}
-                  >
-                    <option value="Health">Health</option>
-                    <option value="Wealth">Wealth</option>
-                    <option value="Knowledge">Knowledge</option>
-                  </select>
-                  <button type="submit" className="bg-primary text-on-primary px-3 py-1 rounded-lg text-xs font-semibold hover:scale-105 transition-transform">
-                    Add
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="flex flex-col gap-2 mt-[10px]">
-              {isLoadingTasks ? (
-                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
-              ) : dailyTasks.length === 0 ? (
-                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No daily habits yet.</p>
-              ) : (
-                dailyTasks.map(task => (
-                  <TaskCard 
-                    key={task._id} 
-                    task={task} 
-                    onToggle={toggleTask} 
-                    onDelete={deleteTask} 
-                    onUpdate={updateTask}
-                    onMove={moveTask}
-                    isLoading={processingTasks.has(task._id)}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                  />
-                ))
-              )}
-            </div>
-          </section>
-
-          {/* One-off Tasks (Focus Tasks) */}
-          <section className="col-span-1 flex flex-col">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                <span className="material-symbols-outlined text-[18px]">checklist</span> Focus Tasks
-              </h3>
-              <button 
-                onClick={() => setShowAddFocus(!showAddFocus)}
-                className="text-primary text-xs font-medium hover:underline flex items-center gap-1 transition-all"
-              >
-                <span className="material-symbols-outlined text-[16px]">{showAddFocus ? 'close' : 'add'}</span> 
-                {showAddFocus ? 'Cancel' : 'Add'}
-              </button>
-            </div>
-
-            {showAddFocus && (
-              <form onSubmit={(e) => addTask(e, 'focus')} className="mb-3 glass-panel p-2.5 rounded-lg flex flex-col gap-2 shadow-md animate-in slide-in-from-top-2">
-                <input 
-                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-xs transition-all" 
-                  placeholder="New focus task..." 
-                  type="text"
-                  autoFocus
-                  value={focusInput}
-                  onChange={(e) => setFocusInput(e.target.value)}
-                />
-                <div className="flex justify-between items-center flex-wrap gap-2">
-                  <div className="flex gap-2">
-                    <select 
-                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all"
-                      value={focusCategory}
-                      onChange={(e) => setFocusCategory(e.target.value)}
-                    >
-                      <option value="Work">Work</option>
-                      <option value="Personal">Personal</option>
-                      <option value="General">General</option>
-                      <option value="Health">Health</option>
-                      <option value="Wealth">Wealth</option>
-                      <option value="Knowledge">Knowledge</option>
-                    </select>
-                    <select
-                      className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all max-w-[90px] truncate"
-                      value={focusLinkedGoal}
-                      onChange={(e) => setFocusLinkedGoal(e.target.value)}
-                    >
-                      <option value="">No Goal</option>
-                      {goalTasks.map(g => (
-                        <option key={g._id} value={g._id}>{g.text}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <button type="submit" className="bg-primary text-on-primary px-3 py-1 rounded-lg text-xs font-semibold hover:scale-105 transition-transform">
-                    Add
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="flex flex-col gap-2 mt-[10px]">
-              {isLoadingTasks ? (
-                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
-              ) : oneOffTasks.length === 0 ? (
-                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No tasks remaining.</p>
-              ) : (
-                oneOffTasks.map(task => (
-                  <TaskCard 
-                    key={task._id} 
-                    task={task} 
-                    onToggle={toggleTask} 
-                    onDelete={deleteTask} 
-                    onUpdate={updateTask}
-                    onMove={moveTask}
-                    isLoading={processingTasks.has(task._id)}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                  />
-                ))
-              )}
-            </div>
-          </section>
-
-          {/* Long Term Goals */}
-          <section className="col-span-1 flex flex-col">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-title-sm text-[16px] font-semibold flex items-center gap-2 text-primary-fixed-dim">
-                <span className="material-symbols-outlined text-[18px]">flag</span> Long Term Goals
-              </h3>
-              <button 
-                onClick={() => setShowAddGoal(!showAddGoal)}
-                className="text-primary text-xs font-medium hover:underline flex items-center gap-1 transition-all"
-              >
-                <span className="material-symbols-outlined text-[16px]">{showAddGoal ? 'close' : 'add'}</span> 
-                {showAddGoal ? 'Cancel' : 'Add'}
-              </button>
-            </div>
-
-            {showAddGoal && (
-              <form onSubmit={(e) => addTask(e, 'goal')} className="mb-3 glass-panel p-2.5 rounded-lg flex flex-col gap-2 shadow-md animate-in slide-in-from-top-2">
-                <input 
-                  className="w-full bg-surface-container-high/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary text-xs transition-all" 
-                  placeholder="New goal..." 
-                  type="text"
-                  autoFocus
-                  value={goalInput}
-                  onChange={(e) => setGoalInput(e.target.value)}
-                />
-                <div className="flex justify-between items-center">
-                  <select 
-                    className="bg-surface-container-high/50 border border-white/10 rounded-lg px-1.5 py-1 text-on-surface text-[11px] focus:outline-none focus:border-primary cursor-pointer transition-all"
-                    value={goalCategory}
-                    onChange={(e) => setGoalCategory(e.target.value)}
-                  >
-                    <option value="Personal">Personal</option>
-                    <option value="Work">Work</option>
-                    <option value="Health">Health</option>
-                    <option value="Wealth">Wealth</option>
-                    <option value="Knowledge">Knowledge</option>
-                  </select>
-                  <button type="submit" className="bg-primary text-on-primary px-3 py-1 rounded-lg text-xs font-semibold hover:scale-105 transition-transform">
-                    Add
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="flex flex-col gap-2 mt-[10px]">
-              {isLoadingTasks ? (
-                <div className="py-4 col-span-full flex justify-center"><Spinner size="md" /></div>
-              ) : goalTasks.length === 0 ? (
-                <p className="text-on-surface-variant text-sm italic opacity-70 col-span-full">No goals yet.</p>
-              ) : (
-                goalTasks.map(task => (
-                  <TaskCard 
-                    key={task._id} 
-                    task={task} 
-                    onToggle={toggleTask} 
-                    onDelete={deleteTask} 
-                    onUpdate={updateTask}
-                    onMove={moveTask}
-                    isLoading={processingTasks.has(task._id)}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                  />
-                ))
-              )}
-            </div>
-          </section>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          <TaskSection
+            title="Challenges"
+            tasks={challengeTasks}
+            isLoading={isLoadingTasks}
+            emptyText="No open challenges. Challenge a friend from the Challenges page."
+            renderTask={renderChallengeTask}
+          />
+          <TaskSection
+            title="Daily habits"
+            tasks={dailyTasks}
+            isLoading={isLoadingTasks}
+            emptyText={habitsTotal > 0 ? 'Every habit is done for today.' : 'Add a habit you want to do every day.'}
+            renderTask={renderTask}
+            addForm={{ placeholder: 'e.g. Read 20 pages', categories: HABIT_CATEGORIES, onAdd: values => addTask('habit', values) }}
+          />
+          <TaskSection
+            title="Focus tasks"
+            tasks={oneOffTasks}
+            isLoading={isLoadingTasks}
+            emptyText="Nothing left to do. Add what matters most today."
+            renderTask={renderTask}
+            addForm={{ placeholder: 'e.g. Finish the project report', categories: FOCUS_CATEGORIES, goals: goalTasks, onAdd: values => addTask('focus', values) }}
+          />
+          <TaskSection
+            title="Long-term goals"
+            tasks={goalTasks}
+            isLoading={isLoadingTasks}
+            emptyText="Set a goal to work towards over the next few months."
+            renderTask={renderTask}
+            addForm={{ placeholder: 'e.g. Run a half marathon', categories: GOAL_CATEGORIES, onAdd: values => addTask('goal', values) }}
+          />
         </div>
 
-        {/* Pomodoro Widget */}
         <Pomodoro />
       </main>
 
-      {/* Done Tasks Modal */}
       {showDoneTasks && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-surface-container rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[80vh] overflow-hidden border border-white/10 animate-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-surface/50 backdrop-blur-md">
-              <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[24px]">task_alt</span> Done Tasks
-              </h2>
-              <button onClick={() => setShowDoneTasks(false)} className="p-2 rounded-full hover:bg-white/10 text-on-surface-variant transition-colors flex items-center justify-center">
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
-            </div>
-            <div className="p-5 overflow-y-auto flex-1 flex flex-col gap-3 custom-scrollbar">
-              {completedTasks.length === 0 ? (
-                <div className="text-center py-12 opacity-70">
-                  <span className="material-symbols-outlined text-5xl mb-3 block text-on-surface-variant">inbox</span>
-                  <p className="text-on-surface-variant">No completed tasks yet.</p>
-                </div>
-              ) : (
-                completedTasks.map(task => (
-                  <div key={task._id} className="p-3 bg-surface/80 rounded-xl border border-white/5 flex justify-between items-center opacity-80 hover:opacity-100 hover:border-white/20 transition-all group">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="line-through text-sm font-medium text-on-surface-variant">{task.text}</span>
-                      <span className="text-[10px] uppercase tracking-wider text-primary/70">{task.category}</span>
-                    </div>
-                    <button 
-                      onClick={() => toggleTask(task)} 
-                      disabled={processingTasks.has(task._id)}
-                      className="text-xs font-semibold text-primary hover:text-on-primary hover:bg-primary px-3 py-1.5 rounded-lg bg-primary/10 transition-colors disabled:opacity-50"
-                    >
-                      {processingTasks.has(task._id) ? '...' : 'Undo'}
-                    </button>
+        <Modal title="Done tasks" onClose={() => setShowDoneTasks(false)}>
+          {completedTasks.length === 0 ? (
+            <p className="py-10 text-center text-sm text-on-surface-variant">Tasks you finish will show up here.</p>
+          ) : (
+            <ul className="flex flex-col divide-y divide-outline-variant">
+              {completedTasks.map(task => (
+                <li key={task._id} className="flex items-center justify-between gap-3 py-3">
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-sm text-on-surface-variant line-through">{task.text}</span>
+                    <span className="text-xs text-on-surface-variant/80">{task.category}</span>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => toggleTask(task)}
+                    disabled={processingTasks.has(task._id)}
+                  >
+                    {processingTasks.has(task._id) ? 'Undoing…' : 'Undo'}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Modal>
       )}
     </>
   );

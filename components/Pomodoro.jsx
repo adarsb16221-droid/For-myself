@@ -35,11 +35,10 @@ export default function Pomodoro() {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden border-t-2 border-primary/30">
-      <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full"></div>
+    <div className="glass-panel rounded-xl p-6 flex flex-col items-center justify-center">
       
       <div className="z-10 flex w-full justify-between items-center mb-2">
-        <h4 className="font-label-caps text-[12px] text-on-surface-variant tracking-widest uppercase">
+        <h4 className="font-title-sm text-[15px] font-semibold text-on-surface">
           {timerMode === 25 ? 'Deep Focus' : 'Short Break'}
         </h4>
         <button onClick={toggleMode} className="text-xs text-primary hover:underline">
@@ -48,7 +47,7 @@ export default function Pomodoro() {
       </div>
 
       <div 
-        className="font-display-lg text-[48px] font-bold text-primary z-10 my-2 tracking-tighter" 
+        className="font-display-lg text-[56px] font-semibold text-on-surface z-10 my-2 tracking-tight" 
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
         {formatTime(timerSeconds)}
@@ -57,20 +56,20 @@ export default function Pomodoro() {
       <div className="flex gap-4 z-10 mt-4">
         <button 
           onClick={resetTimer}
-          className="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-on-surface/5 transition-colors border-on-surface/20 hover:scale-105 active:scale-95"
+          className="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center hover:bg-on-surface/5 transition-colors"
         >
           <span className="material-symbols-outlined text-on-surface">replay</span>
         </button>
         <button 
           onClick={() => setIsTimerRunning(!isTimerRunning)}
-          className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(192,193,255,0.4)] hover:scale-105 active:scale-95 transition-all"
+          className="w-14 h-14 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
         >
           <span className="material-symbols-outlined text-on-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
             {isTimerRunning ? 'pause' : 'play_arrow'}
           </span>
         </button>
         <button 
-          className="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:bg-on-surface/5 transition-colors border-on-surface/20 hover:scale-105 active:scale-95 opacity-50 cursor-not-allowed"
+          className="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center opacity-40 cursor-not-allowed"
         >
           <span className="material-symbols-outlined text-on-surface">skip_next</span>
         </button>

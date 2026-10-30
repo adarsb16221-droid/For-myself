@@ -11,10 +11,10 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const cronSecret = process.env.CRON_SECRET || 'hawk-cron-secret';
+    const cronSecret = process.env.CRON_SECRET;
     const authHeader = req.headers.get('authorization');
     const secretParam = searchParams.get('secret');
-    const isAuthorized = (authHeader === `Bearer ${cronSecret}`) || (secretParam === cronSecret);
+    const isAuthorized = !!cronSecret && ((authHeader === `Bearer ${cronSecret}`) || (secretParam === cronSecret));
 
     if (!isAuthorized && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized. Invalid cron secret.' }, { status: 401 });

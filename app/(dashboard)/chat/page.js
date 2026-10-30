@@ -1,13 +1,11 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import Header from '@/components/Header';
+import ClassicHeader from '@/components/ClassicHeader';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import FaceAvatar from '@/components/FaceAvatar';
-import CryptoJS from 'crypto-js';
 
-const CHAT_SECRET_KEY = 'hawk_frontend_secure_chat_key_99';
 
 // Clean markdown for TTS
 function cleanTextForSpeech(text) {
@@ -196,8 +194,8 @@ export default function ChatPage() {
 
   return (
     <>
-      <main className="relative flex flex-col w-full h-full min-h-[calc(100vh-80px)] flex-1 overflow-hidden bg-background text-on-background">
-        <Header title="AI Chat & Focus" />
+      <main className="classic-theme relative flex flex-col w-full h-full min-h-[calc(100vh-80px)] flex-1 overflow-hidden bg-background text-on-background">
+        <ClassicHeader title="AI Chat & Focus" />
         
         {/* 1. Global Background Image (Adapts to light/dark mode) */}
         <div className="absolute inset-0 z-0 pointer-events-none">

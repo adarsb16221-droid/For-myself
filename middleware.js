@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const secretKey = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' 
-  ? (() => { throw new Error('SECURITY FATAL: JWT_SECRET environment variable is missing in production!'); })() 
-  : 'fallback-secret-key-for-dev-only-change-it');
-
-const key = new TextEncoder().encode(secretKey);
+// Read lazily so `next build` can load this module without runtime secrets
+let key = null;
+function getKey() {
+  if (key) return key;
+  const secretKey = process.env.JWT_SECRET;
+  if (!secretKey && process.env.NODE_ENV === 'production') {
+    throw new Error('SECURITY FATAL: JWT_SECRET environment variable is missing in production!');
+  }
+  key = new TextEncoder().encode(secretKey || 'fallback-secret-key-for-dev-only-change-it');
+  return key;
+}
 
 export async function middleware(request) {
   let sessionCookie = request.cookies.get('session')?.value;
@@ -34,7 +40,7 @@ export async function middleware(request) {
   // If there's a session, verify it
   if (sessionCookie) {
     try {
-      await jwtVerify(sessionCookie, key, {
+      await jwtVerify(sessionCookie, getKey(), {
         algorithms: ['HS256'],
       });
 

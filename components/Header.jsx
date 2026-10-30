@@ -48,10 +48,10 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
   };
 
   return (
-    <header className="relative z-40 glass-panel px-4 py-2 md:px-6 md:py-3 flex flex-col gap-1 rounded-b-xl shadow-lg border-b border-on-surface/10">
+    <header className="sticky top-0 z-40 bg-surface/95 px-4 py-3 md:px-6 md:py-4 flex flex-col gap-1 border-b border-outline-variant">
       <div className="flex justify-between items-center w-full">
         <div>
-          <h1 className="font-headline-md text-[18px] md:text-[20px] font-bold tracking-tight text-primary">{title}</h1>
+          <h1 className="font-body-sm text-[13px] font-medium text-on-surface-variant">{title}</h1>
         </div>
         <div className="flex items-center gap-3">
           {actionButton}
@@ -60,18 +60,18 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
               setIsModalOpen(true);
               setHasUnread(false);
             }}
-            className="relative w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
+            className="relative w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5 transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px] md:text-[24px] text-primary-fixed-dim">notifications</span>
+            <span className="material-symbols-outlined text-[20px]">notifications</span>
             {hasUnread && (
               <span className="absolute top-1.5 right-1.5 md:top-2 md:right-2 w-2 h-2 md:w-2.5 md:h-2.5 bg-error rounded-full border-2 border-surface"></span>
             )}
           </button>
           <button 
             onClick={toggleTheme}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-on-surface/5 hover:bg-on-surface/10 transition-colors border border-on-surface/10"
+            className="w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5 transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px] md:text-[24px] text-primary-fixed-dim">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            <span className="material-symbols-outlined text-[20px]">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
           </button>
         </div>
       </div>
@@ -82,8 +82,8 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
             {showDate && <p className="font-body-sm text-[12px] md:text-[14px] text-on-surface-variant">{dateStr}</p>}
             {subtitle ? (
               typeof subtitle === 'string' && subtitle.includes('Greeting') ? (
-                <h2 className="font-display-lg-mobile text-[20px] md:text-[24px] font-bold leading-tight mt-0">
-                  Good <span className="gradient-text">{greeting}</span>{user ? `, ${user.name.split(' ')[0]}` : ''}
+                <h2 className="font-display-lg-mobile text-[22px] md:text-[28px] font-semibold tracking-tight leading-tight mt-0.5">
+                  Good {greeting.toLowerCase()}{user ? `, ${user.name.split(' ')[0]}` : ''}
                 </h2>
               ) : (
                 <h2 className="font-display-lg-mobile text-[20px] md:text-[24px] font-bold leading-tight mt-0">{subtitle}</h2>
@@ -91,22 +91,18 @@ export default function Header({ title, subtitle, showDate = true, tasksComplete
             ) : null}
             {tasksCompleted > 0 && (
               <div className="flex gap-2 mt-2">
-                <span className="inline-flex items-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-semibold bg-secondary/10 text-secondary border border-secondary/20">
-                  <span className="material-symbols-outlined text-[12px] md:text-[14px] mr-1">check_circle</span>
-                  {tasksCompleted} Tasks Completed
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-secondary/10 text-secondary">
+                  {tasksCompleted} tasks completed
                 </span>
               </div>
             )}
           </div>
 
           {currentScheduleBlock && (
-            <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex flex-col min-w-[200px] shadow-sm ml-auto">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined text-primary text-[16px]">schedule</span>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Current Schedule</p>
-              </div>
+            <div className="border-l-2 border-primary pl-3 flex flex-col min-w-[200px] ml-auto">
+              <p className="text-xs font-medium text-on-surface-variant mb-0.5">Now</p>
               <p className="font-body-lg text-on-surface font-medium leading-tight">{currentScheduleBlock.title}</p>
-              <p className="font-label-caps text-[11px] text-outline tracking-widest mt-1">
+              <p className="text-xs text-on-surface-variant mt-0.5">
                 {formatTime(currentScheduleBlock.startTime)} - {formatTime(currentScheduleBlock.endTime)}
               </p>
             </div>
