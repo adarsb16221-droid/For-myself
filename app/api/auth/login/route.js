@@ -18,6 +18,11 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    // Accounts created with Google have no password to compare against
+    if (!user.password) {
+      return NextResponse.json({ error: 'This account uses Google sign-in. Please continue with Google.' }, { status: 401 });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
